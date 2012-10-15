@@ -42,7 +42,7 @@ Even if Spotify satisfied all seven goals, the service’s financial sustainabil
 
 Google’s music streaming service apparently allows [uploading up to 20,000 songs for free](http://play.google.com/about/music/unlock/), which are then “instantly available on the web and your Android phone”. This comes very close to meeting goal #1. Details of the service, such as bitrate and whether it allows exporting listen logs, are not clear.
 
-An [https://gmusic.codeplex.com/](open-source desktop client for Windows) exists and is apparently tolerated by Google. If it is indeed fully open source, other interfaces could be created to satisfy goal #6.
+An [open-source desktop client for Windows](https://gmusic.codeplex.com/) exists and is apparently tolerated by Google. If it is indeed fully open source, other interfaces could be created to satisfy goal #6.
 
 The service is only offered in the U.S., so depending on how that is implemented, the “anywhere” part of goal #1 may not be satisfied — streaming might not work when abroad. Also, as with Spotify, a change or discontinuation of the service is possible at any time.
 
