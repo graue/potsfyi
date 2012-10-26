@@ -18,7 +18,7 @@ class Track(db.Model):
         self.artist, self.title, self.filename = artist, title, filename
 
     def __repr__(self):
-        return '<Track {0.artist} - {0.title}>'.format(self)
+        return u'<Track {0.artist} - {0.title}>'.format(self)
 
 
 @app.route('/player')

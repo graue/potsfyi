@@ -18,7 +18,8 @@ def createdb():
                 artist = tag_info.tags['artist'][0]
                 title = tag_info.tags['title'][0]
                 filename = os.path.join(path, file)[len(music_dir) + 1:]
-                print "Adding {0} - {1} at {2}".format(artist, title, filename)
+                print u"Adding {0} - {1} at {2}".format(artist, title,
+                        unicode(filename, errors='replace'))
                 new_track = Track(artist, title, filename)
                 db.session.add(new_track)
 
