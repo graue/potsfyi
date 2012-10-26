@@ -30,5 +30,19 @@ def player_page():
                            track_url = app.config['MUSIC_DIR'] \
                                    + '/' + track_url)
 
+
+@app.route('/search')
+def search_results():
+    search_artist = request.args.get('artist', '')
+    search_title = request.args.get('title', '')
+    tracks = Track.query.filter(Track.artist.contains(search_artist),
+                                Track.title.contains(search_title)).all()
+    return render_template('searchresults.html', results=tracks)
+
+
+@app.route('/')
+def front_page():
+    return render_template('searchbox.html')
+
 if __name__ == '__main__':
     app.run()

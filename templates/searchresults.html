@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Potsfyi Song Search Results</title>
+    </head>
+    <body>
+        <h2>Song search results</h2>
+        <ul>
+        {% for result in results %}
+            <li><a href="/player?track_url={{ result.filename }}"
+                >{{ result.artist }} - {{ result.title }}</a></li>
+        {% endfor %}
+        </ul>
+    </body>
+</html>
