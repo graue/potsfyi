@@ -1,22 +1,11 @@
 <!DOCTYPE html>
 <html><head><title>HTML5 Audio test</title></head>
-<script>
-    function playtrack() {
-        url = '/static/music/' + document.getElementById('trackurl').value;
-        track = document.getElementById('demo');
-        track.src = url;
-        track.load();
-        track.play();
-    }
-</script>
 <body>
-<audio id="demo" src=""></audio>
+<audio id="demo" src="{{ track_url }}"></audio>
 <div>
   <button onclick="document.getElementById('demo').play()">Play the Audio</button>
   <button onclick="document.getElementById('demo').pause()">Pause the Audio</button>
   <button onclick="document.getElementById('demo').volume+=0.1">Increase Volume</button>
   <button onclick="document.getElementById('demo').volume-=0.1">Decrease Volume</button>
 </div>
-<input type="text" style="width:35em;" id="trackurl" value="Type Track URL here">
-<button onclick="playtrack()">Play It</button>
 </body></html>

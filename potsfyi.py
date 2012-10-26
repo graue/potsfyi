@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, request, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 
 
@@ -21,9 +21,14 @@ class Track(db.Model):
         return '<Track {0.artist} - {1.title}>'.format(self)
 
 
-@app.route('/')
-def front_page():
-    return render_template('index.html')
+@app.route('/player')
+def player_page():
+    track_url = request.args.get('track_url', '')
+    if track_url == '':
+        return 'Not found', 404
+    return render_template('player.html',
+                           track_url = app.config['MUSIC_DIR'] \
+                                   + '/' + track_url)
 
 if __name__ == '__main__':
     app.run()
