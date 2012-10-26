@@ -13,7 +13,7 @@ HANDLED_FILETYPES = ('.ogg', '.mp3', '.flac', '.m4a')
 @manager.command
 def createdb():
     db.create_all()
-    music_dir = app.config['MUSIC_DIR']
+    music_dir = unicode(app.config['MUSIC_DIR'])
 
     for path, dirs, files in os.walk(music_dir):
         for file in files:
@@ -22,9 +22,7 @@ def createdb():
             tag_info = mutagen.File(os.path.join(path, file), easy=True)
             if tag_info is not None:
                 filename = os.path.join(path, file)[len(music_dir) + 1:]
-                print(u'Adding {0}: '.format(unicode(filename,
-                                                     errors='replace')),
-                      end='')
+                print(u'Adding {0}: '.format(filename), end='')
                 try:
                     artist = tag_info.tags['artist'][0]
                     title = tag_info.tags['title'][0]
