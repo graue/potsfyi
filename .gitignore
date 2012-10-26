@@ -2,3 +2,4 @@
 venv/
 *.pyc
 *.db
+static/music
