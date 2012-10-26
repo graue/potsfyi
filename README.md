@@ -5,11 +5,24 @@ intended to run on a personal server.
 
 ## Current status
 
-If you put tracks under the `static/music` subdirectory
-(`music` can be a symlink),
-and you type the exact full path of a track,
-you can play it in a browser
-that supports HTML5 `<audio>`.
+Very barebones and unfinished.
 
-Pots, fyi depends on [Flask](http://flask.pocoo.org),
-the Python web microframework.
+Depends on [Flask](http://flask.pocoo.org),
+the Python web microframework,
+as well as Flask-SQLAlchemy, Flask-Script,
+and Mutagen for reading tags.
+
+    git clone https://github.com/graue/potsfyi
+    cd potsfyi
+    virtualenv venv
+    . venv/bin/activate
+    pip install Flask Flask-SQLAlchemy Flask-Script mutagen
+    mkdir static
+    ln -s /some/dir/that/has/music/in/it static/music
+    python manage.py createdb
+    python debug.py
+
+This will get you a server
+at http://localhost:5000
+where you can search for songs by artist and title
+and play them in your browser (given codec support).
