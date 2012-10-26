@@ -15,7 +15,7 @@ def createdb():
     db.create_all()
     music_dir = unicode(app.config['MUSIC_DIR'])
 
-    for path, dirs, files in os.walk(music_dir):
+    for path, dirs, files in os.walk(music_dir, followlinks=True):
         for file in files:
             if not file.lower().endswith(HANDLED_FILETYPES):
                 continue
