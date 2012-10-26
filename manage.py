@@ -7,6 +7,9 @@ from potsfyi import db, Track, app
 manager = Manager(app)
 
 
+HANDLED_FILETYPES = ('.ogg', '.mp3', '.flac', '.m4a')
+
+
 @manager.command
 def createdb():
     db.create_all()
@@ -14,6 +17,8 @@ def createdb():
 
     for path, dirs, files in os.walk(music_dir):
         for file in files:
+            if not file.lower().endswith(HANDLED_FILETYPES):
+                continue
             tag_info = mutagen.File(os.path.join(path, file), easy=True)
             if tag_info is not None:
                 filename = os.path.join(path, file)[len(music_dir) + 1:]
