@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os
+import sys
 import mutagen
 from flask.ext.script import Manager
 from potsfyi import db, Track, app
@@ -11,7 +12,7 @@ HANDLED_FILETYPES = ('.ogg', '.mp3', '.flac', '.m4a')
 
 
 @manager.command
-def createdb():
+def createdb(verbose=False):
     db.create_all()
     music_dir = unicode(app.config['MUSIC_DIR'])
 
@@ -19,19 +20,31 @@ def createdb():
         for file in files:
             if not file.lower().endswith(HANDLED_FILETYPES):
                 continue
-            tag_info = mutagen.File(os.path.join(path, file), easy=True)
-            if tag_info is not None:
-                filename = os.path.join(path, file)[len(music_dir) + 1:]
-                print(u'Adding {0}: '.format(filename), end='')
-                try:
-                    artist = tag_info.tags['artist'][0]
-                    title = tag_info.tags['title'][0]
-                except KeyError:
-                    print('artist or title tag missing!')
-                    continue
-                print(u'{0} - {1}'.format(artist, title))
-                new_track = Track(artist, title, filename)
-                db.session.add(new_track)
+
+            filename_with_musicdir = os.path.join(path, file)
+            filename = filename_with_musicdir[len(music_dir) + 1:]
+
+            try:
+                tag_info = mutagen.File(filename_with_musicdir, easy=True)
+                if tag_info is None:
+                    raise Exception('Mutagen could not open file')
+            except:
+                print(u'Skipping {0} due to error: {1}'.format(filename),
+                      sys.exc_info()[0])
+                continue
+
+            filename = os.path.join(path, file)[len(music_dir) + 1:]
+            try:
+                artist = tag_info.tags['artist'][0]
+                title = tag_info.tags['title'][0]
+            except (KeyError, IndexError):
+                print(u'Skipping {0}: artist or title tag missing!'
+                      .format(filename))
+                continue
+            new_track = Track(artist, title, filename)
+            db.session.add(new_track)
+            if verbose:
+                print(u'Added {0}: {1} - {2}'.format(filename, artist, title))
 
     db.session.commit()
 
