@@ -66,7 +66,7 @@
         },
 
         search: function() {
-            this.collection.url = 'http://localhost:5000/search?artist='+
+            this.collection.url = '/search?artist='+
                 encodeURIComponent($('input#artist', this.el).val())+
                 '&title='+
                 encodeURIComponent($('input#title', this.el).val());
