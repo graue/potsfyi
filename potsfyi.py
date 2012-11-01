@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 
 
@@ -20,6 +20,14 @@ class Track(db.Model):
     def __repr__(self):
         return u'<Track {0.artist} - {0.title}>'.format(self)
 
+    @property
+    def serialize(self):
+        return {
+            'artist': self.artist,
+            'title': self.title,
+            'filename': self.filename
+        }
+
 
 @app.route('/player')
 def player_page():
@@ -37,7 +45,7 @@ def search_results():
     search_title = request.args.get('title', '')
     tracks = Track.query.filter(Track.artist.contains(search_artist),
                                 Track.title.contains(search_title)).all()
-    return render_template('searchresults.html', results=tracks)
+    return jsonify(objects=[t.serialize for t in tracks])
 
 
 @app.route('/')
