@@ -36,9 +36,8 @@
         },
 
         play: function() {
-            alert('not implemented, but would play track "'+
-                  this.model.get('title')+'" by "'+
-                  this.model.get('artist')+'"');
+            window.location = '/player?track_url='+
+                encodeURIComponent(this.model.get('filename'));
         }
     });
 
