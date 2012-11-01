@@ -50,7 +50,7 @@ def search_results():
 
 @app.route('/')
 def front_page():
-    return render_template('searchbox.html')
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run()
