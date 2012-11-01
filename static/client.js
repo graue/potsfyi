@@ -24,13 +24,14 @@
 
         initialize: function() {
             _.bindAll(this, 'render', 'play');
-            this.model.bind('change', this.render);
+            this.model.on('change', this.render);
+            this.render();
         },
 
         render: function() {
             this.$el.html(this.model.get('artist')+' - '+
                 this.model.get('title'));
-            this.$el.append(' <button id="play">play</button>');
+            this.$el.append(' <button class="play">play</button>');
             return this;
         },
 
@@ -43,28 +44,33 @@
 
     var SearchResultListView = Backbone.View.extend({
         el: $('body'),
-        events: {}, // nothing yet
+        events: {'click button#searchbtn': 'search'},
 
         initialize: function() {
-            _.bindAll(this, 'render', 'appendResult');
+            _.bindAll(this, 'render', 'search', 'appendResult',
+                'refreshResults');
 
             this.collection = new SearchResultList();
-            this.collection.bind('add', this.appendResult);
+            this.collection.on('reset', this.refreshResults);
 
             this.render();
         },
 
         render: function() {
-            var self = this;
             this.$el.append(
                 '<form id="searchform">'+
                 '<input type="text" id="artist"> Artist<br>'+
                 '<input type="text" id="title"> Title</form>'+
                 '<button id="searchbtn">search</button>');
             this.$el.append('<ul></ul>');
-            _(this.collection.models).each(function(result) {
-                self.appendResult(result);
-            }, this);
+        },
+
+        search: function() {
+            this.collection.url = 'http://localhost:5000/search?artist='+
+                encodeURIComponent($('input#artist', this.el).val())+
+                '&title='+
+                encodeURIComponent($('input#title', this.el).val());
+            this.collection.fetch();
         },
 
         appendResult: function(result) {
@@ -72,6 +78,14 @@
                 model: result
             });
             $('ul', this.el).append(resultView.render().el);
+        },
+
+        refreshResults: function() {
+            $('ul', this.el).text('');
+            var self = this;
+            _(this.collection.models).each(function(result) {
+                self.appendResult(result);
+            }, this);
         }
     });
 
