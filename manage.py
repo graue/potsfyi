@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from __future__ import print_function
 import os
 import sys
@@ -29,8 +31,8 @@ def createdb(verbose=False):
                 if tag_info is None:
                     raise Exception('Mutagen could not open file')
             except:
-                print(u'Skipping {0} due to error: {1}'.format(filename),
-                      sys.exc_info()[0])
+                print(u'Skipping {0} due to error: {1}\n'.format(filename,
+                        sys.exc_info()[0]))
                 continue
 
             filename = os.path.join(path, file)[len(music_dir) + 1:]
