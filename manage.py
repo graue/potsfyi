@@ -15,6 +15,7 @@ HANDLED_FILETYPES = ('.ogg', '.mp3', '.flac', '.m4a')
 
 @manager.command
 def createdb(verbose=False):
+    '''  initial creation of the tracks database '''
     db.create_all()
     music_dir = unicode(app.config['MUSIC_DIR'])
 
@@ -24,7 +25,8 @@ def createdb(verbose=False):
                 continue
 
             filename_with_musicdir = os.path.join(path, file)
-            filename = filename_with_musicdir[len(music_dir) + 1:]
+            filename = os.path.basename(filename_with_musicdir)
+            print( filename )
 
             try:
                 tag_info = mutagen.File(filename_with_musicdir, easy=True)
@@ -35,7 +37,6 @@ def createdb(verbose=False):
                         sys.exc_info()[0]))
                 continue
 
-            filename = os.path.join(path, file)[len(music_dir) + 1:]
             try:
                 artist = tag_info.tags['artist'][0]
                 title = tag_info.tags['title'][0]
@@ -50,6 +51,11 @@ def createdb(verbose=False):
 
     db.session.commit()
 
+@manager.command
+def update(verbose=False):
+    ''' After createdb is run, this allows you to update the db without
+        duplicating tracks already in the db '''
+    pass
 
 if __name__ == "__main__":
     manager.run()
