@@ -26,7 +26,6 @@ def createdb(verbose=False):
 
             filename_with_musicdir = os.path.join(path, file)
             filename = os.path.basename(filename_with_musicdir)
-            print( filename )
 
             try:
                 tag_info = mutagen.File(filename_with_musicdir, easy=True)
