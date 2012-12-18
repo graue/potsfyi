@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+import os
 from flask import Flask, request, render_template, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 
@@ -7,6 +9,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tracks.db'
 app.config['MUSIC_DIR'] = 'static/music'
 db = SQLAlchemy(app)
 
+app.config.update(
+    DEBUG=(True if os.environ.get('DEBUG') in ['1', 'True'] else False),
+    PORT=int(os.environ.get('PORT', 5000)),
+)
 
 class Track(db.Model):
     id = db.Column(db.Integer, primary_key=True)
