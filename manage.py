@@ -16,7 +16,13 @@ HANDLED_FILETYPES = ('.ogg', '.mp3', '.flac', '.m4a')
 @manager.command
 def createdb(verbose=False):
     '''  initial creation of the tracks database '''
-    db.create_all()
+    try:
+        if Track.query.all():
+            print('db already exists, run update if you\'d like to recreate the db') 
+            return
+    except:    
+        db.create_all()
+        
     music_dir = unicode(app.config['MUSIC_DIR'])
 
     for path, dirs, files in os.walk(music_dir, followlinks=True):
@@ -54,7 +60,8 @@ def createdb(verbose=False):
 def update(verbose=False):
     ''' After createdb is run, this allows you to update the db without
         duplicating tracks already in the db '''
-    pass
+    db.drop_all()
+    createdb(verbose=False)
 
 if __name__ == "__main__":
     manager.run()

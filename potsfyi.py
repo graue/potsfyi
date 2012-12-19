@@ -12,6 +12,8 @@ db = SQLAlchemy(app)
 app.config.update(
     DEBUG=(True if os.environ.get('DEBUG') in ['1', 'True'] else False),
     PORT=int(os.environ.get('PORT', 5000)),
+    DB_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db')),
+    MUSIC_DIR=(os.environ.get('MUSIC_DIR', 'static/music')),
 )
 
 class Track(db.Model):
