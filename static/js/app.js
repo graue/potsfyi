@@ -1,6 +1,29 @@
 // Client side code for potsfyi
 
-(function($) {
+requirejs.config({
+    // By default, load module IDs from js/lib
+    baseUrl: '/static/js/lib',
+
+    // except if module ID starts with "app",
+    // load it from the js/app directory
+    paths: {
+        app: '../app'
+    },
+
+    // Shim to properly load non-AMD modules (Backbone, Underscore)
+    shim: {
+        underscore: {
+            exports: '_'
+        },
+        backbone: {
+            deps: ['underscore', 'json2', 'jquery'],
+            exports: 'Backbone'
+        }
+    },
+});
+
+requirejs(['jquery', 'underscore', 'backbone'],
+function(   $,        _,            Backbone) {
     var SearchResult = Backbone.Model.extend({
         defaults: {
             artist: '',
@@ -89,4 +112,4 @@
     });
 
     var resultListView = new SearchResultListView();
-})(jQuery);
+});
