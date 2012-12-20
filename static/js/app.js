@@ -7,7 +7,9 @@ requirejs.config({
     // except if module ID starts with "app",
     // load it from the js/app directory
     paths: {
-        app: '../app'
+        app: '../app',
+        handlebars: 'handlebars',
+        hb: 'hbtemplate',
     },
 
     // Shim to properly load non-AMD modules (Backbone, Underscore)
@@ -18,12 +20,15 @@ requirejs.config({
         backbone: {
             deps: ['underscore', 'json2', 'jquery'],
             exports: 'Backbone'
-        }
+        },
+        handlebars: {
+            exports: 'Handlebars'
+        },
     },
 });
 
-requirejs(['jquery', 'underscore', 'backbone'],
-function(   $,        _,            Backbone) {
+requirejs(['jquery', 'underscore', 'backbone', 'hb!../app/template/result.html'],
+function(   $,        _,            Backbone,   tmplResult) {
     var SearchResult = Backbone.Model.extend({
         defaults: {
             artist: '',
@@ -52,9 +57,9 @@ function(   $,        _,            Backbone) {
         },
 
         render: function() {
-            this.$el.html(this.model.get('artist')+' - '+
-                this.model.get('title'));
-            this.$el.append(' <button class="play">play</button>');
+            this.$el.html(tmplResult({
+                artist: this.model.get('artist'),
+                title:  this.model.get('title')}));
             return this;
         },
 
