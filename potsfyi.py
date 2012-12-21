@@ -45,32 +45,32 @@ class Track(db.Model):
 
 class Album(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    album_artist = db.Column(db.String(200))
-    album_title  = db.Column(db.String(240))
+    artist = db.Column(db.String(200))
+    title  = db.Column(db.String(240))
     # date format?
-    release_date = db.Column(db.String(16))
-    record_label = db.Column(db.String(240))
+    date = db.Column(db.String(16))
+    label = db.Column(db.String(240))
     cat_number   = db.Column(db.String(32))
 
-    def __init__(self, album_artist, album_title, 
-            release_date, record_label, cat_number):
-        self.album_artist = album_artist
-        self.album_title  = album_title
-        self.release_date = release_date
-        record_label      = record_label
-        cat_number        = cat_number
+    def __init__(self, artist, title, 
+            date, label, cat_number):
+        self.artist = artist
+        self.title  = title
+        self.date   = date
+        self.label  = label
+        cat_number  = cat_number
 
     def __repr__(self):
-        return u'<Album {0.album_title} - \
-            {0.album_artist} ({0.release_date})>'.format(self)
+        return u'<Album {0.title} - \
+            {0.artist} ({0.date})>'.format(self)
 
     @property
     def serialize(self):
         return {
-            'album_artist': self.album_artist,
-            'album_title' : self.album_title,
-            'release_date': self.release_date,
-            'record_label': self.record_label,
+            'artist': self.artist,
+            'title' : self.title,
+            'date'  : self.date,
+            'label' : self.label,
             'cat_number'  : self.cat_number
         }
 
