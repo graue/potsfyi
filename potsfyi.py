@@ -91,7 +91,7 @@ def search_results():
     # should be a general search encompassing artist, track, albums
     search_artist = request.args.get('artist', '')
     tracks = Track.query.filter(Track.artist.contains(search_artist),
-                                Track.title.contains(search_title)).all()
+                                Track.title.contains(search_artist)).all()
     return jsonify(objects=[t.serialize for t in tracks])
 
 
