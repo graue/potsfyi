@@ -17,6 +17,7 @@ app.config.update(
 )
 
 class Track(db.Model):
+    ''' artist, track, filename, album '''
     id = db.Column(db.Integer, primary_key=True)
     artist   = db.Column(db.String(200))
     title    = db.Column(db.String(240))
@@ -44,6 +45,7 @@ class Track(db.Model):
         }
 
 class Album(db.Model):
+    ''' artist, title, date, label, cat# '''
     id = db.Column(db.Integer, primary_key=True)
     artist = db.Column(db.String(200))
     title  = db.Column(db.String(240))
@@ -52,13 +54,13 @@ class Album(db.Model):
     label = db.Column(db.String(240))
     cat_number   = db.Column(db.String(32))
 
-    def __init__(self, artist, title, 
-            date, label, cat_number):
+    def __init__(self, artist, title, date=None, 
+            label=None, cat_number=None):
         self.artist = artist
         self.title  = title
         self.date   = date
         self.label  = label
-        cat_number  = cat_number
+        self.cat_number  = cat_number
 
     def __repr__(self):
         return u'<Album {0.title} - \
@@ -86,8 +88,8 @@ def player_page():
 
 @app.route('/search')
 def search_results():
+    # should be a general search encompassing artist, track, albums
     search_artist = request.args.get('artist', '')
-    search_title = request.args.get('title', '')
     tracks = Track.query.filter(Track.artist.contains(search_artist),
                                 Track.title.contains(search_title)).all()
     return jsonify(objects=[t.serialize for t in tracks])

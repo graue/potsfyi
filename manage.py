@@ -5,7 +5,7 @@ import os
 import sys
 import mutagen
 from flask.ext.script import Manager
-from potsfyi import db, Track, app
+from potsfyi import db, Track, Album, app
 
 manager = Manager(app)
 
@@ -45,14 +45,18 @@ def createdb(verbose=False):
             try:
                 artist = tag_info.tags['artist'][0]
                 title = tag_info.tags['title'][0]
+                album = tag_info.tags['album'][0]
             except (KeyError, IndexError):
                 print(u'Skipping {0}: artist or title tag missing!'
                       .format(filename))
                 continue
-            new_track = Track(artist, title, filename)
+            # is it a new album?
+            album = Album(artist, album)
+            new_track = Track(artist, title, album, filename)
             db.session.add(new_track)
             if verbose:
-                print(u'Added {0}: {1} - {2}'.format(filename, artist, title))
+                print(u'Added {0}: {1} - {2} from album: \
+                        {3}'.format(filename, artist, title, album))
 
     db.session.commit()
 
