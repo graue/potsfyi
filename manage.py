@@ -24,15 +24,16 @@ def createdb(verbose=False):
             if not file.lower().endswith(HANDLED_FILETYPES):
                 continue
 
-            filename_with_musicdir = os.path.join(path, file)
-            filename = os.path.basename(filename_with_musicdir)
+            full_filename = os.path.join(path, file)
+            relative_filename = full_filename[len(music_dir) + 1:]
 
             try:
-                tag_info = mutagen.File(filename_with_musicdir, easy=True)
+                tag_info = mutagen.File(full_filename, easy=True)
                 if tag_info is None:
                     raise Exception('Mutagen could not open file')
             except:
-                print(u'Skipping {0} due to error: {1}'.format(filename,
+                print(u'Skipping {0} due to error: {1}'.format(
+                        relative_filename,
                         sys.exc_info()[0]))
                 continue
 
@@ -41,12 +42,13 @@ def createdb(verbose=False):
                 title = tag_info.tags['title'][0]
             except (KeyError, IndexError):
                 print(u'Skipping {0}: artist or title tag missing!'
-                      .format(filename))
+                      .format(relative_filename))
                 continue
-            new_track = Track(artist, title, filename)
+            new_track = Track(artist, title, relative_filename)
             db.session.add(new_track)
             if verbose:
-                print(u'Added {0}: {1} - {2}'.format(filename, artist, title))
+                print(u'Added {0}: {1} - {2}'.format(relative_filename,
+                                                     artist, title))
 
     db.session.commit()
 
