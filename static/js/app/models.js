@@ -50,11 +50,13 @@ define(function (require) {
 
     M.SearchResultListView = Backbone.View.extend({
         el: $('body'),
-        events: {'click button#searchbtn': 'search'},
+        events: {'click button#searchbtn': 'search',
+                 'keyup input#title': 'handleKeyUp'},
+        lastValue: '',
 
         initialize: function() {
             _.bindAll(this, 'render', 'search', 'appendResult',
-                'refreshResults');
+                'refreshResults', 'handleKeyUp');
 
             this.collection = new M.SearchResultList();
             this.collection.on('reset', this.refreshResults);
@@ -69,6 +71,23 @@ define(function (require) {
                 '<input type="text" id="title"> Title</form>'+
                 '<button id="searchbtn">search</button>');
             this.$el.append('<ul></ul>');
+        },
+
+        handleKeyUp: function() {
+            // Check if input value has changed, if not do nothing
+            var newValue = $('input#title', this.el).val();
+            if (newValue != this.lastValue) {
+                this.lastValue = newValue;
+
+                // Clear the old search-as-you-type timer
+                if (this.timeout)
+                    clearTimeout(this.timeout);
+
+                // If field is not blank,
+                // set a timer to search if no further keys pressed
+                if (newValue != '')
+                    this.timeout = setTimeout(this.search, 200);
+            }
         },
 
         search: function() {
