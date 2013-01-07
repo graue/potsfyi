@@ -30,4 +30,8 @@ requirejs.config({
 requirejs(['app/models'],
 function   (models) {
     var resultListView = new models.SearchResultListView();
+    $('input#search-box').on('keyup', function() {
+        var newValue = $('input#search-box').val();
+        resultListView.updateSearchString(newValue);
+    });
 });

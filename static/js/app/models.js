@@ -2,7 +2,7 @@ define(function (require) {
     var $ = require('jquery'),
         _ = require('underscore'),
         Backbone = require('backbone'),
-        tmplResult = require('hb!../app/template/result.html');
+        tmplResults = require('hb!../app/template/results.html');
 
     // M holds module contents for quick reference
     // and is returned at the end to define the module.
@@ -25,92 +25,45 @@ define(function (require) {
         }
     });
 
-    M.SearchResultView = Backbone.View.extend({
-        tagName: 'li',
-        events: {'click button.play': 'play'},
-
-        initialize: function() {
-            _.bindAll(this, 'render', 'play');
-            this.model.on('change', this.render);
-            this.render();
-        },
-
-        render: function() {
-            this.$el.html(tmplResult({
-                artist: this.model.get('artist'),
-                title:  this.model.get('title')}));
-            return this;
-        },
-
-        play: function() {
-            window.location = '/player?track_url='+
-                encodeURIComponent(this.model.get('filename'));
-        }
-    });
-
     M.SearchResultListView = Backbone.View.extend({
-        el: $('body'),
-        events: {'click button#searchbtn': 'search',
-                 'keyup input#title': 'handleKeyUp'},
-        lastValue: '',
+        el: $('ul#search-results'),
+        searchString: '',
 
         initialize: function() {
-            _.bindAll(this, 'render', 'search', 'appendResult',
-                'refreshResults', 'handleKeyUp');
+            _.bindAll(this, 'search', 'refresh', 'updateSearchString');
 
             this.collection = new M.SearchResultList();
-            this.collection.on('reset', this.refreshResults);
-
-            this.render();
+            this.collection.on('reset', this.refresh);
         },
 
-        render: function() {
-            this.$el.append(
-                '<form id="searchform">'+
-                '<input type="text" id="artist"> Artist<br>'+
-                '<input type="text" id="title"> Title</form>'+
-                '<button id="searchbtn">search</button>');
-            this.$el.append('<ul></ul>');
-        },
-
-        handleKeyUp: function() {
-            // Check if input value has changed, if not do nothing
-            var newValue = $('input#title', this.el).val();
-            if (newValue != this.lastValue) {
-                this.lastValue = newValue;
+        updateSearchString: function(newSearchString) {
+            // Only update if search string has actually changed.
+            if (newSearchString != this.searchString) {
+                this.searchString = newSearchString;
 
                 // Clear the old search-as-you-type timer
                 if (this.timeout)
                     clearTimeout(this.timeout);
 
-                // If field is not blank,
-                // set a timer to search if no further keys pressed
-                if (newValue != '')
+                // If search string is not blank, set a timer to search
+                // after a short interval (unless the string changes again).
+                if (newSearchString != '')
                     this.timeout = setTimeout(this.search, 200);
             }
         },
 
         search: function() {
-            this.collection.url = '/search?artist='+
-                encodeURIComponent($('input#artist', this.el).val())+
-                '&title='+
-                encodeURIComponent($('input#title', this.el).val());
+            // XXX: This searches title only, as a stopgap
+            // until the backend for full searching is available.
+
+            this.collection.url = '/search?artist=&title='+
+                encodeURIComponent(this.searchString);
             this.collection.fetch();
         },
 
-        appendResult: function(result) {
-            var resultView = new M.SearchResultView({
-                model: result
-            });
-            $('ul', this.el).append(resultView.render().el);
-        },
-
-        refreshResults: function() {
-            $('ul', this.el).text('');
-            var self = this;
-            _(this.collection.models).each(function(result) {
-                self.appendResult(result);
-            }, this);
+        refresh: function() {
+            var resultArray = this.collection.toJSON();
+            this.$el.html(tmplResults({ results: resultArray }));
         }
     });
 
