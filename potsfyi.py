@@ -2,6 +2,7 @@
 import os
 from flask import Flask, request, render_template, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 app = Flask(__name__)
@@ -44,6 +45,10 @@ class Track(db.Model):
             'album'   : self.album.serialize,
             'filename': self.filename
         }
+
+    @hybrid_property
+    def artist_title(self):
+        return self.artist + " " + self.title
 
 class Album(db.Model):
     ''' artist, title, date, label, cat# '''
@@ -91,8 +96,9 @@ def player_page():
 def search_results():
     # should be a general search encompassing artist, track, albums
     search_term = request.args.get('q', '')
-    tracks = Track.query.filter(Track.artist.contains(search_term),
-                                Track.title.contains(search_term)).all()
+    tracks = Track.query.filter(
+        Track.artist_title.contains(search_term)
+    ).all()
     return jsonify(objects=[t.serialize for t in tracks])
 
 
