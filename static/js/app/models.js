@@ -56,7 +56,7 @@ define(function (require) {
             // XXX: This searches title only, as a stopgap
             // until the backend for full searching is available.
 
-            this.collection.url = '/search?artist=&title='+
+            this.collection.url = '/search?q='+
                 encodeURIComponent(this.searchString);
             this.collection.fetch();
         },
