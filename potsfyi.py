@@ -7,6 +7,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tracks.db'
 app.config['MUSIC_DIR'] = 'static/music'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 10
 db = SQLAlchemy(app)
 
 app.config.update(

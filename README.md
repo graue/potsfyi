@@ -20,7 +20,7 @@ and Mutagen for reading tags.
     mkdir static
     ln -s /some/dir/that/has/music/in/it static/music
     python manage.py createdb
-    python debug.py
+    DEBUG=True python potsfyi.py
 
 This will get you a server
 at http://localhost:5000
