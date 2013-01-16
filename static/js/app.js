@@ -34,4 +34,5 @@ function   (models) {
         var newValue = $('input#search-box').val();
         resultListView.collection.updateSearchString(newValue);
     });
+    var playingSongView = new models.PlayingSongView();
 });
