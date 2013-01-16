@@ -17,23 +17,17 @@ define(function (require) {
     });
 
     M.SearchResultList = Backbone.Collection.extend({
+        searchString: '',
+
+        initialize: function() {
+            _.bindAll(this, 'search', 'updateSearchString');
+        },
+
         model: M.SearchResult,
 
         // Override because Flask requires an object at top level.
         parse: function(resp, xhr) {
             return resp.objects;
-        }
-    });
-
-    M.SearchResultListView = Backbone.View.extend({
-        el: $('ul#search-results'),
-        searchString: '',
-
-        initialize: function() {
-            _.bindAll(this, 'search', 'refresh', 'updateSearchString');
-
-            this.collection = new M.SearchResultList();
-            this.collection.on('reset', this.refresh);
         },
 
         updateSearchString: function(newSearchString) {
@@ -53,9 +47,19 @@ define(function (require) {
         },
 
         search: function() {
-            this.collection.url = '/search?q='+
-                encodeURIComponent(this.searchString);
-            this.collection.fetch();
+            this.url = '/search?q=' + encodeURIComponent(this.searchString);
+            this.fetch();
+        },
+    });
+
+    M.SearchResultListView = Backbone.View.extend({
+        el: $('ul#search-results'),
+
+        initialize: function() {
+            _.bindAll(this, 'refresh');
+
+            this.collection = new M.SearchResultList();
+            this.collection.on('reset', this.refresh);
         },
 
         refresh: function() {
