@@ -57,7 +57,7 @@ def createdb(verbose=False):
             db.session.add(new_track)
             if verbose:
                 print(u'Added {0}: {1} - {2} from album: \
-                        {3}'.format(relatime_filename, artist, title, album))
+                        {3}'.format(relative_filename, artist, title, album))
 
     db.session.commit()
 
