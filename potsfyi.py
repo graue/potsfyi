@@ -64,8 +64,8 @@ class Album(db.Model):
         self.cat_number  = cat_number
 
     def __repr__(self):
-        return u'<Album {0.title} - \
-            {0.artist} ({0.date})>'.format(self)
+        return (u'<Album {0.title} - ' +
+            u'{0.artist} ({0.date})>').format(self)
 
     @property
     def serialize(self):
