@@ -20,9 +20,9 @@ def createdb(verbose=False):
         if Track.query.all():
             print('db already exists, run update if you\'d like to recreate the db') 
             return
-    except:    
+    except:
         db.create_all()
-        
+
     music_dir = unicode(app.config['MUSIC_DIR'])
 
     for path, dirs, files in os.walk(music_dir, followlinks=True):
