@@ -28,7 +28,7 @@ class Track(db.Model):
         backref=db.backref('tracks', lazy='dynamic'))
 
     def __init__(self, artist, title, album, filename):
-        self.artist   = filename 
+        self.artist   = artist
         self.title    = title
         self.album    = album
         self.filename = filename
@@ -41,7 +41,7 @@ class Track(db.Model):
         return {
             'artist'  : self.artist,
             'title'   : self.title,
-            'album'   : self.album,
+            'album'   : self.album.serialize,
             'filename': self.filename
         }
 
