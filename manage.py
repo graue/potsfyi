@@ -47,7 +47,7 @@ def createdb(verbose=False):
                 artist = tag_info.tags['artist'][0]
                 title = tag_info.tags['title'][0]
                 album = tag_info.tags['album'][0]
-            except (KeyError, IndexError):
+            except (KeyError, IndexError, TypeError):
                 print(u'Skipping {0}: artist or title tag missing!'
                       .format(relative_filename))
                 continue
