@@ -82,16 +82,6 @@ class Album(db.Model):
             'cat_number'  : self.cat_number
         }
 
-@app.route('/player')
-def player_page():
-    track_url = request.args.get('track_url', '')
-    if track_url == '':
-        return 'Not found', 404
-    return render_template('player.html',
-                           track_url = app.config['MUSIC_DIR'] \
-                                   + '/' + track_url)
-
-
 @app.route('/search')
 def search_results():
     # should be a general search encompassing artist, track, albums
