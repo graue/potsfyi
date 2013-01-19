@@ -1,8 +1,11 @@
 define(function (require) {
+    "use strict";
+
     var $ = require('jquery'),
         _ = require('underscore'),
         Backbone = require('backbone'),
         tmplResult = require('hb!../app/template/result.html'),
+        tmplPlaylistSong = require('hb!../app/template/playlistSong.html'),
         models = require('app/models');
 
     // M holds module contents for quick reference
@@ -12,10 +15,10 @@ define(function (require) {
     M.SearchResultView = Backbone.View.extend({
         tagName: 'li',
         className: 'result-song',
-        events: {'click a': 'play'},
+        events: {'click a': 'enqueue'},
 
         initialize: function() {
-            _.bindAll(this, 'render', 'play');
+            _.bindAll(this, 'render', 'enqueue');
             this.render();
         },
 
@@ -26,15 +29,13 @@ define(function (require) {
             return this;
         },
 
-        play: function(event) {
+        enqueue: function(event) {
             event.preventDefault();
-            models.PlayingSong.set({
+            models.Playlist.add({
                 artist: this.model.get('artist'),
                 title: this.model.get('title'),
                 filename: this.model.get('filename')
             });
-            $('#player audio').get(0).play();
-            console.log('playing: ' + this.model.get('filename'));
         }
     });
 
@@ -64,6 +65,54 @@ define(function (require) {
         }
     });
 
+    M.PlaylistItemView = Backbone.View.extend({
+        tagName: 'li',
+        className: 'solo-track',
+        events: {'click': 'play'},
+
+        initialize: function() {
+            _.bindAll(this, 'render', 'play');
+            this.id = this.model.get('htmlId');
+            this.render();
+        },
+
+        render: function() {
+            this.$el.html(tmplPlaylistSong({
+                artist: this.model.get('artist'),
+                title: this.model.get('title')
+            }));
+            return this;
+        },
+
+        play: function(event) {
+            event.preventDefault();
+            models.PlayingSong.changeSong(this.model);
+        }
+    });
+
+    M.PlaylistView = Backbone.View.extend({
+        el: $('ul#playlist'),
+
+        initialize: function() {
+            _.bindAll(this, 'addTrack', 'removeTrack');
+
+            this.collection = models.Playlist;
+            this.collection.on('add', this.addTrack);
+            this.collection.on('remove', this.removeTrack);
+        },
+
+        addTrack: function(track) {
+            var itemView = new M.PlaylistItemView({model: track});
+            console.log("track added: " + track.get('filename'));
+            this.$el.append(itemView.render().el);
+        },
+
+        removeTrack: function(track) {
+            this.$('#' + track.get('htmlId')).remove();
+            // XXX: update position, currently playing song
+        }
+    });
+
     M.PlayingSongView = Backbone.View.extend({
         el: $('#player'),
         initialize: function() {
@@ -76,11 +125,14 @@ define(function (require) {
         refresh: function() {
             var html = '';
             var filename = this.model.get('filename');
-            if (filename != '') {
-                html = '<audio src="'+ encodeURIComponent(filename)
-                       + '"></audio>';
+            if (filename !== '') {
+                html = '<audio src="' + encodeURIComponent(filename) +
+                       '"></audio>';
             }
             this.$el.html(html);
+
+            // start the music
+            $('audio', this.$el).trigger('play');
         }
 
     });

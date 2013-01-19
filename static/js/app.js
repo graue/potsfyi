@@ -35,5 +35,6 @@ function   (models,       views) {
         resultListView.collection.updateSearchString(newValue);
     });
     var playingSongView = new views.PlayingSongView();
+    var playlistView = new views.PlaylistView();
     $('#search-card input').focus();
 });

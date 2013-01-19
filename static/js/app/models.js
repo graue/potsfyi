@@ -1,4 +1,6 @@
 define(function (require) {
+    "use strict";
+
     var _ = require('underscore'),
         Backbone = require('backbone');
 
@@ -11,6 +13,12 @@ define(function (require) {
             artist: '',
             title: '',
             filename: ''
+        },
+
+        initialize: function() {
+            // assign a unique ID (based on Backbone's cid)
+            // for use in HTML lists
+            this.set({ htmlId: 'song-' + this.cid });
         }
     });
 
@@ -30,7 +38,7 @@ define(function (require) {
 
         updateSearchString: function(newSearchString) {
             // Only update if search string has actually changed.
-            if (newSearchString != this.searchString) {
+            if (newSearchString !== this.searchString) {
                 this.searchString = newSearchString;
 
                 // Clear the old search-as-you-type timer
@@ -39,7 +47,7 @@ define(function (require) {
 
                 // If search string is not blank, set a timer to search
                 // after a short interval (unless the string changes again).
-                if (newSearchString != '')
+                if (newSearchString !== '')
                     this.timeout = setTimeout(this.search, 200);
             }
         },
@@ -47,10 +55,28 @@ define(function (require) {
         search: function() {
             this.url = '/search?q=' + encodeURIComponent(this.searchString);
             this.fetch();
-        },
+        }
     });
 
-    M.PlayingSong = new M.SongInfo();
+    var Playlist = Backbone.Collection.extend({
+        model: M.SongInfo,
+        playPos: 0
+    });
+
+    var PlayingSongInfo = M.SongInfo.extend({
+        changeSong: function(songInfo) {
+            this.set({
+                artist: songInfo.get('artist'),
+                title: songInfo.get('title'),
+                filename: songInfo.get('filename')
+            });
+            // view should listen for the filename change and re-render
+        }
+    });
+
+    // XXX these should probably be created in a central controller
+    M.PlayingSong = new PlayingSongInfo();
+    M.Playlist = new Playlist();
 
     return M;
 });
