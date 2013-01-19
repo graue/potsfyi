@@ -77,7 +77,7 @@ define(function (require) {
             var html = '';
             var filename = this.model.get('filename');
             if (filename != '') {
-                html = '<audio src="static/music/'+ encodeURIComponent(filename)
+                html = '<audio src="'+ encodeURIComponent(filename)
                        + '"></audio>';
             }
             this.$el.html(html);

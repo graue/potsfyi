@@ -7,7 +7,6 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tracks.db'
-app.config['MUSIC_DIR'] = 'static/music'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 10
 db = SQLAlchemy(app)
 
@@ -89,7 +88,15 @@ def search_results():
     tracks = Track.query.filter(
         Track.artist_title.contains(search_term)
     ).all()
-    return jsonify(objects=[t.serialize for t in tracks])
+
+    serialized_tracks = [t.serialize for t in tracks]
+
+    # prefix all track filenames with the music dir,
+    # so the client-side app can find them
+    for t in serialized_tracks:
+        t['filename'] = os.path.join(app.config['MUSIC_DIR'], t['filename'])
+
+    return jsonify(objects=serialized_tracks)
 
 
 @app.route('/')
