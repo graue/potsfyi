@@ -68,11 +68,12 @@ define(function (require) {
     M.PlaylistItemView = Backbone.View.extend({
         tagName: 'li',
         className: 'solo-track',
-        events: {'click': 'play'},
+        events: {'click span': 'play',
+                 'click a.remove-link': 'removeFromPlaylist'},
 
         initialize: function() {
-            _.bindAll(this, 'render', 'play');
-            this.id = this.model.get('htmlId');
+            _.bindAll(this, 'render', 'play', 'removeFromPlaylist');
+            this.$el.attr('id', this.model.get('htmlId'));
             this.render();
         },
 
@@ -85,8 +86,12 @@ define(function (require) {
         },
 
         play: function(event) {
-            event.preventDefault();
             models.PlayingSong.changeSong(this.model);
+        },
+
+        removeFromPlaylist: function(event) {
+            event.preventDefault();
+            models.Playlist.remove(this.model);
         }
     });
 
@@ -103,7 +108,6 @@ define(function (require) {
 
         addTrack: function(track) {
             var itemView = new M.PlaylistItemView({model: track});
-            console.log("track added: " + track.get('filename'));
             this.$el.append(itemView.render().el);
         },
 
