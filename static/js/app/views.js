@@ -99,11 +99,13 @@ define(function (require) {
         el: $('ul#playlist'),
 
         initialize: function() {
-            _.bindAll(this, 'addSong', 'removeSong');
+            _.bindAll(this, 'addSong', 'removeSong', 'updateNowPlaying');
 
             this.collection = models.Playlist.get('songCollection');
             this.collection.on('add', this.addSong);
             this.collection.on('remove', this.removeSong);
+            models.Playlist.on('change:position',
+                               this.updateNowPlaying);
         },
 
         addSong: function(track) {
@@ -114,6 +116,15 @@ define(function (require) {
         removeSong: function(track) {
             this.$('#' + track.get('htmlId')).remove();
             // XXX: update position, currently playing song
+        },
+
+        updateNowPlaying: function() {
+            var oldPlayPos = models.Playlist.previous('position');
+            var newPlayPos = models.Playlist.get('position');
+            $('li:nth-child(' + (oldPlayPos + 1) + ')',
+              this.$el).removeClass('now-playing');
+            $('li:nth-child(' + (newPlayPos + 1) + ')',
+              this.$el).addClass('now-playing');
         }
     });
 

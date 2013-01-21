@@ -65,13 +65,13 @@ define(function (require) {
     var Playlist = Backbone.Model.extend({
         defaults: {
             songCollection: new SongCollection(),
-            currentSongPos: -1
+            position: -1
         },
 
         seekToSong: function(cid) {
             // cid refers to the cid of a model in the Playlist.
             var newSong = this.get('songCollection').get(cid);
-            this.set('currentSongPos',
+            this.set('position',
                      this.get('songCollection').indexOf(newSong));
             M.PlayingSong.changeSong(newSong);
         },
