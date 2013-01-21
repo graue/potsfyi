@@ -86,7 +86,7 @@ define(function (require) {
         },
 
         play: function(event) {
-            models.PlayingSong.changeSong(this.model);
+            models.PlayingSong.changeSong(this.model.cid);
         },
 
         removeFromPlaylist: function(event) {

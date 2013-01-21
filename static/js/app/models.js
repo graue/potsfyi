@@ -64,11 +64,13 @@ define(function (require) {
     });
 
     var PlayingSongInfo = M.SongInfo.extend({
-        changeSong: function(songInfo) {
+        changeSong: function(cid) {
+            // cid refers to the cid of a model in the Playlist.
+            var newSong = M.Playlist.get(cid);
             this.set({
-                artist: songInfo.get('artist'),
-                title: songInfo.get('title'),
-                filename: songInfo.get('filename')
+                artist: newSong.get('artist'),
+                title: newSong.get('title'),
+                filename: newSong.get('filename')
             });
             // view should listen for the filename change and re-render
         }
