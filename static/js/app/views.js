@@ -6,6 +6,7 @@ define(function (require) {
         Backbone = require('backbone'),
         tmplResult = require('hb!../app/template/result.html'),
         tmplPlaylistSong = require('hb!../app/template/playlistSong.html'),
+        tmplPlayer = require('hb!../app/template/player.html'),
         models = require('app/models');
 
     // M holds module contents for quick reference
@@ -130,6 +131,12 @@ define(function (require) {
 
     M.PlayingSongView = Backbone.View.extend({
         el: $('#player'),
+        events: {
+            'click #btn-play-pause': 'togglePlaying',
+            'click #btn-prev': 'gotoPrevSong',
+            'click #btn-next': 'gotoNextSong'
+        },
+
         initialize: function() {
             _.bindAll(this, 'refresh');
 
@@ -138,18 +145,27 @@ define(function (require) {
         },
 
         refresh: function() {
-            var html = '';
             var filename = this.model.get('filename');
-            if (filename !== '') {
-                html = '<audio src="' + encodeURIComponent(filename) +
-                       '"></audio>';
-            }
-            this.$el.html(html);
+            this.$el.html(tmplPlayer({
+                encodedFilename: encodeURIComponent(filename),
+                isPlaying: true
+            }));
 
             // start the music
             $('audio', this.$el).trigger('play');
-        }
+        },
 
+        gotoNextSong: function() {
+            models.Playlist.nextSong();
+        },
+
+        gotoPrevSong: function() {
+            models.Playlist.prevSong();
+        },
+
+        togglePlaying: function() {
+            alert('Not implemented'); // XXX
+        }
     });
 
     return M;

@@ -76,6 +76,26 @@ define(function (require) {
             M.PlayingSong.changeSong(newSong);
         },
 
+        nextSong: function() {
+            var oldPos = this.get('position');
+            if (oldPos + 1 === this.get('songCollection').size()) {
+                alert("Already on last song, can't go to next");
+                // XXX do something better here
+            } else {
+                this.seekToSong(this.get('songCollection').at(oldPos + 1).cid);
+            }
+        },
+
+        prevSong: function() {
+            var oldPos = this.get('position');
+            if (oldPos <= 0) {
+                alert('Already on first song');
+                // XXX do something better
+            } else {
+                this.seekToSong(this.get('songCollection').at(oldPos - 1).cid);
+            }
+        },
+
         addSong: function(spec) {
             this.get('songCollection').add(spec);
         },
