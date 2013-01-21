@@ -31,7 +31,7 @@ define(function (require) {
 
         enqueue: function(event) {
             event.preventDefault();
-            models.Playlist.add({
+            models.Playlist.addSong({
                 artist: this.model.get('artist'),
                 title: this.model.get('title'),
                 filename: this.model.get('filename')
@@ -86,12 +86,12 @@ define(function (require) {
         },
 
         play: function(event) {
-            models.PlayingSong.changeSong(this.model.cid);
+            models.Playlist.seekToSong(this.model.cid);
         },
 
         removeFromPlaylist: function(event) {
             event.preventDefault();
-            models.Playlist.remove(this.model);
+            models.Playlist.removeSong(this.model);
         }
     });
 
@@ -99,19 +99,19 @@ define(function (require) {
         el: $('ul#playlist'),
 
         initialize: function() {
-            _.bindAll(this, 'addTrack', 'removeTrack');
+            _.bindAll(this, 'addSong', 'removeSong');
 
-            this.collection = models.Playlist;
-            this.collection.on('add', this.addTrack);
-            this.collection.on('remove', this.removeTrack);
+            this.collection = models.Playlist.get('songCollection');
+            this.collection.on('add', this.addSong);
+            this.collection.on('remove', this.removeSong);
         },
 
-        addTrack: function(track) {
+        addSong: function(track) {
             var itemView = new M.PlaylistItemView({model: track});
             this.$el.append(itemView.render().el);
         },
 
-        removeTrack: function(track) {
+        removeSong: function(track) {
             this.$('#' + track.get('htmlId')).remove();
             // XXX: update position, currently playing song
         }

@@ -58,15 +58,35 @@ define(function (require) {
         }
     });
 
-    var Playlist = Backbone.Collection.extend({
-        model: M.SongInfo,
-        playPos: 0
+    var SongCollection = Backbone.Collection.extend({
+        model: M.SongInfo
+    });
+
+    var Playlist = Backbone.Model.extend({
+        defaults: {
+            songCollection: new SongCollection(),
+            currentSongPos: -1
+        },
+
+        seekToSong: function(cid) {
+            // cid refers to the cid of a model in the Playlist.
+            var newSong = this.get('songCollection').get(cid);
+            this.set('currentSongPos',
+                     this.get('songCollection').indexOf(newSong));
+            M.PlayingSong.changeSong(newSong);
+        },
+
+        addSong: function(spec) {
+            this.get('songCollection').add(spec);
+        },
+
+        removeSong: function(song) {
+            this.get('songCollection').remove(song);
+        }
     });
 
     var PlayingSongInfo = M.SongInfo.extend({
-        changeSong: function(cid) {
-            // cid refers to the cid of a model in the Playlist.
-            var newSong = M.Playlist.get(cid);
+        changeSong: function(newSong) {
             this.set({
                 artist: newSong.get('artist'),
                 title: newSong.get('title'),
