@@ -56,9 +56,12 @@ def createdb(verbose=False):
             new_track = Track(artist, title, album, relative_filename)
             db.session.add(new_track)
             if verbose:
-                print((u'Added {0}: {1} - {2} from album: ' +
-                       u'{3}').format(relative_filename, artist, title,
-                                      album))
+                try:
+                    print((u'Added {0}: {1} - {2} from album: ' +
+                           u'{3}').format(relative_filename, artist, title,
+                                          album))
+                except UnicodeEncodeError:
+                    print('Added a song that cannot be encoded');
 
     db.session.commit()
 
