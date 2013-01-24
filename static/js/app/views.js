@@ -138,7 +138,8 @@ define(function (require) {
         },
 
         initialize: function() {
-            _.bindAll(this, 'refresh');
+            _.bindAll(this, 'refresh', 'gotoNextSong', 'gotoPrevSong',
+                            'togglePlaying');
 
             this.model = models.PlayingSong;
             this.model.on('change', this.refresh);
@@ -153,10 +154,19 @@ define(function (require) {
 
             // start the music
             $('audio', this.$el).trigger('play');
+
+            // set up handler to move to next song when song finished
+            $('audio', this.$el).on('ended', this.gotoNextSong);
         },
 
         gotoNextSong: function() {
             models.Playlist.nextSong();
+
+            // In the case where we were already on the last song,
+            // and nothing is playing now,
+            // we need to update the play/pause button to say Play.
+            if ($('audio', this.$el).get(0).paused)
+                $('#btn-play-pause').text('Play');
         },
 
         gotoPrevSong: function() {

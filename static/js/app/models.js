@@ -78,22 +78,24 @@ define(function (require) {
 
         nextSong: function() {
             var oldPos = this.get('position');
-            if (oldPos + 1 === this.get('songCollection').size()) {
-                alert("Already on last song, can't go to next");
-                // XXX do something better here
-            } else {
-                this.seekToSong(this.get('songCollection').at(oldPos + 1).cid);
-            }
+
+            // is there a next song?
+            if (oldPos + 1 >= this.get('songCollection').size())
+                return false;  // no next song
+
+            this.seekToSong(this.get('songCollection').at(oldPos + 1).cid);
+            return true;  // success
         },
 
         prevSong: function() {
             var oldPos = this.get('position');
-            if (oldPos <= 0) {
-                alert('Already on first song');
-                // XXX do something better
-            } else {
-                this.seekToSong(this.get('songCollection').at(oldPos - 1).cid);
-            }
+
+            // is there a previous song?
+            if (oldPos <= 0)
+                return false;  // no previous song
+
+            this.seekToSong(this.get('songCollection').at(oldPos - 1).cid);
+            return true;  // success
         },
 
         addSong: function(spec) {
