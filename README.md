@@ -17,7 +17,6 @@ and Mutagen for reading tags.
     virtualenv venv
     . venv/bin/activate
     pip install Flask Flask-SQLAlchemy Flask-Script mutagen
-    mkdir static
     ln -s /some/dir/that/has/music/in/it static/music
     python manage.py createdb
     DEBUG=True python potsfyi.py
