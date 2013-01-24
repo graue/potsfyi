@@ -164,7 +164,16 @@ define(function (require) {
         },
 
         togglePlaying: function() {
-            alert('Not implemented'); // XXX
+            var audioEl = $('audio', this.$el).get(0);
+            var playPauseBtnSel = $('#btn-play-pause', this.$el);
+            if (audioEl && !audioEl.paused)
+            {
+                audioEl.pause();
+                playPauseBtnSel.text('Play');
+            } else if (audioEl) {
+                audioEl.play();
+                playPauseBtnSel.text('Pause');
+            }
         }
     });
 
