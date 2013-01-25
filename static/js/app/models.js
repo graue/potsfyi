@@ -103,7 +103,24 @@ define(function (require) {
         },
 
         removeSong: function(song) {
+            var removedIndex = this.get('songCollection').indexOf(song);
+            if (removedIndex == -1) {
+                console.log('tried to remove song not in playlist!');
+                return;
+            }
+            if (removedIndex === this.get('position')) {
+                // removing currently playing song
+                // XXX is currently playing song last?
+                //    if (pos + 1 === this.get('songCollection').size())
+                //    { do something... }
+                this.nextSong();
+            }
             this.get('songCollection').remove(song);
+            if (removedIndex < this.get('position')) {
+                // update position index, since removed song was before
+                // (or at) current
+                this.set('position', this.get('position') - 1);
+            }
         }
     });
 
