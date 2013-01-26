@@ -24,15 +24,17 @@ class Track(db.Model):
     artist = db.Column(db.String(200))
     title = db.Column(db.String(240))
     filename = db.Column(db.String(256))
+    track_num = db.Column(db.Integer)
     album_id = db.Column(db.Integer, db.ForeignKey('album.id'))
     album = db.relationship('Album',
         backref=db.backref('tracks', lazy='dynamic'))
 
-    def __init__(self, artist, title, album, filename):
+    def __init__(self, artist, title, filename, album, track_num):
         self.artist = artist
         self.title = title
         self.album = album
         self.filename = filename
+        self.track_num = track_num
 
     def __repr__(self):
         return u'<Track {0.artist} - {0.title}>'.format(self)
@@ -43,6 +45,7 @@ class Track(db.Model):
             'artist': self.artist,
             'title': self.title,
             'album': self.album.serialize,
+            'track': self.track_num,
             'filename': self.filename
         }
 
