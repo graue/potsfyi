@@ -17,20 +17,21 @@ app.config.update(
     MUSIC_DIR=(os.environ.get('MUSIC_DIR', 'static/music')),
 )
 
+
 class Track(db.Model):
     ''' artist, track, filename, album '''
     id = db.Column(db.Integer, primary_key=True)
-    artist   = db.Column(db.String(200))
-    title    = db.Column(db.String(240))
+    artist = db.Column(db.String(200))
+    title = db.Column(db.String(240))
     filename = db.Column(db.String(256))
     album_id = db.Column(db.Integer, db.ForeignKey('album.id'))
-    album    = db.relationship('Album',
+    album = db.relationship('Album',
         backref=db.backref('tracks', lazy='dynamic'))
 
     def __init__(self, artist, title, album, filename):
-        self.artist   = artist
-        self.title    = title
-        self.album    = album
+        self.artist = artist
+        self.title = title
+        self.album = album
         self.filename = filename
 
     def __repr__(self):
@@ -39,9 +40,9 @@ class Track(db.Model):
     @property
     def serialize(self):
         return {
-            'artist'  : self.artist,
-            'title'   : self.title,
-            'album'   : self.album.serialize,
+            'artist': self.artist,
+            'title': self.title,
+            'album': self.album.serialize,
             'filename': self.filename
         }
 
@@ -49,23 +50,23 @@ class Track(db.Model):
     def artist_title(self):
         return self.artist + " " + self.title
 
+
 class Album(db.Model):
     ''' artist, title, date, label, cat# '''
     id = db.Column(db.Integer, primary_key=True)
     artist = db.Column(db.String(200))
-    title  = db.Column(db.String(240))
+    title = db.Column(db.String(240))
     # date format?
     date = db.Column(db.String(16))
     label = db.Column(db.String(240))
-    cat_number   = db.Column(db.String(32))
+    cat_number = db.Column(db.String(32))
 
-    def __init__(self, artist, title, date=None, 
-            label=None, cat_number=None):
+    def __init__(self, artist, title, date=None, label=None, cat_number=None):
         self.artist = artist
-        self.title  = title
-        self.date   = date
-        self.label  = label
-        self.cat_number  = cat_number
+        self.title = title
+        self.date = date
+        self.label = label
+        self.cat_number = cat_number
 
     def __repr__(self):
         return (u'<Album {0.title} - ' +
@@ -75,11 +76,12 @@ class Album(db.Model):
     def serialize(self):
         return {
             'artist': self.artist,
-            'title' : self.title,
-            'date'  : self.date,
-            'label' : self.label,
-            'cat_number'  : self.cat_number
+            'title': self.title,
+            'date': self.date,
+            'label': self.label,
+            'cat_number': self.cat_number
         }
+
 
 @app.route('/search')
 def search_results():

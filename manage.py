@@ -18,7 +18,7 @@ def createdb(verbose=False):
     '''  initial creation of the tracks database '''
     try:
         if Track.query.all():
-            print('db already exists, run update if you\'d like to recreate the db') 
+            print('db already exists. Try using the update command.')
             return
     except:
         db.create_all()
@@ -61,9 +61,10 @@ def createdb(verbose=False):
                            u'{3}').format(relative_filename, artist, title,
                                           album))
                 except UnicodeEncodeError:
-                    print('Added a song that cannot be encoded');
+                    print('Added a song that cannot be encoded')
 
     db.session.commit()
+
 
 @manager.command
 def update(verbose=False):
