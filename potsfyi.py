@@ -44,7 +44,7 @@ class Track(db.Model):
         return {
             'artist': self.artist,
             'title': self.title,
-            'album': self.album.serialize,
+            'album': self.album.serialize if self.album else '',
             'track': self.track_num,
             'filename': self.filename
         }
