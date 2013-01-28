@@ -51,27 +51,14 @@ ul#search-results li a {
   border-left: 1px solid #8a8a8c;
   border-right: 1px solid #8a8a8c;
   border-bottom: 1px solid #8a8a8c;
-  padding: 5px;
-  min-height: 60px;
+  padding: 5px 5px 5px 60px;
+  font-size: 15px;
 }
 
 .result-artist img, .result-album img {
   max-width: 50px;
   max-height: 50px;
   float: left;
-}
-
-ul#search-results li dl {
-  margin-left: 60px;
-}
-
-ul#search-results li dt {
-  font-size: 16px;
-}
-
-ul#search-results li dd {
-  font-size: 12px;
-  margin-left: 0;
 }
 
 ul#search-results .highlight {
