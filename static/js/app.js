@@ -37,4 +37,11 @@ function   (models,       views) {
     var playingSongView = new views.PlayingSongView();
     var playlistView = new views.PlaylistView();
     $('#search-card input').focus();
+
+    // for easier debugging, attach views to window object.
+    // this allows you to examine view and model contents
+    // in Firebug or the Chrome inspector
+    window.resultListView = resultListView;
+    window.playingSongView = playingSongView;
+    window.playlistView = playlistView;
 });
