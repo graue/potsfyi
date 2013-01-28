@@ -14,6 +14,13 @@ manager = Manager(app)
 HANDLED_FILETYPES = ('.ogg', '.mp3', '.flac', '.m4a')
 
 
+def strip_leading_path(filename, path):
+    """ Strip the leading path 'path' off the beginning of 'filename'. """
+    if not filename.startswith(path):
+        raise ValueError("Filename does not start with path given")
+    return filename[len(path) + 1:]
+
+
 def track_num_to_int(track_num_str):
     """ Convert a track number tag value to an int.
         This function exists because the track number may be
@@ -68,12 +75,23 @@ def createdb(verbose=False):
     last_album = None
 
     for path, dirs, files in os.walk(music_dir, followlinks=True):
+        # See if there is cover art in this directory.
+        # If so, apply it to any albums found in the dir.
+        # XXX: does not correctly trickle down to 'CD1', 'CD2' subdirs
+        cover_art = None
+        for testfilename in ['folder.jpg', 'folder.png', 'folder.gif',
+                             'cover.jpg', 'cover.png', 'cover.gif']:
+            if testfilename in files:
+                cover_art = strip_leading_path(os.path.join(path,
+                                                            testfilename),
+                                               music_dir)
+
         for file in files:
             if not file.lower().endswith(HANDLED_FILETYPES):
                 continue
 
             full_filename = os.path.join(path, file)
-            relative_filename = full_filename[len(music_dir) + 1:]
+            relative_filename = strip_leading_path(full_filename, music_dir)
 
             try:
                 tag_info = mutagen.File(full_filename, easy=True)
@@ -118,7 +136,8 @@ def createdb(verbose=False):
                 if verbose and last_album is not None:
                     print('Non-album tracks:')
             else:
-                album = Album(album_artist, album_title, release_date)
+                album = Album(album_artist, album_title, date=release_date,
+                              cover_art=cover_art)
                 if verbose:
                     try:
                         print(u'Adding album {0} - {1}:'.format(album_artist,

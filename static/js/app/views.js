@@ -9,6 +9,8 @@ define(function (require) {
         tmplPlayer = require('hb!../app/template/player.html'),
         models = require('app/models');
 
+    var DEFAULT_BG = 'http://toxicsli.me/file/pattern.png';
+
     // M holds module contents for quick reference
     // and is returned at the end to define the module.
     var M = {};
@@ -32,11 +34,7 @@ define(function (require) {
 
         enqueue: function(event) {
             event.preventDefault();
-            models.Playlist.addSong({
-                artist: this.model.get('artist'),
-                title: this.model.get('title'),
-                filename: this.model.get('filename')
-            });
+            models.Playlist.addSong(this.model.attributes);
         }
     });
 
@@ -157,6 +155,17 @@ define(function (require) {
 
             // set up handler to move to next song when song finished
             $('audio', this.$el).on('ended', this.gotoNextSong);
+
+            // update the cover art
+            var bg = encodeURI(DEFAULT_BG);
+            if (this.model.has('album')) {
+                var album = this.model.get('album');
+                if (typeof album === 'object' && 'cover_art' in album &&
+                        typeof album.cover_art === 'string') {
+                    bg = encodeURIComponent(album.cover_art);
+                }
+            }
+            $('body').css('background-image', 'url(' + bg + ')');
         },
 
         gotoNextSong: function() {

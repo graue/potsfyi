@@ -63,13 +63,16 @@ class Album(db.Model):
     date = db.Column(db.String(16))
     label = db.Column(db.String(240))
     cat_number = db.Column(db.String(32))
+    cover_art = db.Column(db.String(256))  # filename of cover art, jpg/png
 
-    def __init__(self, artist, title, date=None, label=None, cat_number=None):
+    def __init__(self, artist, title, date=None, label=None, cat_number=None,
+                 cover_art=None):
         self.artist = artist
         self.title = title
         self.date = date
         self.label = label
         self.cat_number = cat_number
+        self.cover_art = cover_art
 
     def __repr__(self):
         return (u'<Album {0.title} - ' +
@@ -82,7 +85,8 @@ class Album(db.Model):
             'title': self.title,
             'date': self.date,
             'label': self.label,
-            'cat_number': self.cat_number
+            'cat_number': self.cat_number,
+            'cover_art': self.cover_art
         }
 
 
@@ -96,10 +100,15 @@ def search_results():
 
     serialized_tracks = [t.serialize for t in tracks]
 
-    # prefix all track filenames with the music dir,
+    # prefix all filenames with the music dir,
     # so the client-side app can find them
     for t in serialized_tracks:
         t['filename'] = os.path.join(app.config['MUSIC_DIR'], t['filename'])
+        try:
+            t['album']['cover_art'] = os.path.join(app.config['MUSIC_DIR'],
+                                                   t['album']['cover_art'])
+        except (KeyError, TypeError, AttributeError):
+            pass
 
     return jsonify(objects=serialized_tracks)
 

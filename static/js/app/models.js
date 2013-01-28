@@ -126,11 +126,7 @@ define(function (require) {
 
     var PlayingSongInfo = M.SongInfo.extend({
         changeSong: function(newSong) {
-            this.set({
-                artist: newSong.get('artist'),
-                title: newSong.get('title'),
-                filename: newSong.get('filename')
-            });
+            this.set(newSong.attributes);  // copy all attributes
             // view should listen for the filename change and re-render
         }
     });
