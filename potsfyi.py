@@ -92,7 +92,7 @@ def search_results():
     search_term = request.args.get('q', '')
     tracks = Track.query.filter(
         Track.artist_title.contains(search_term)
-    ).all()
+    ).limit(30).all()
 
     serialized_tracks = [t.serialize for t in tracks]
 
