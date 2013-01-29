@@ -45,16 +45,20 @@ define(function (require) {
                 if (this.timeout)
                     clearTimeout(this.timeout);
 
-                // If search string is not blank, set a timer to search
+                // Set a timer to search
                 // after a short interval (unless the string changes again).
-                if (newSearchString !== '')
-                    this.timeout = setTimeout(this.search, 200);
+                this.timeout = setTimeout(this.search, 200);
             }
         },
 
         search: function() {
-            this.url = '/search?q=' + encodeURIComponent(this.searchString);
-            this.fetch();
+            if (this.searchString === '') {
+                // empty search string: display no results
+                this.reset();
+            } else {
+                this.url = '/search?q=' + encodeURIComponent(this.searchString);
+                this.fetch();
+            }
         }
     });
 
