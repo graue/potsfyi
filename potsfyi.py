@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import re
 from flask import Flask, request, render_template, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -92,12 +93,15 @@ class Album(db.Model):
 
 @app.route('/search')
 def search_results():
-    # should be a general search encompassing artist, track, albums
+    """ Perform a general search encompassing artist, track, albums. """
     search_term = request.args.get('q', '')
-    tracks = Track.query.filter(
-        Track.artist_title.contains(search_term)
-    ).limit(30).all()
 
+    # split search term into up to 10 tokens (anything further is ignored)
+    tokens = filter(None, re.split('\s+', search_term))[:10]
+
+    filters = [Track.title.contains(token) | Track.artist.contains(token)
+               for token in tokens]
+    tracks = Track.query.filter(*filters).limit(30).all()
     serialized_tracks = [t.serialize for t in tracks]
 
     # prefix all filenames with the music dir,
