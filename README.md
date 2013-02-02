@@ -16,7 +16,7 @@ and Mutagen for reading tags.
     cd potsfyi
     virtualenv venv
     . venv/bin/activate
-    pip install Flask Flask-SQLAlchemy Flask-Script mutagen
+    pip install -r requirements.pip
     ln -s /some/dir/that/has/music/in/it static/music
     python manage.py createdb
     DEBUG=True python potsfyi.py
