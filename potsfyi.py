@@ -118,28 +118,33 @@ def search_results():
     return jsonify(objects=serialized_tracks)
 
 
-@app.route('/song/<int:track_id>/<wanted_format>')
-def get_track(track_id, wanted_format):
+@app.route('/song/<int:track_id>/<wanted_formats>')
+def get_track(track_id, wanted_formats):
     """ Get a track.
-    If `format` is the file's native format, a redirect is sent
-    (so the static file can be handled as such).
-    Otherwise, if `format` is ogg, it's transcoded on the fly. """
+    If `wanted_formats` (a comma-separated list) includes the file's actual
+    format, a redirect is sent (so the static file can be handled as such).
+    Otherwise, if `wanted_formats` includes ogg, it's transcoded on the fly.
+    """
 
     TRANSCODABLE_FORMATS = ['mp3', 'ogg', 'flac', 'm4a', 'wav']
+    wanted_formats = re.split(',', wanted_formats)
 
     track = Track.query.filter_by(id=track_id).first()
     if track is None:
         abort(404)
 
-    ext = re.search('\.([^.]+)$', track.filename).group(1)
-    if (ext == wanted_format or wanted_format != 'ogg'
-            or ext not in TRANSCODABLE_FORMATS):
-        # Can't (or don't need to) transcode this, so redirect
-        # to the static file.
+    actual_format = re.search('\.([^.]+)$', track.filename).group(1)
+    if actual_format in wanted_formats:
+        # No need to transcode. Just redirect to the static file.
         return redirect(os.path.join(app.config['MUSIC_DIR'], track.filename))
 
-    # Transcode it!
-    print "Would transcode file {0} from {1} to {2}".format(track.filename, ext, wanted_format)
+    if (actual_format not in TRANSCODABLE_FORMATS
+            or 'ogg' not in wanted_formats):
+        # Can't transcode this. We only go from TRANSCODABLE_FORMATS to ogg.
+        abort(404)
+
+    # Transcode to ogg. (not implemented yet)
+    print "Would transcode file {0} from {1} to ogg (which is in {2})".format(track.filename, actual_format, wanted_formats)
     abort(503)  # XXX
 
 
