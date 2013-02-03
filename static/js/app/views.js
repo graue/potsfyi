@@ -144,9 +144,13 @@ define(function (require) {
         },
 
         refresh: function() {
-            var filename = this.model.get('filename');
+            var song_id = this.model.get('id');
+            // XXX following will always request ogg format
+            // this should actually pass a list of supported formats
+            // e.g. ogg,mp3,wav in Chromium's case
+            var filename = '/song/' + song_id + '/ogg'
             this.$el.html(tmplPlayer({
-                encodedFilename: encodeURIComponent(filename),
+                encodedFilename: filename,
                 isPlaying: true
             }));
 
