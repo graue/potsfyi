@@ -137,18 +137,35 @@ define(function (require) {
 
         initialize: function() {
             _.bindAll(this, 'refresh', 'gotoNextSong', 'gotoPrevSong',
-                            'togglePlaying');
+                            'togglePlaying', 'getFormats');
 
             this.model = models.PlayingSong;
             this.model.on('change', this.refresh);
         },
 
+        getFormats: function() {
+            var audio = document.createElement('audio');
+            var wantedFormats = '';
+            var types = ['mp4', 'mpeg', 'ogg'];
+            for (var i=0; i<types.length; i++) {
+                var result = audio.canPlayType('audio/'+types[i])
+                if (result === "probably" || result === "maybe") {
+                    wantedFormats += types[i] + ',';
+                }
+            }
+            return wantedFormats.replace('mp4','m4a').replace('mpeg', 'mp3')
+        },
+
         refresh: function() {
-            var song_id = this.model.get('id');
+            var songID = this.model.get('id');
+            var wantedFormats = this.getFormats()
+            console.log(wantedFormats)
+            console.log(wantedFormats);
             // XXX following will always request ogg format
             // this should actually pass a list of supported formats
             // e.g. ogg,mp3,wav in Chromium's case
-            var filename = '/song/' + song_id + '/ogg'
+
+            var filename = '/song/' + songID + '/' + wantedFormats
             this.$el.html(tmplPlayer({
                 encodedFilename: filename,
                 isPlaying: true
