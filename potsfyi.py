@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 import os
 import re
-from flask import Flask, request, render_template, jsonify, abort, redirect
+from subprocess import Popen, PIPE
+from flask import (Flask, request, render_template, jsonify, abort, redirect,
+                   Response)
 from flask.ext.sqlalchemy import SQLAlchemy
+from werkzeug.wsgi import wrap_file
 from sqlalchemy.ext.hybrid import hybrid_property
 
 
@@ -143,9 +146,16 @@ def get_track(track_id, wanted_formats):
         # Can't transcode this. We only go from TRANSCODABLE_FORMATS to ogg.
         abort(404)
 
-    # Transcode to ogg. (not implemented yet)
-    print "Would transcode file {0} from {1} to ogg (which is in {2})".format(track.filename, actual_format, wanted_formats)
-    abort(503)  # XXX
+    # Transcode to ogg.
+    # Note that track.filename came out of the DB and is *not* user-specified
+    # (through the web interface), so can be trusted.
+    command = ['avconv', '-v', 'quiet',
+               '-i', os.path.join(app.config['MUSIC_DIR'], track.filename),
+               '-f', 'ogg', '-acodec', 'libvorbis', '-aq', '5', '-']
+    pipe = Popen(command, stdout=PIPE).stdout
+    print "Transcoding with command: {0}".format(command)
+    return Response(wrap_file(request.environ, pipe),
+                    mimetype='audio/ogg', direct_passthrough=True)
 
 
 @app.route('/')
