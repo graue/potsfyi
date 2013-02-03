@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import re
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, abort, redirect
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -115,6 +115,31 @@ def search_results():
             pass
 
     return jsonify(objects=serialized_tracks)
+
+
+@app.route('/song/<int:track_id>/<wanted_format>')
+def get_track(track_id, wanted_format):
+    """ Get a track.
+    If `format` is the file's native format, a redirect is sent
+    (so the static file can be handled as such).
+    Otherwise, if `format` is ogg, it's transcoded on the fly. """
+
+    TRANSCODABLE_FORMATS = ['mp3', 'ogg', 'flac', 'm4a', 'wav']
+
+    track = Track.query.filter_by(id=track_id).first()
+    if track is None:
+        abort(404)
+
+    ext = re.search('\.([^.]+)$', track.filename).group(1)
+    if (ext == wanted_format or wanted_format != 'ogg'
+            or ext not in TRANSCODABLE_FORMATS):
+        # Can't (or don't need to) transcode this, so redirect
+        # to the static file.
+        return redirect(os.path.join(app.config['MUSIC_DIR'], track.filename))
+
+    # Transcode it!
+    print "Would transcode file {0} from {1} to {2}".format(track.filename, ext, wanted_format)
+    abort(503)  # XXX
 
 
 @app.route('/')
