@@ -47,7 +47,8 @@ class Track(db.Model):
             'title': self.title,
             'album': self.album.serialize if self.album else '',
             'track': self.track_num,
-            'filename': self.filename
+            'filename': self.filename,
+            'id': self.id
         }
 
     @hybrid_property
