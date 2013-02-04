@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 import os
 import re
-from flask import Flask, request, render_template, jsonify
+from subprocess import Popen, PIPE
+from flask import (Flask, request, render_template, jsonify, abort, redirect,
+                   Response)
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
+from wsgi_utils import PipeWrapper
 
 
 app = Flask(__name__)
@@ -47,7 +50,8 @@ class Track(db.Model):
             'title': self.title,
             'album': self.album.serialize if self.album else '',
             'track': self.track_num,
-            'filename': self.filename
+            'filename': self.filename,
+            'id': self.id
         }
 
     @hybrid_property
@@ -115,6 +119,44 @@ def search_results():
             pass
 
     return jsonify(objects=serialized_tracks)
+
+
+@app.route('/song/<int:track_id>/<wanted_formats>')
+def get_track(track_id, wanted_formats):
+    """ Get a track.
+    If `wanted_formats` (a comma-separated list) includes the file's actual
+    format, a redirect is sent (so the static file can be handled as such).
+    Otherwise, if `wanted_formats` includes ogg, it's transcoded on the fly.
+    """
+
+    TRANSCODABLE_FORMATS = ['mp3', 'ogg', 'flac', 'm4a', 'wav']
+    wanted_formats = re.split(',', wanted_formats)
+
+    track = Track.query.filter_by(id=track_id).first()
+    if track is None:
+        abort(404)
+
+    actual_format = re.search('\.([^.]+)$', track.filename).group(1)
+    if actual_format in wanted_formats:
+        # No need to transcode. Just redirect to the static file.
+        return redirect(os.path.join(app.config['MUSIC_DIR'], track.filename))
+
+    if (actual_format not in TRANSCODABLE_FORMATS
+            or 'ogg' not in wanted_formats):
+        # Can't transcode this. We only go from TRANSCODABLE_FORMATS to ogg.
+        abort(404)
+
+    # Transcode to ogg.
+    # Note that track.filename came out of the DB and is *not* user-specified
+    # (through the web interface), so can be trusted.
+    command = ['avconv', '-v', 'quiet',
+               '-i', os.path.join(app.config['MUSIC_DIR'], track.filename),
+               '-f', 'ogg', '-acodec', 'libvorbis', '-aq', '5', '-']
+    pipe = Popen(command, stdout=PIPE)
+    print "Transcoding with command: {0}".format(command)
+
+    return Response(PipeWrapper(pipe),
+                    mimetype='audio/ogg', direct_passthrough=True)
 
 
 @app.route('/')

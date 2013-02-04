@@ -137,16 +137,39 @@ define(function (require) {
 
         initialize: function() {
             _.bindAll(this, 'refresh', 'gotoNextSong', 'gotoPrevSong',
-                            'togglePlaying');
+                            'togglePlaying', 'detectFormats');
 
             this.model = models.PlayingSong;
+            this.model.set('supportedFormats', this.detectFormats());
             this.model.on('change', this.refresh);
         },
 
+        detectFormats: function() {
+            // Returns a comma-separated list of supported formats by
+            // file extension, e.g. "mp3,ogg"
+            var audio = document.createElement('audio');
+            var mimetypes = {  // maps file extensions to mime types
+                m4a: 'audio/mp4',
+                ogg: 'audio/ogg',
+                mp3: 'audio/mpeg'
+            };
+            return _.keys(mimetypes).filter(
+                    function(t) { return audio.canPlayType(mimetypes[t]); }
+                ).join(',');
+        },
+
         refresh: function() {
-            var filename = this.model.get('filename');
+            var songID = this.model.get('id');
+            var wantedFormats = this.model.get('supportedFormats');
+
+            var filename = '/song/' + songID + '/' + wantedFormats;
+
+            // Force the old track to stop downloading, if applicable
+            $('audio', this.$el).trigger('pause');
+            $('audio', this.$el).attr('src', '');
+
             this.$el.html(tmplPlayer({
-                encodedFilename: encodeURIComponent(filename),
+                encodedFilename: filename,
                 isPlaying: true
             }));
 
