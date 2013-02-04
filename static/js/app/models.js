@@ -9,12 +9,6 @@ define(function (require) {
     var M = {};
 
     M.SongInfo = Backbone.Model.extend({
-        defaults: {
-            artist: '',
-            title: '',
-            filename: ''
-        },
-
         initialize: function() {
             // assign a unique ID (based on Backbone's cid)
             // for use in HTML lists
