@@ -153,7 +153,6 @@ def get_track(track_id, wanted_formats):
                '-i', os.path.join(app.config['MUSIC_DIR'], track.filename),
                '-f', 'ogg', '-acodec', 'libvorbis', '-aq', '5', '-']
     pipe = Popen(command, stdout=PIPE)
-    print "Transcoding with command: {0}".format(command)
 
     return Response(PipeWrapper(pipe),
                     mimetype='audio/ogg', direct_passthrough=True)
