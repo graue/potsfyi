@@ -50,7 +50,6 @@ class Track(db.Model):
             'title': self.title,
             'album': self.album.serialize if self.album else '',
             'track': self.track_num,
-            'filename': self.filename,
             'id': self.id
         }
 
@@ -91,7 +90,8 @@ class Album(db.Model):
             'date': self.date,
             'label': self.label,
             'cat_number': self.cat_number,
-            'cover_art': self.cover_art
+            'has_cover_art': self.cover_art is not None,
+            'id': self.id
         }
 
 
@@ -106,19 +106,7 @@ def search_results():
     filters = [Track.title.contains(token) | Track.artist.contains(token)
                for token in tokens]
     tracks = Track.query.filter(*filters).limit(30).all()
-    serialized_tracks = [t.serialize for t in tracks]
-
-    # prefix all filenames with the music dir,
-    # so the client-side app can find them
-    for t in serialized_tracks:
-        t['filename'] = os.path.join(app.config['MUSIC_DIR'], t['filename'])
-        try:
-            t['album']['cover_art'] = os.path.join(app.config['MUSIC_DIR'],
-                                                   t['album']['cover_art'])
-        except (KeyError, TypeError, AttributeError):
-            pass
-
-    return jsonify(objects=serialized_tracks)
+    return jsonify(objects=[t.serialize for t in tracks])
 
 
 @app.route('/song/<int:track_id>/<wanted_formats>')
@@ -139,7 +127,8 @@ def get_track(track_id, wanted_formats):
     actual_format = re.search('\.([^.]+)$', track.filename).group(1)
     if actual_format in wanted_formats:
         # No need to transcode. Just redirect to the static file.
-        return redirect(os.path.join(app.config['MUSIC_DIR'], track.filename))
+        return redirect(os.path.join('/' + app.config['MUSIC_DIR'],
+                                     track.filename))
 
     if (actual_format not in TRANSCODABLE_FORMATS
             or 'ogg' not in wanted_formats):
@@ -156,6 +145,15 @@ def get_track(track_id, wanted_formats):
 
     return Response(PipeWrapper(pipe),
                     mimetype='audio/ogg', direct_passthrough=True)
+
+
+@app.route('/albumart/<int:album_id>')
+def get_album_art(album_id):
+    album = Album.query.filter_by(id=album_id).first()
+    if album is None or album.cover_art is None:
+        abort(404)
+    return redirect(os.path.join('/' + app.config['MUSIC_DIR'],
+                                 album.cover_art))
 
 
 @app.route('/')

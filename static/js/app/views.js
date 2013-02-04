@@ -180,13 +180,11 @@ define(function (require) {
             $('audio', this.$el).on('ended', this.gotoNextSong);
 
             // update the cover art
-            var bg = encodeURI(DEFAULT_BG);
+            var bg = DEFAULT_BG;
             if (this.model.has('album')) {
                 var album = this.model.get('album');
-                if (typeof album === 'object' && 'cover_art' in album &&
-                        typeof album.cover_art === 'string') {
-                    bg = encodeURIComponent(album.cover_art);
-                }
+                if (typeof album === 'object' && album.has_cover_art)
+                    bg = '/albumart/' + album.id;
             }
             $('body').css('background-image', 'url(' + bg + ')');
         },
