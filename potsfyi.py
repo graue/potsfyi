@@ -5,7 +5,6 @@ from subprocess import Popen, PIPE
 from flask import (Flask, request, render_template, jsonify, abort, redirect,
                    Response)
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.hybrid import hybrid_property
 from wsgi_utils import PipeWrapper
 
 
@@ -52,10 +51,6 @@ class Track(db.Model):
             'track': self.track_num,
             'id': self.id
         }
-
-    @hybrid_property
-    def artist_title(self):
-        return self.artist + " " + self.title
 
 
 class Album(db.Model):
