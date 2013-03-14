@@ -101,6 +101,19 @@ def search_results():
     filters = [Track.title.contains(token) | Track.artist.contains(token)
                for token in tokens]
     tracks = Track.query.filter(*filters).limit(30).all()
+
+    album_filters = [Album.title.contains(token) |
+                     Album.artist.contains(token) for token in tokens]
+    albums = Album.query.filter(*album_filters).limit(10).all()
+
+    return jsonify(objects=[t.serialize for t in (albums + tracks)])
+
+
+@app.route('/album/<int:album_id>')
+def list_album(album_id):
+    """ Given an album ID, list its tracks. """
+    tracks = Track.query.filter_by(album_id=album_id)\
+                        .order_by(Track.track_num)
     return jsonify(objects=[t.serialize for t in tracks])
 
 

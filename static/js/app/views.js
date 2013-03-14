@@ -17,24 +17,40 @@ define(function (require) {
 
     M.SearchResultView = Backbone.View.extend({
         tagName: 'li',
-        className: 'result-song',
+        className: function() {
+            // XXX Pretty hacky... we test whether the response has a
+            // has_cover_art attribute. If it does (even if the attribute
+            // is false!), it's an album, otherwise it's a song result.
+            if (this.model.get('has_cover_art') !== undefined)
+                return 'result-album';
+
+            return 'result-song';
+        },
         events: {'click a': 'enqueue'},
 
         initialize: function() {
-            _.bindAll(this, 'render', 'enqueue');
+            _.bindAll(this, 'render', 'enqueue', 'className');
             this.render();
         },
 
         render: function() {
             this.$el.html(tmplResult({
                 artist: this.model.get('artist'),
-                title: this.model.get('title')}));
+                title: this.model.get('title'),
+                id: this.model.get('id'),
+                has_cover_art: this.model.get('has_cover_art'),
+                is_album: this.className() === 'result-album'}));
             return this;
         },
 
         enqueue: function(event) {
             event.preventDefault();
-            models.Playlist.addSong(this.model.attributes);
+            if (this.className() === 'result-album') {
+                // Need to enqueue a whole album.
+                models.Playlist.addAlbum(this.model.get('id'));
+            } else {
+                models.Playlist.addSong(this.model.attributes);
+            }
         }
     });
 

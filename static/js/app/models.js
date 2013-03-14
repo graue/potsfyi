@@ -57,7 +57,28 @@ define(function (require) {
     });
 
     var SongCollection = Backbone.Collection.extend({
-        model: M.SongInfo
+        model: M.SongInfo,
+
+        // Override because Flask requires an object at top level.
+        // XXX code duplication: Also done for search results
+        parse: function(resp, xhr) {
+            return resp.objects;
+        },
+
+        addAlbum: function(albumId) {
+            this.url = '/album/' + albumId;
+            var options = {};
+            options.parse = true;
+            options.success = function(coll, resp, options) {
+                options.remove = false;
+                coll.update(resp, options);
+            };
+            Backbone.sync('read', this, options);
+        },
+
+        initialize: function() {
+            _.bindAll(this, 'addAlbum');
+        }
     });
 
     var Playlist = Backbone.Model.extend({
@@ -98,6 +119,10 @@ define(function (require) {
 
         addSong: function(spec) {
             this.get('songCollection').add(spec);
+        },
+
+        addAlbum: function(albumId) {
+            this.get('songCollection').addAlbum(albumId);
         },
 
         removeSong: function(song) {

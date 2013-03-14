@@ -1,5 +1,12 @@
 <a href="#">
+  {{#if has_cover_art}}
+  <img alt="" src="/albumart/{{id}}">
+  {{/if}}
   <span class="artist-name">{{artist}}</span>
+  {{#if is_album}}
+  <br><span class="album-name">{{title}}</span>
+  {{else}}
   &mdash;
   <span class="song-name">{{title}}</span>
+  {{/if}}
 </a>
