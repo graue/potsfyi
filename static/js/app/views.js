@@ -9,7 +9,7 @@ define(function (require) {
         tmplPlayer = require('hb!../app/template/player.html'),
         models = require('app/models');
 
-    var DEFAULT_BG = 'http://toxicsli.me/file/pattern.png';
+    var DEFAULT_BG = '/static/img/pattern.png';
 
     // M holds module contents for quick reference
     // and is returned at the end to define the module.
