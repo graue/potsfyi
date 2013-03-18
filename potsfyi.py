@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 import os
 import re
+import sys
 from subprocess import Popen, PIPE
 from flask import (Flask, request, render_template, jsonify, abort, redirect,
-                   Response)
+                   Response, url_for)
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.login import (LoginManager, UserMixin, current_user,
+                             login_required)
+from flask.ext.browserid import BrowserID
 from wsgi_utils import PipeWrapper
 
+
+# Insecure, from the Flask manual - for testing and development only.
+DEFAULT_SECRET_KEY = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tracks.db'
@@ -18,7 +25,54 @@ app.config.update(
     PORT=int(os.environ.get('PORT', 5000)),
     DB_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db')),
     MUSIC_DIR=(os.environ.get('MUSIC_DIR', 'static/music')),
+    ADMIN_EMAIL=(os.environ.get('ADMIN_EMAIL', None)),
 )
+
+app.secret_key = os.environ.get('SECRET_KEY', DEFAULT_SECRET_KEY)
+if app.secret_key == DEFAULT_SECRET_KEY:
+    if app.config['DEBUG']:
+        sys.stderr.write("Warning: using default (insecure) secret key.\n")
+    else:
+        sys.stderr.write("Error: You need to specify a SECRET_KEY\n")
+        sys.exit(1)
+
+
+class User(UserMixin):
+    def __init__(self, user_id):
+        UserMixin.__init__(self)
+        self.user_id = user_id
+        self.admin = (self.user_id == app.config['ADMIN_EMAIL'])
+
+    def get_id(self):
+        return unicode(self.user_id)
+
+
+def get_user_by_id(user_id):
+    return User(user_id)
+
+
+def get_user(resp):
+    """ Return a User object based on a BrowserID response. """
+    if resp['status'] != 'okay':
+        return None  # Login failed for some reason
+
+    # If an admin email is set, and the BrowserID login doesn't match,
+    # deny access.
+    if (app.config['ADMIN_EMAIL'] and
+            app.config['ADMIN_EMAIL'] != resp['email']):
+        return None
+
+    return User(resp['email'])  # Either admin, or anyone is allowed.
+
+
+login_manager = LoginManager()
+login_manager.user_loader(get_user_by_id)
+login_manager.login_view = "login_view"
+login_manager.setup_app(app)
+
+browser_id = BrowserID()
+browser_id.user_loader(get_user)
+browser_id.init_app(app)
 
 
 class Track(db.Model):
@@ -91,6 +145,7 @@ class Album(db.Model):
 
 
 @app.route('/search')
+@login_required
 def search_results():
     """ Perform a general search encompassing artist, track, albums. """
     search_term = request.args.get('q', '')
@@ -110,6 +165,7 @@ def search_results():
 
 
 @app.route('/album/<int:album_id>')
+@login_required
 def list_album(album_id):
     """ Given an album ID, list its tracks. """
     tracks = Track.query.filter_by(album_id=album_id)\
@@ -118,6 +174,7 @@ def list_album(album_id):
 
 
 @app.route('/song/<int:track_id>/<wanted_formats>')
+@login_required
 def get_track(track_id, wanted_formats):
     """ Get a track.
     If `wanted_formats` (a comma-separated list) includes the file's actual
@@ -156,6 +213,7 @@ def get_track(track_id, wanted_formats):
 
 
 @app.route('/albumart/<int:album_id>')
+@login_required
 def get_album_art(album_id):
     album = Album.query.filter_by(id=album_id).first()
     if album is None or album.cover_art is None:
@@ -165,8 +223,16 @@ def get_album_art(album_id):
 
 
 @app.route('/')
+@login_required
 def front_page():
-    return render_template('index.html')
+    return render_template('app.html')
+
+
+@app.route('/login')
+def login_view():
+    if current_user.is_authenticated():
+        return redirect(url_for('front_page'))
+    return render_template('login.html')
 
 if __name__ == '__main__':
     app.run(port=app.config['PORT'])

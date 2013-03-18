@@ -18,7 +18,7 @@ requirejs.config({
             exports: '_'
         },
         backbone: {
-            deps: ['underscore', 'json2', 'jquery'],
+            deps: ['underscore', 'json2'],
             exports: 'Backbone'
         },
         handlebars: {
