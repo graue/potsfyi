@@ -100,3 +100,9 @@ span.song-length:after { content: ')'; }
 #control-buttons button {
   display: inline-block;
 }
+
+button#browserid-logout {
+  /* TODO: make this less ugly and terrible. */
+  position: relative;
+  left: 500px;
+}
