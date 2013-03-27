@@ -158,7 +158,7 @@ def update(verbose=False):
     ''' After createdb is run, this allows you to update the db without
         duplicating tracks already in the db '''
     db.drop_all()
-    createdb(verbose=False)
+    createdb(verbose)
 
 if __name__ == "__main__":
     manager.run()
