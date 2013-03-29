@@ -2,7 +2,8 @@ define(function (require) {
     "use strict";
 
     var _ = require('underscore'),
-        Backbone = require('backbone');
+        Backbone = require('backbone'),
+        BackboneLocalStorage = require('localstorage');
 
     // M holds module contents for quick reference
     // and is returned at the end to define the module.
@@ -84,7 +85,79 @@ define(function (require) {
     var Playlist = Backbone.Model.extend({
         defaults: {
             songCollection: new SongCollection(),
-            position: -1
+            position: -1,
+            id: 'playlist'
+        },
+
+        localStorage: new Backbone.LocalStorage('playlist'),
+
+        getPlaylistFromLocalStorage: function() {
+            this.fetch({
+                error: function(model, resp, options) {
+                    // Reading the playlist from local storage failed.
+                    // This probably means no playlist is saved there to
+                    // begin with, so save the current (empty) playlist.
+                    Backbone.sync('create', model, {});
+                },
+                syncingFromLS: true
+            });
+        },
+
+        syncToLocalStorage: function() {
+            Backbone.sync('update', this, {
+                error: function(xhr, status, error) {
+                    alert('Sync failed with status: ' + status);
+                }
+            });
+        },
+
+        initialize: function() {
+            _.bindAll(this, 'getPlaylistFromLocalStorage', 'parse',
+                'syncToLocalStorage');
+
+            // Resync to localStorage when the playlist changes.
+            var syncMethod = this.syncToLocalStorage;
+            this.attributes.songCollection.on('add remove',
+                function(model, collection, options) {
+                    options.syncingFromLS || syncMethod();
+                }
+            );
+
+            // When the position changes, play the newly active song
+            // and resync to localStorage.
+            this.on('change:position', function(model, value, options) {
+                options.syncingFromLS || syncMethod();
+                var newSong = this.get('songCollection').at(value);
+                M.PlayingSong.changeSong(newSong);
+            });
+        },
+
+        parse: function(resp, options) {
+            // Called when we load the saved playlist out of LocalStorage.
+
+            if (resp.songCollection) {
+                // songCollection here is not actually a Backbone collection,
+                // just the serialized form of its models' attributes.
+
+                // We need to create a SongInfo model for each element,
+                // then add the SongInfo models to this model's existing
+                // SongCollection.
+
+                // The playlist view is listening to this.songCollection,
+                // so we can't simply replace this.songCollection with a
+                // whole new collection.
+
+                // Work around lack of 'this' in callback
+                var mySongCollection = this.attributes.songCollection;
+
+                _.each(resp.songCollection, function(songAttrs) {
+                    mySongCollection.add(new M.SongInfo(songAttrs),
+                        options);
+                });
+
+                delete resp.songCollection;
+            }
+            return resp;
         },
 
         seekToSong: function(cid) {
@@ -92,7 +165,6 @@ define(function (require) {
             var newSong = this.get('songCollection').get(cid);
             this.set('position',
                      this.get('songCollection').indexOf(newSong));
-            M.PlayingSong.changeSong(newSong);
         },
 
         nextSong: function() {

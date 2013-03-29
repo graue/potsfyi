@@ -10,6 +10,7 @@ requirejs.config({
         app: '../app',
         handlebars: 'handlebars',
         hb: 'hbtemplate',
+        localstorage: 'backbone.localStorage',
     },
 
     // Shim to properly load non-AMD modules (Backbone, Underscore)
@@ -36,6 +37,7 @@ function   (models,       views) {
     });
     var playingSongView = new views.PlayingSongView();
     var playlistView = new views.PlaylistView();
+    models.Playlist.getPlaylistFromLocalStorage();
     $('#search-card input').focus();
 
     // for easier debugging, attach views to window object.
@@ -44,4 +46,5 @@ function   (models,       views) {
     window.resultListView = resultListView;
     window.playingSongView = playingSongView;
     window.playlistView = playlistView;
+    window.playlistModel = models.Playlist;
 });
