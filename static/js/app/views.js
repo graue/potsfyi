@@ -176,13 +176,24 @@ define(function (require) {
 
         refresh: function() {
             var songID = this.model.get('id');
-            var wantedFormats = this.model.get('supportedFormats');
-
-            var filename = '/song/' + songID + '/' + wantedFormats;
 
             // Force the old track to stop downloading, if applicable
             $('audio', this.$el).trigger('pause');
             $('audio', this.$el).attr('src', '');
+
+            if (songID == -1) {
+                // This means no song is active.
+                // Hide the player and buttons.
+                this.$el.html('');
+
+                // Reset the background image.
+                $('body').css('background-image', 'url(' + DEFAULT_BG + ')');
+
+                return;
+            }
+
+            var wantedFormats = this.model.get('supportedFormats');
+            var filename = '/song/' + songID + '/' + wantedFormats;
 
             this.$el.html(tmplPlayer({
                 encodedFilename: filename,

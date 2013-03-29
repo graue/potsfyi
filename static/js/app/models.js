@@ -126,7 +126,20 @@ define(function (require) {
             // When the position changes, play the newly active song
             // and resync to localStorage.
             this.on('change:position', function(model, value, options) {
+                if (value >= this.attributes.songCollection.length) {
+                    alert('Error: Position ' + value + ' out of range; ' +
+                        'last song is ' +
+                            (this.attributes.songCollection.length - 1));
+                    return;
+                }
+
                 options.syncingFromLS || syncMethod();
+
+                if (value == -1) {
+                    M.PlayingSong.changeSong(null);
+                    return;
+                }
+
                 var newSong = this.get('songCollection').at(value);
                 M.PlayingSong.changeSong(newSong);
             });
@@ -204,11 +217,12 @@ define(function (require) {
                 return;
             }
             if (removedIndex === this.get('position')) {
-                // removing currently playing song
-                // XXX is currently playing song last?
-                //    if (pos + 1 === this.get('songCollection').size())
-                //    { do something... }
-                this.nextSong();
+                // removing currently playing song,
+                // skip to next
+                if (!this.nextSong()) {
+                    // already on last song
+                    this.seekToSong(-1);
+                }
             }
             this.get('songCollection').remove(song);
             if (removedIndex < this.get('position')) {
@@ -221,7 +235,11 @@ define(function (require) {
 
     var PlayingSongInfo = M.SongInfo.extend({
         changeSong: function(newSong) {
-            this.set(newSong.attributes);  // copy all attributes
+            if (!newSong) {
+                this.set('id', '-1');
+            } else {
+                this.set(newSong.attributes);  // copy all attributes
+            }
             // view should listen for the filename change and re-render
         }
     });
