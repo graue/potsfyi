@@ -29,12 +29,9 @@ app.config.update(
 )
 
 app.secret_key = os.environ.get('SECRET_KEY', DEFAULT_SECRET_KEY)
-if app.secret_key == DEFAULT_SECRET_KEY:
-    if app.config['DEBUG']:
-        sys.stderr.write("Warning: using default (insecure) secret key.\n")
-    else:
-        sys.stderr.write("Error: You need to specify a SECRET_KEY\n")
-        sys.exit(1)
+if app.secret_key == DEFAULT_SECRET_KEY and not app.config['DEBUG']:
+    sys.stderr.write("Error: You need to specify a SECRET_KEY\n")
+    sys.exit(1)
 
 
 class User(UserMixin):
