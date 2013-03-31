@@ -1,0 +1,14 @@
+{
+    "name": "potsfyi",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {},
+    "dependencies": {
+        "underscore": "1.4.4",
+        "backbone": "1.0.0",
+        "jquery": "1.8.3",
+        "handlebars": "1.0.10",
+        "hbsfy": "0.1.2",
+        "browserify": "2.10.2"
+    }
+}

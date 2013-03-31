@@ -4,3 +4,5 @@ venv/
 *.pyc
 *.db
 static/music
+static/bundle.js
+script/node_modules
