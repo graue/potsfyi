@@ -5,7 +5,13 @@ intended to run on a personal server.
 
 ## Current status
 
-Very barebones and unfinished.
+It's a little ugly, and it's missing some obvious features.
+But it can already search your collection, show cover art,
+queue up tracks or albums to play in sequence,
+and transcode tracks from formats your browser doesn't natively support.
+
+All recent-ish versions of Firefox and Chrome work great with it.
+
 
 ### Dependencies
 
