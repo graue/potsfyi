@@ -5,8 +5,7 @@ var $ = require('../lib/jquery.shim'),
     Backbone = require('backbone'),
     tmplResult = require('../template/result.hbs'),
     tmplPlaylistSong = require('../template/playlistSong.hbs'),
-    tmplPlayer = require('../template/player.hbs'),
-    models = require('./models');
+    tmplPlayer = require('../template/player.hbs');
 
 var DEFAULT_BG = '/static/img/pattern.png';
 
@@ -21,10 +20,10 @@ exports.SearchResultView = Backbone.View.extend({
 
         return 'result-song';
     },
-    events: {'click a': 'enqueue'},
+    events: {'click a': 'handleClick'},
 
     initialize: function() {
-        _.bindAll(this, 'render', 'enqueue', 'className');
+        _.bindAll(this, 'render', 'handleClick', 'className');
         this.render();
     },
 
@@ -38,14 +37,9 @@ exports.SearchResultView = Backbone.View.extend({
         return this;
     },
 
-    enqueue: function(event) {
+    handleClick: function(event) {
         event.preventDefault();
-        if (this.className() === 'result-album') {
-            // Need to enqueue a whole album.
-            models.Playlist.addAlbum(this.model.get('id'));
-        } else {
-            models.Playlist.addSong(this.model.attributes);
-        }
+        this.trigger('click');
     }
 });
 
@@ -54,8 +48,6 @@ exports.SearchResultListView = Backbone.View.extend({
 
     initialize: function() {
         _.bindAll(this, 'refresh', 'appendResult');
-
-        this.collection = new models.SearchResultList();
         this.collection.on('reset', this.refresh);
     },
 
@@ -64,6 +56,16 @@ exports.SearchResultListView = Backbone.View.extend({
             model: result
         });
         this.$el.append(resultView.render().el);
+
+        var listView = this;
+        resultView.on('click', function() {
+            if (resultView.className() === 'result-album') {
+                // Need to enqueue a whole album.
+                listView.trigger('album-clicked', result.get('id'));
+            } else {
+                listView.trigger('song-clicked', result.attributes);
+            }
+        });
     },
 
     refresh: function() {
@@ -79,7 +81,7 @@ exports.PlaylistItemView = Backbone.View.extend({
     tagName: 'li',
     className: 'solo-track',
     events: {'click span': 'play',
-                'click a.remove-link': 'removeFromPlaylist'},
+             'click a.remove-link': 'removeFromPlaylist'},
 
     initialize: function() {
         _.bindAll(this, 'render', 'play', 'removeFromPlaylist');
@@ -96,12 +98,12 @@ exports.PlaylistItemView = Backbone.View.extend({
     },
 
     play: function(event) {
-        models.Playlist.seekToSong(this.model.cid);
+        window.playlist.seekToSong(this.model.cid);
     },
 
     removeFromPlaylist: function(event) {
         event.preventDefault();
-        models.Playlist.removeSong(this.model);
+        window.playlist.removeSong(this.model);
     }
 });
 
@@ -111,11 +113,11 @@ exports.PlaylistView = Backbone.View.extend({
     initialize: function() {
         _.bindAll(this, 'addSong', 'removeSong', 'updateNowPlaying');
 
-        this.collection = models.Playlist.get('songCollection');
-        this.collection.on('add', this.addSong);
-        this.collection.on('remove', this.removeSong);
-        models.Playlist.on('change:position',
-                            this.updateNowPlaying);
+        // The Playlist model proxies "add" and "remove" events
+        // from its inner collection.
+        this.model.on('add', this.addSong);
+        this.model.on('remove', this.removeSong);
+        this.model.on('change:position', this.updateNowPlaying);
     },
 
     addSong: function(track) {
@@ -125,12 +127,11 @@ exports.PlaylistView = Backbone.View.extend({
 
     removeSong: function(track) {
         this.$('#' + track.get('htmlId')).remove();
-        // XXX: update position, currently playing song
     },
 
     updateNowPlaying: function() {
-        var oldPlayPos = models.Playlist.previous('position');
-        var newPlayPos = models.Playlist.get('position');
+        var oldPlayPos = this.model.previous('position');
+        var newPlayPos = this.model.get('position');
         $('li:nth-child(' + (oldPlayPos + 1) + ')',
             this.$el).removeClass('now-playing');
         $('li:nth-child(' + (newPlayPos + 1) + ')',
@@ -150,7 +151,6 @@ exports.PlayingSongView = Backbone.View.extend({
         _.bindAll(this, 'refresh', 'gotoNextSong', 'gotoPrevSong',
                         'togglePlaying', 'detectFormats');
 
-        this.model = models.PlayingSong;
         this.model.set('supportedFormats', this.detectFormats());
         this.model.on('change', this.refresh);
     },
@@ -212,24 +212,22 @@ exports.PlayingSongView = Backbone.View.extend({
     },
 
     gotoNextSong: function() {
-        models.Playlist.nextSong();
-
-        // In the case where we were already on the last song,
-        // and nothing is playing now,
-        // we need to update the play/pause button to say Play.
-        if ($('audio', this.$el).get(0).paused)
+        if (!window.playlist.nextSong()) {
+            // In the case where we were already on the last song,
+            // and nothing is playing now,
+            // we need to update the play/pause button to say Play.
             $('#btn-play-pause').text('Play');
+        }
     },
 
     gotoPrevSong: function() {
-        models.Playlist.prevSong();
+        window.playlist.prevSong();
     },
 
     togglePlaying: function() {
         var audioEl = $('audio', this.$el).get(0);
         var playPauseBtnSel = $('#btn-play-pause', this.$el);
-        if (audioEl && !audioEl.paused)
-        {
+        if (audioEl && !audioEl.paused) {
             audioEl.pause();
             playPauseBtnSel.text('Play');
         } else if (audioEl) {

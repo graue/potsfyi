@@ -4,7 +4,7 @@ var _ = require('underscore'),
     Backbone = require('backbone'),
     BackboneLocalStorage = require('../lib/backbone.localStorage.shim');
 
-exports.SongInfo = Backbone.Model.extend({
+var SongInfo = Backbone.Model.extend({
     initialize: function() {
         // assign a unique ID (based on Backbone's cid)
         // for use in HTML lists
@@ -12,14 +12,14 @@ exports.SongInfo = Backbone.Model.extend({
     }
 });
 
-exports.SearchResultList = Backbone.Collection.extend({
+var SearchResultList = Backbone.Collection.extend({
     searchString: '',
 
     initialize: function() {
         _.bindAll(this, 'search', 'updateSearchString');
     },
 
-    model: exports.SongInfo,
+    model: SongInfo,
 
     // Override because Flask requires an object at top level.
     parse: function(resp, xhr) {
@@ -53,7 +53,7 @@ exports.SearchResultList = Backbone.Collection.extend({
 });
 
 var SongCollection = Backbone.Collection.extend({
-    model: exports.SongInfo,
+    model: SongInfo,
 
     // Override because Flask requires an object at top level.
     // XXX code duplication: Also done for search results
@@ -108,15 +108,22 @@ var Playlist = Backbone.Model.extend({
 
     initialize: function() {
         _.bindAll(this, 'getPlaylistFromLocalStorage', 'parse',
-            'syncToLocalStorage');
+            'syncToLocalStorage', 'addSong', 'addAlbum');
+
+        // Proxy the inner collection's "add" and "remove" events.
+        var playlistModel = this;
+        this.attributes.songCollection.on('add', function(mod, coll, opt) {
+            playlistModel.trigger('add', mod, coll, opt);
+        });
+        this.attributes.songCollection.on('remove', function(mod, coll, opt) {
+            playlistModel.trigger('remove', mod, coll, opt);
+        });
 
         // Resync to localStorage when the playlist changes.
         var syncMethod = this.syncToLocalStorage;
-        this.attributes.songCollection.on('add remove',
-            function(model, collection, options) {
-                options.syncingFromLS || syncMethod();
-            }
-        );
+        this.on('add remove', function(model, collection, options) {
+            options.syncingFromLS || syncMethod();
+        });
 
         // When the position changes, play the newly active song
         // and resync to localStorage.
@@ -132,12 +139,12 @@ var Playlist = Backbone.Model.extend({
             options.syncingFromLS || syncMethod();
 
             if (value == -1) {
-                exports.PlayingSong.changeSong(null);
+                window.playingSong.changeSong(null);
                 return;
             }
 
             var newSong = songColl.at(value);
-            exports.PlayingSong.changeSong(newSong);
+            window.playingSong.changeSong(newSong);
         });
     },
 
@@ -162,7 +169,7 @@ var Playlist = Backbone.Model.extend({
             options.parse = false;  // avoid recursion!
 
             _.each(resp.songCollection, function(songAttrs) {
-                songColl.add(new exports.SongInfo(songAttrs), options);
+                songColl.add(new SongInfo(songAttrs), options);
             });
 
             delete resp.songCollection;
@@ -200,11 +207,11 @@ var Playlist = Backbone.Model.extend({
     },
 
     addSong: function(spec) {
-        this.get('songCollection').add(spec);
+        this.attributes.songCollection.add(spec);
     },
 
     addAlbum: function(albumId) {
-        this.get('songCollection').addAlbum(albumId);
+        this.attributes.songCollection.addAlbum(albumId);
     },
 
     removeSong: function(song) {
@@ -230,7 +237,7 @@ var Playlist = Backbone.Model.extend({
     }
 });
 
-var PlayingSongInfo = exports.SongInfo.extend({
+var PlayingSongInfo = SongInfo.extend({
     changeSong: function(newSong) {
         if (!newSong) {
             this.set('id', '-1');
@@ -241,6 +248,9 @@ var PlayingSongInfo = exports.SongInfo.extend({
     }
 });
 
-// XXX these should probably be created in a central controller
-exports.PlayingSong = new PlayingSongInfo();
-exports.Playlist = new Playlist();
+_.extend(exports, {
+    SongInfo: SongInfo,
+    SearchResultList: SearchResultList,
+    PlayingSongInfo: PlayingSongInfo,
+    Playlist: Playlist
+});
