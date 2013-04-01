@@ -2,7 +2,7 @@
 
 var _ = require('underscore'),
     Backbone = require('backbone'),
-    BackboneLocalStorage = require('../lib/backbone.localStorage.shim.js');
+    BackboneLocalStorage = require('../lib/backbone.localStorage.shim');
 
 exports.SongInfo = Backbone.Model.extend({
     initialize: function() {
