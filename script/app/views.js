@@ -1,11 +1,11 @@
 "use strict";
 
-var $ = require('./../lib/jquery.shim'),
+var $ = require('../lib/jquery.shim'),
     _ = require('underscore'),
     Backbone = require('backbone'),
-    tmplResult = require('./../template/result.hbs'),
-    tmplPlaylistSong = require('./../template/playlistSong.hbs'),
-    tmplPlayer = require('./../template/player.hbs'),
+    tmplResult = require('../template/result.hbs'),
+    tmplPlaylistSong = require('../template/playlistSong.hbs'),
+    tmplPlayer = require('../template/player.hbs'),
     models = require('./models');
 
 var DEFAULT_BG = '/static/img/pattern.png';
