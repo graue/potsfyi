@@ -20,8 +20,8 @@ All recent-ish versions of Firefox and Chrome work great with it.
  * [Flask](http://flask.pocoo.org)
  * [Flask-SQLAlchemy](http://packages.python.org/Flask-SQLAlchemy/)
  * [Flask-Script](http://flask-script.readthedocs.org/)
- * Flask-Login
- * Flask-BrowserID
+ * [Flask-Login](https://pypi.python.org/pypi/Flask-Login)
+ * [Flask-BrowserID](https://pypi.python.org/pypi/Flask-BrowserID)
  * [Mutagen](https://code.google.com/p/mutagen/) (for reading tags)
  * LibAV's [avconv](https://libav.org/avconv.html) (for transcoding)
 
