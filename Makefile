@@ -8,8 +8,8 @@ all: realAll
 
 realAll: static/bundle.js
 
-TEMPLATES = $(shell find script/template -name "*.hbs")
-SCRIPTS = $(shell find script/lib script/app script/*.js -name "*.js")
+TEMPLATES = $(shell find script -maxdepth 2 -name "*.hbs")
+SCRIPTS = $(shell find script -maxdepth 2 -name "*.js")
 
 static/bundle.js: $(TEMPLATES) $(SCRIPTS)
 	browserify -t hbsfy script/main.js -o static/bundle.js

@@ -1,16 +1,20 @@
-// Client side code for potsfyi
+"use strict";
 
 var $ = require('./lib/jquery.shim');
 
 $(document).ready(function() {
-    var models = require('./app/models'),
-        views = require('./app/views');
+    var PlayingSongInfo = require('./models/PlayingSongInfo'),
+        Playlist = require('./models/Playlist'),
+        SearchResultList = require('./models/SearchResultList'),
+        SearchResultListView = require('./views/SearchResultListView'),
+        PlayingSongView = require('./views/PlayingSongView'),
+        PlaylistView = require('./views/PlaylistView');
 
-    window.playingSong = new models.PlayingSongInfo();
-    window.playlist = new models.Playlist(playingSong);
+    window.playingSong = new PlayingSongInfo();
+    window.playlist = new Playlist(playingSong);
 
-    var resultList = new models.SearchResultList();
-    var resultListView = new views.SearchResultListView({
+    var resultList = new SearchResultList();
+    var resultListView = new SearchResultListView({
         collection: resultList
     });
 
@@ -22,10 +26,10 @@ $(document).ready(function() {
         resultListView.collection.updateSearchString(newValue);
     });
 
-    var playingSongView = new views.PlayingSongView({
+    var playingSongView = new PlayingSongView({
         model: window.playingSong
     });
-    var playlistView = new views.PlaylistView({model: window.playlist});
+    var playlistView = new PlaylistView({model: window.playlist});
     window.playlist.getPlaylistFromLocalStorage();
     $('#search-card input').focus();
 

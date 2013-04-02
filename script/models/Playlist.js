@@ -2,80 +2,9 @@
 
 var _ = require('underscore'),
     Backbone = require('backbone'),
-    BackboneLocalStorage = require('../lib/backbone.localStorage.shim');
-
-var SongInfo = Backbone.Model.extend({
-    initialize: function() {
-        // assign a unique ID (based on Backbone's cid)
-        // for use in HTML lists
-        this.set({ htmlId: 'song-' + this.cid });
-    }
-});
-
-var SearchResultList = Backbone.Collection.extend({
-    searchString: '',
-
-    initialize: function() {
-        _.bindAll(this, 'search', 'updateSearchString');
-    },
-
-    model: SongInfo,
-
-    // Override because Flask requires an object at top level.
-    parse: function(resp, xhr) {
-        return resp.objects;
-    },
-
-    updateSearchString: function(newSearchString) {
-        // Only update if search string has actually changed.
-        if (newSearchString !== this.searchString) {
-            this.searchString = newSearchString;
-
-            // Clear the old search-as-you-type timer
-            if (this.timeout)
-                clearTimeout(this.timeout);
-
-            // Set a timer to search
-            // after a short interval (unless the string changes again).
-            this.timeout = setTimeout(this.search, 200);
-        }
-    },
-
-    search: function() {
-        if (this.searchString === '') {
-            // empty search string: display no results
-            this.reset();
-        } else {
-            this.url = '/search?q=' + encodeURIComponent(this.searchString);
-            this.fetch({reset: true});
-        }
-    }
-});
-
-var SongCollection = Backbone.Collection.extend({
-    model: SongInfo,
-
-    // Override because Flask requires an object at top level.
-    // XXX code duplication: Also done for search results
-    parse: function(resp, xhr) {
-        return resp.objects;
-    },
-
-    addAlbum: function(albumId) {
-        this.url = '/album/' + albumId;
-        var options = {}, coll = this;
-        options.parse = true;
-        options.success = function(resp, status, xhr) {
-            options.remove = false;
-            coll.set(resp, options);
-        };
-        Backbone.sync('read', this, options);
-    },
-
-    initialize: function() {
-        _.bindAll(this, 'addAlbum');
-    }
-});
+    BackboneLocalStorage = require('../lib/backbone.localStorage.shim'),
+    SongInfo = require('./SongInfo'),
+    SongCollection = require('./SongCollection');
 
 var Playlist = Backbone.Model.extend({
     defaults: {
@@ -237,20 +166,4 @@ var Playlist = Backbone.Model.extend({
     }
 });
 
-var PlayingSongInfo = SongInfo.extend({
-    changeSong: function(newSong) {
-        if (!newSong) {
-            this.set('id', '-1');
-        } else {
-            this.set(newSong.attributes);  // copy all attributes
-        }
-        // view should listen for the filename change and re-render
-    }
-});
-
-_.extend(exports, {
-    SongInfo: SongInfo,
-    SearchResultList: SearchResultList,
-    PlayingSongInfo: PlayingSongInfo,
-    Playlist: Playlist
-});
+module.exports = Playlist;
