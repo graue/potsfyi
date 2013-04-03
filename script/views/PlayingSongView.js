@@ -83,7 +83,9 @@ var PlayingSongView = Backbone.View.extend({
             // In the case where we were already on the last song,
             // and nothing is playing now,
             // we need to update the play/pause button to say Play.
-            $('#btn-play-pause').text('Play');
+            var audioEl = this.$('audio').get(0);
+            if (audioEl && audioEl.paused)
+                $('#btn-play-pause').text('Play');
         }
     },
 
