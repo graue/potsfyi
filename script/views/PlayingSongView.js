@@ -40,8 +40,8 @@ var PlayingSongView = Backbone.View.extend({
         var songID = this.model.get('id');
 
         // Force the old track to stop downloading, if applicable
-        $('audio', this.$el).trigger('pause');
-        $('audio', this.$el).attr('src', '');
+        this.$('audio').trigger('pause');
+        this.$('audio').attr('src', '');
 
         if (songID == -1) {
             // This means no song is active.
@@ -63,10 +63,10 @@ var PlayingSongView = Backbone.View.extend({
         }));
 
         // start the music
-        $('audio', this.$el).trigger('play');
+        this.$('audio').trigger('play');
 
         // set up handler to move to next song when song finished
-        $('audio', this.$el).on('ended', this.gotoNextSong);
+        this.$('audio').on('ended', this.gotoNextSong);
 
         // update the cover art
         var bg = DEFAULT_BG;
@@ -94,8 +94,8 @@ var PlayingSongView = Backbone.View.extend({
     },
 
     togglePlaying: function() {
-        var audioEl = $('audio', this.$el).get(0);
-        var playPauseBtnSel = $('#btn-play-pause', this.$el);
+        var audioEl = this.$('audio').get(0);
+        var playPauseBtnSel = this.$('#btn-play-pause');
         if (audioEl && !audioEl.paused) {
             audioEl.pause();
             playPauseBtnSel.text('Play');
