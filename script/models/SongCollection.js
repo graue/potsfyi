@@ -17,7 +17,13 @@ var SongCollection = Backbone.Collection.extend({
         var options = {}, coll = this;
         options.parse = true;
         options.success = function(resp, status, xhr) {
+            // Keep non-album tracks that are already in the playlist.
             options.remove = false;
+
+            // If album tracks are already in the playlist, leave their
+            // attributes unchanged.
+            options.merge = false;
+
             coll.set(resp, options);
         };
         Backbone.sync('read', this, options);
