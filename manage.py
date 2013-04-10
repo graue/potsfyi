@@ -6,7 +6,9 @@ import re
 import sys
 import mutagen
 from flask.ext.script import Manager
-from potsfyi import db, Track, Album, app
+from models import Track, Album, Base, Session, engine
+from potsfyi import app
+
 
 manager = Manager(app)
 
@@ -61,7 +63,8 @@ def createdb(verbose=False):
             print('db already exists. Try using the update command.')
             return
     except:
-        db.create_all()
+        session = Session()
+        Base.metadata.create_all(engine)
 
     music_dir = unicode(app.config['MUSIC_DIR'])
 
@@ -139,7 +142,7 @@ def createdb(verbose=False):
 
             new_track = Track(artist, title, relative_filename, album,
                               track_num)
-            db.session.add(new_track)
+            session.add(new_track)
             if verbose:
                 try:
                     print(u'  {0}: {1} - {2}'.format(relative_filename,
@@ -150,14 +153,14 @@ def createdb(verbose=False):
             # save album in case next track belongs to it as well
             last_album = album
 
-    db.session.commit()
+    session.commit()
 
 
 @manager.command
 def update(verbose=False):
     ''' After createdb is run, this allows you to update the db without
         duplicating tracks already in the db '''
-    db.drop_all()
+    session.drop_all()
     createdb(verbose)
 
 if __name__ == "__main__":

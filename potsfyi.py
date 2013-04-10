@@ -5,12 +5,14 @@ import sys
 from subprocess import Popen, PIPE
 from flask import (Flask, request, render_template, jsonify, abort, redirect,
                    Response, url_for)
-from flask.ext.sqlalchemy import SQLAlchemy
+#from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import (LoginManager, UserMixin, current_user,
                              login_required)
 from flask.ext.browserid import BrowserID
 from wsgi_utils import PipeWrapper
 
+#model imports
+from models import Track, Album
 
 # Insecure, from the Flask manual - for testing and development only.
 DEFAULT_SECRET_KEY = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
@@ -18,12 +20,11 @@ DEFAULT_SECRET_KEY = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tracks.db'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 10
-db = SQLAlchemy(app)
 
 app.config.update(
     DEBUG=(True if os.environ.get('DEBUG') in ['1', 'True'] else False),
     PORT=int(os.environ.get('PORT', 5000)),
-    DB_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db')),
+    #DB_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db')),
     MUSIC_DIR=(os.environ.get('MUSIC_DIR', 'static/music')),
     ADMIN_EMAIL=(os.environ.get('ADMIN_EMAIL', None)),
 )
@@ -72,73 +73,8 @@ browser_id.user_loader(get_user)
 browser_id.init_app(app)
 
 
-class Track(db.Model):
-    ''' artist, track, filename, album '''
-    id = db.Column(db.Integer, primary_key=True)
-    artist = db.Column(db.String(200))
-    title = db.Column(db.String(240))
-    filename = db.Column(db.String(256))
-    track_num = db.Column(db.Integer)
-    album_id = db.Column(db.Integer, db.ForeignKey('album.id'))
-    album = db.relationship('Album',
-        backref=db.backref('tracks', lazy='dynamic'))
-
-    def __init__(self, artist, title, filename, album, track_num):
-        self.artist = artist
-        self.title = title
-        self.album = album
-        self.filename = filename
-        self.track_num = track_num
-
-    def __repr__(self):
-        return u'<Track {0.artist} - {0.title}>'.format(self)
-
-    @property
-    def serialize(self):
-        return {
-            'artist': self.artist,
-            'title': self.title,
-            'album': self.album.serialize if self.album else '',
-            'track': self.track_num,
-            'id': self.id
-        }
 
 
-class Album(db.Model):
-    ''' artist, title, date, label, cat# '''
-    id = db.Column(db.Integer, primary_key=True)
-    artist = db.Column(db.String(200))
-    title = db.Column(db.String(240))
-    # date format?
-    date = db.Column(db.String(16))
-    label = db.Column(db.String(240))
-    cat_number = db.Column(db.String(32))
-    cover_art = db.Column(db.String(256))  # filename of cover art, jpg/png
-
-    def __init__(self, artist, title, date=None, label=None, cat_number=None,
-                 cover_art=None):
-        self.artist = artist
-        self.title = title
-        self.date = date
-        self.label = label
-        self.cat_number = cat_number
-        self.cover_art = cover_art
-
-    def __repr__(self):
-        return (u'<Album {0.title} - ' +
-            u'{0.artist} ({0.date})>').format(self)
-
-    @property
-    def serialize(self):
-        return {
-            'artist': self.artist,
-            'title': self.title,
-            'date': self.date,
-            'label': self.label,
-            'cat_number': self.cat_number,
-            'has_cover_art': self.cover_art is not None,
-            'id': self.id
-        }
 
 
 @app.route('/search')
