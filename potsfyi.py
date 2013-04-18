@@ -16,17 +16,15 @@ from wsgi_utils import PipeWrapper
 DEFAULT_SECRET_KEY = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tracks.db'
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 10
-db = SQLAlchemy(app)
-
 app.config.update(
     DEBUG=(True if os.environ.get('DEBUG') in ['1', 'True'] else False),
     PORT=int(os.environ.get('PORT', 5000)),
-    DB_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db')),
+    SQLALCHEMY_DATABASE_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db')),
     MUSIC_DIR=(os.environ.get('MUSIC_DIR', 'static/music')),
     ADMIN_EMAIL=(os.environ.get('ADMIN_EMAIL', None)),
+    SEND_FILE_MAX_AGE_DEFAULT=10
 )
+db = SQLAlchemy(app)
 
 app.secret_key = os.environ.get('SECRET_KEY', DEFAULT_SECRET_KEY)
 if app.secret_key == DEFAULT_SECRET_KEY and not app.config['DEBUG']:
