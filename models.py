@@ -1,18 +1,13 @@
 # potsfyi models
-import os
-from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
+from flask.ext.sqlalchemy import SQLAlchemy
 
-DB_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db'))
+# the db is initialized within the main app
+db = SQLAlchemy()
 
-Base = declarative_base()
-engine = create_engine(DB_URI)
-Session = sessionmaker(bind=engine)
 
-class Track(Base):
+class Track(db.Model):
     ''' artist, track, filename, album '''
 
     __tablename__ = 'track'
@@ -45,7 +40,9 @@ class Track(Base):
             'track': self.track_num,
             'id': self.id
         }
-class Album(Base):
+
+
+class Album(db.Model):
     ''' artist, title, date, label, cat# '''
 
     __tablename__ = 'album'
@@ -83,3 +80,4 @@ class Album(Base):
             'has_cover_art': self.cover_art is not None,
             'id': self.id
         }
+
