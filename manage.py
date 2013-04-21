@@ -6,7 +6,9 @@ import re
 import sys
 import mutagen
 from flask.ext.script import Manager
-from potsfyi import db, Track, Album, app
+from models import Track, Album, db
+from potsfyi import app
+
 
 manager = Manager(app)
 
