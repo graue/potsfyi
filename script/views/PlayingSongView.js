@@ -6,6 +6,11 @@ var $ = require('../lib/jquery.shim'),
     tmplPlayer = require('../template/player.hbs'),
     DEFAULT_BG = '/static/img/pattern.png';
 
+function setBG(file) {
+    file = file || DEFAULT_BG;
+    $('body').css('background-image', 'url(' + file + ')');
+}
+
 var PlayingSongView = Backbone.View.extend({
     el: $('#player'),
     events: {
@@ -49,7 +54,7 @@ var PlayingSongView = Backbone.View.extend({
             this.$el.html('');
 
             // Reset the background image.
-            $('body').css('background-image', 'url(' + DEFAULT_BG + ')');
+            setBG();
 
             return;
         }
@@ -75,7 +80,7 @@ var PlayingSongView = Backbone.View.extend({
             if (typeof album === 'object' && album.has_cover_art)
                 bg = '/albumart/' + album.id;
         }
-        $('body').css('background-image', 'url(' + bg + ')');
+        setBG(bg);
     },
 
     gotoNextSong: function() {
