@@ -80,4 +80,3 @@ class Album(db.Model):
             'has_cover_art': self.cover_art is not None,
             'id': self.id
         }
-

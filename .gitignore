@@ -6,4 +6,3 @@ venv/
 static/music
 static/bundle.js
 script/node_modules
-script/*.log
