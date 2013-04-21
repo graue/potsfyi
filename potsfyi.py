@@ -5,13 +5,10 @@ import sys
 from subprocess import Popen, PIPE
 from flask import (Flask, request, render_template, jsonify, abort, redirect,
                    Response, url_for)
-#from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import (LoginManager, UserMixin, current_user,
                              login_required)
 from flask.ext.browserid import BrowserID
 from wsgi_utils import PipeWrapper
-
-#model imports
 from models import Track, Album, db
 
 # Insecure, from the Flask manual - for testing and development only.

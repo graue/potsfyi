@@ -30,7 +30,7 @@ All recent-ish versions of Firefox and Chrome work great with it.
 Pots, fyi uses [Browserify](http://browserify.org/) to bundle together
 its client-side dependencies (JQuery, Backbone, Underscore and Handlebars).
 This requires [npm](http://npmjs.org/).
-o
+
 ### Quick start
 
 Install LibAV's avconv. On Ubuntu/Debian:
@@ -93,4 +93,3 @@ guni.log, and sets a long timeout so that worker processes don't timeout
 and get shut down while sending audio. (You can partially work around the
 timeout issue by proxying your /static/ directory through nginx, but
 transcoded audio files will still go through Python.)
-
