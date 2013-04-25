@@ -1,4 +1,5 @@
 import shutil
+import os
 from mutagen.mp3 import EasyMP3 as MP3
 from flask import Flask
 from flask.ext.testing import TestCase
@@ -10,7 +11,7 @@ class MyTest(TestCase):
 
     def create_app(self):
         app = Flask(__name__)
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///testing.db'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         app.config['TESTING'] = True
         app.config['SECRET_KEY'] = 'xxx'  # XXX fix this
         db.init_app(app)
@@ -23,7 +24,12 @@ class MyTest(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_tags(self):
+
+class TagTest(MyTest):
+
+    def setUp(self):
+        super(TagTest, self).setUp()
+
         test_src = "test/sinewave.mp3"
 
         for letter in ['a','b','c']:
@@ -34,7 +40,14 @@ class MyTest(TestCase):
             song_tag['artist'] = u"Artist " + letter.upper()
             song_tag.save()
 
+    def test_tags(self):
         populate_db('test', False)
+
+    def tearDown(self):
+        for letter in ['a','b','c']:
+            os.remove("test/" + letter + ".mp3")
+        super(TagTest, self).tearDown()
+
 
 if __name__ == '__main__':
     unittest.main()
