@@ -29,7 +29,7 @@ All recent-ish versions of Firefox and Chrome work great with it.
 
 Pots, fyi uses [Browserify](http://browserify.org/) to bundle together
 its client-side dependencies (JQuery, Backbone, Underscore and Handlebars).
-This requires [npm](http://npmjs.org/).
+This requires [npm](http://npmjs.org/) version >= 0.8.0.
 
 ### Quick start
 
