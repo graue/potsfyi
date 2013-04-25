@@ -65,8 +65,10 @@ def createdb(verbose=False):
     except:
         db.create_all()
 
-    music_dir = unicode(app.config['MUSIC_DIR'])
+    populate_db(unicode(app.config['MUSIC_DIR']), verbose)
 
+
+def populate_db(music_dir, verbose=False):
     last_album = None
 
     for path, dirs, files in os.walk(music_dir, followlinks=True):
