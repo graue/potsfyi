@@ -61,7 +61,7 @@ class TagTest(MyTest):
             assert db_track.title == mock_tracks[filename]['title']
 
     def tearDown(self):
-        for track in self.mock_tracks.iterkeys():
+        for track in self.mock_tracks:
             os.remove("test/" + track)
         super(TagTest, self).tearDown()
 
