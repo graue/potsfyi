@@ -4,7 +4,7 @@ from mutagen.mp3 import EasyMP3 as MP3
 from flask import Flask
 from flask.ext.testing import TestCase
 import unittest
-from models import db
+from models import db, Track
 from manage import populate_db
 
 class MyTest(TestCase):
@@ -26,26 +26,38 @@ class MyTest(TestCase):
 
 
 class TagTest(MyTest):
+    mock_tracks = {
+        'foo.mp3': {'artist': 'Foo', 'title': 'Bar'},
+        'second_thing.mp3': {'artist': 'Someone', 'title': 'A song'},
+        'another_one.mp3': {'artist': 'Third Artist', 'title': 'Blobs'}
+    }
 
     def setUp(self):
         super(TagTest, self).setUp()
 
         test_src = "test/sinewave.mp3"
 
-        for letter in ['a','b','c']:
-            filename = "test/" + letter + ".mp3"
+        for track in self.mock_tracks.iterkeys():
+            filename = 'test/' + track
             shutil.copyfile(test_src, filename)
             song_tag = MP3(filename)
-            song_tag['title'] = u"Song " + letter.upper()
-            song_tag['artist'] = u"Artist " + letter.upper()
+            for k,v in self.mock_tracks[track].iteritems():
+                song_tag[k] = unicode(v)
             song_tag.save()
 
     def test_tags(self):
         populate_db('test', False)
+        tracks_in_db = Track.query.all()
+        mock_tracks = self.mock_tracks
+        for db_track in tracks_in_db:
+            filename = db_track.filename
+            assert filename in mock_tracks
+            assert db_track.artist == mock_tracks[filename]['artist']
+            assert db_track.title == mock_tracks[filename]['title']
 
     def tearDown(self):
-        for letter in ['a','b','c']:
-            os.remove("test/" + letter + ".mp3")
+        for track in self.mock_tracks.iterkeys():
+            os.remove("test/" + track)
         super(TagTest, self).tearDown()
 
 
