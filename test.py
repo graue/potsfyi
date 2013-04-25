@@ -1,10 +1,10 @@
 import shutil
-import subprocess
-import os
 from mutagen.mp3 import EasyMP3 as MP3
 from flask import Flask
 from flask.ext.testing import TestCase
+import unittest
 from models import db
+from manage import populate_db
 
 class MyTest(TestCase):
 
@@ -12,6 +12,7 @@ class MyTest(TestCase):
         app = Flask(__name__)
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///testing.db'
         app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = 'xxx'  # XXX fix this
         db.init_app(app)
         return app
 
@@ -33,12 +34,7 @@ class MyTest(TestCase):
             song_tag['artist'] = u"Artist " + letter.upper()
             song_tag.save()
 
-        my_env = os.environ.copy()
-        my_env['DB_URI'] = 'sqlite:///testing.db'
-        my_env['SECRET_KEY'] = 'foobar'
-        my_env['MUSIC_DIR'] = 'test'
-        p = subprocess.Popen(['./manage.py', 'createdb'], env=my_env,
-                        stdout=subprocess.PIPE)
+        populate_db('test', False)
 
-        out, err = p.communicate()
-
+if __name__ == '__main__':
+    unittest.main()
