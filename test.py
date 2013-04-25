@@ -25,6 +25,20 @@ class MyTest(TestCase):
         db.drop_all()
 
 
+def create_mock_tracks(tracks, src_track="test/sinewave.mp3"):
+    """ Create mock tracks with the given tags.
+    Tracks are created by making copies of src_track, then tagging them.
+    """
+    for track in tracks.iterkeys():
+        filename = 'test/' + track
+        shutil.copyfile(src_track, filename)
+        song_tag = MP3(filename)
+        for k,v in tracks[track].iteritems():
+            song_tag[k] = unicode(v)
+        song_tag.save()
+
+
+
 class TagTest(MyTest):
     mock_tracks = {
         'foo.mp3': {'artist': 'Foo', 'title': 'Bar'},
@@ -34,16 +48,7 @@ class TagTest(MyTest):
 
     def setUp(self):
         super(TagTest, self).setUp()
-
-        test_src = "test/sinewave.mp3"
-
-        for track in self.mock_tracks.iterkeys():
-            filename = 'test/' + track
-            shutil.copyfile(test_src, filename)
-            song_tag = MP3(filename)
-            for k,v in self.mock_tracks[track].iteritems():
-                song_tag[k] = unicode(v)
-            song_tag.save()
+        create_mock_tracks(self.mock_tracks)
 
     def test_tags(self):
         populate_db('test', False)
