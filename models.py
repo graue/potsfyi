@@ -17,16 +17,18 @@ class Track(db.Model):
     title = Column(String(240))
     filename = Column(String(256))
     track_num = Column(Integer)
+    mtime = Column(Integer)
     album_id = Column(Integer, ForeignKey('album.id'))
     album = relationship('Album',
         backref=backref('tracks', lazy='dynamic'))
 
-    def __init__(self, artist, title, filename, album, track_num):
+    def __init__(self, artist, title, filename, album, track_num, mtime):
         self.artist = artist
         self.title = title
         self.album = album
         self.filename = filename
         self.track_num = track_num
+        self.mtime = int(mtime)  # get the floor of given float
 
     def __repr__(self):
         return u'<Track {0.artist} - {0.title}>'.format(self)
