@@ -69,7 +69,6 @@ def get_or_create(session, model, **kwargs):
     if instance:
         return (instance, False)
     else:
-        print ("new instance")
         instance = model(**kwargs)
         session.add(instance)
         return (instance, True)
@@ -151,6 +150,10 @@ def createdb(verbose=False):
     except:
         db.create_all()
 
+    populate_db(unicode(app.config['MUSIC_DIR']), verbose)
+
+
+def populate_db(music_dir, verbose=False):
     for path, dirs, files in os.walk(music_dir, followlinks=True):
         cover_art = get_cover_art(path, files)
         for file in files:
