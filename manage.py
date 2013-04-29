@@ -11,6 +11,7 @@ from potsfyi import app
 
 
 manager = Manager(app)
+music_dir = unicode(app.config['MUSIC_DIR'])
 
 
 HANDLED_FILETYPES = ('.ogg', '.mp3', '.flac', '.m4a')
@@ -55,6 +56,91 @@ def multi_get_first(tag_dict, tags, default=''):
     return default
 
 
+class MetadataError(Exception):
+    ''' raised from aggregate_metadata in the case of
+        failed metadata extraction '''
+    #TODO give information with this exception rather than prints
+    pass
+
+
+def get_or_create(session, model, **kwargs):
+    ''' return the object or make it if it doesn't exist '''
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return (instance, False)
+    else:
+        print ("new instance")
+        instance = model(**kwargs)
+        session.add(instance)
+        return (instance, True)
+
+
+def aggregate_metadata(full_filename, cover_art):
+    ''' take a full path to a file and return Track and Album objects'''
+    #TODO possibly move verbose prints from other methods into this
+    mtime = os.path.getmtime(full_filename)
+    relative_filename = os.path.relpath(full_filename, music_dir)
+    try:
+        tag_info = mutagen.File(full_filename, easy=True)
+        if tag_info is None:
+            raise Exception('Mutagen could not open file')
+    except:
+        print(u'Skipping {0} due to error: {1}'.format(
+                relative_filename,
+                sys.exc_info()[0]))
+        raise MetadataError
+
+    tags = tag_info.tags
+    if tags is None:
+        print(u'Skipping {0}: no tags!'.format(relative_filename))
+        raise MetadataError
+
+    artist = multi_get_first(tags, 'artist')
+    title = multi_get_first(tags, 'title')
+    if artist == '' or title == '':
+        print(u'Skipping {0}: empty artist or title tag'
+                .format(relative_filename))
+        raise MetadataError
+
+    track_num = track_num_to_int(
+        multi_get_first(tags, ['track', 'tracknumber'], '-1')
+    )
+    album_title = multi_get_first(tags, 'album')
+    album_artist = multi_get_first(tags,
+            ['album artist', 'album_artist', 'albumartist',
+                'artist'])
+    release_date = multi_get_first(tags, ['date', 'year'])
+    album, new = get_or_create(db.session, Album, 
+                          artist=album_artist,
+                          title=album_title,
+                          date=release_date)
+    #TODO do this the sqlalchemy way, if that exists
+    if new:
+        db.session.commit()
+    track = Track(
+                artist=artist,
+                title=title,
+                filename=relative_filename,
+                album=album,
+                track_num=track_num,
+                mtime=mtime)
+    return track, album
+
+
+def get_cover_art(path, file_list):
+    ''' return path to cover art '''
+    # See if there is cover art in this directory.
+    # If so, apply it to any albums found in the dir.
+    # XXX: does not correctly trickle down to 'CD1', 'CD2' subdirs
+    cover_art = None
+    for testfilename in ['folder.jpg', 'folder.png', 'folder.gif',
+                            'cover.jpg', 'cover.png', 'cover.gif']:
+        if testfilename in file_list:
+            cover_art = os.path.relpath(os.path.join(path, testfilename),
+                                        music_dir)
+    return cover_art
+
+
 @manager.command
 def createdb(verbose=False):
     '''  initial creation of the tracks database '''
@@ -65,102 +151,80 @@ def createdb(verbose=False):
     except:
         db.create_all()
 
-    music_dir = unicode(app.config['MUSIC_DIR'])
-
-    last_album = None
-
     for path, dirs, files in os.walk(music_dir, followlinks=True):
-        # See if there is cover art in this directory.
-        # If so, apply it to any albums found in the dir.
-        # XXX: does not correctly trickle down to 'CD1', 'CD2' subdirs
-        cover_art = None
-        for testfilename in ['folder.jpg', 'folder.png', 'folder.gif',
-                             'cover.jpg', 'cover.png', 'cover.gif']:
-            if testfilename in files:
-                cover_art = os.path.relpath(os.path.join(path, testfilename),
-                                            music_dir)
-
+        cover_art = get_cover_art(path, files)
         for file in files:
             if not file.lower().endswith(HANDLED_FILETYPES):
                 continue
 
             full_filename = os.path.join(path, file)
-            relative_filename = os.path.relpath(full_filename, music_dir)
-
             try:
-                tag_info = mutagen.File(full_filename, easy=True)
-                if tag_info is None:
-                    raise Exception('Mutagen could not open file')
-            except:
-                print(u'Skipping {0} due to error: {1}'.format(
-                        relative_filename,
-                        sys.exc_info()[0]))
+                (new_track, album) = aggregate_metadata(full_filename, cover_art)
+            except MetadataError:
                 continue
 
-            tags = tag_info.tags
-            if tags is None:
-                print(u'Skipping {0}: no tags!'.format(relative_filename))
-                continue
+            if verbose and album:
+                try:
+                    print(u'Adding album {0} - {1}:\
+                            '.format(album.artist,
+                                        album.title))
+                except UnicodeEncodeError:  # XXX needed on my RPi
+                    print(u'Adding an album that can\'t be encoded:')
 
-            artist = multi_get_first(tags, 'artist')
-            title = multi_get_first(tags, 'title')
-            if artist == '' or title == '':
-                print(u'Skipping {0}: empty artist or title tag'
-                      .format(relative_filename))
-                continue
-
-            track_num = track_num_to_int(
-                multi_get_first(tags, ['track', 'tracknumber'], '-1')
-            )
-            album_title = multi_get_first(tags, 'album')
-            album_artist = multi_get_first(tags,
-                    ['album artist', 'album_artist', 'albumartist',
-                     'artist'])
-            release_date = multi_get_first(tags, ['date', 'year'])
-
-            # Same album as last added track?
-            # XXX This method of grouping tracks together into an album
-            # works if there is a 1:1 directory/album mapping,
-            # but may fail otherwise.
-            if last_album and (last_album.artist == album_artist
-                               and last_album.title == album_title):
-                album = last_album
-            elif album_artist == '' or album_title == '':
-                album = None  # no album
-                if verbose and last_album is not None:
-                    print('Non-album tracks:')
-            else:
-                album = Album(album_artist, album_title, date=release_date,
-                              cover_art=cover_art)
-                if verbose:
-                    try:
-                        print(u'Adding album {0} - {1}:'.format(album_artist,
-                                                                album_title))
-                    except UnicodeEncodeError:  # XXX needed on my RPi
-                        print(u'Adding an album that can\'t be encoded:')
-
-            new_track = Track(artist, title, relative_filename, album,
-                              track_num)
             db.session.add(new_track)
             if verbose:
                 try:
-                    print(u'  {0}: {1} - {2}'.format(relative_filename,
-                                                     artist, title))
+                    print(u'  {0}: {1} - {2}\
+                            '.format(new_track.filename,
+                                     new_track.artist, new_track.title))
                 except UnicodeEncodeError:  # XXX needed on my RPi
                     print(u'  A song that cannot be encoded')
 
-            # save album in case next track belongs to it as well
-            last_album = album
-
-    db.session.commit()
+        db.session.commit()
 
 
 @manager.command
 def update(verbose=False):
     ''' After createdb is run, this allows you to update the db without
         duplicating tracks already in the db '''
-    db.drop_all()
-    createdb(verbose)
+
+    tracks_found = set()
+    for path, dirs, files in os.walk(music_dir, followlinks=True):
+        cover_art = get_cover_art(path, files)
+        for file in files:
+            if not file.lower().endswith(HANDLED_FILETYPES):
+                continue
+
+            full_filename = os.path.join(path, file)
+            mtime = os.path.getmtime(full_filename)
+            relative_filename = os.path.relpath(full_filename, music_dir)
+
+            tracks_found.add(relative_filename)
+            track = Track.query.filter_by(filename=relative_filename).first()
+            (_track, _album) = aggregate_metadata(full_filename, cover_art)
+            # track isn't in the db yet
+            if track is None:
+                db.session.add(_track)
+            # db is out of date, update the entry
+            elif track.mtime < mtime:
+                track.update({
+                    'artist': _track.artist,
+                    'title': _track.title,
+                    'filename': _track.filename,
+                    'track_num': _track.track_num,
+                    'mtime': mtime,
+                    'album_id': _album.id,
+                    'album': _album})
+            else:
+                #track is unchanged
+                continue
+
+    # Purge the database entries that aren't in the music directory
+    #TODO will there be orphan Albums?
+    for track in db.session.query(Track).all():
+        if track.filename not in tracks_found:
+            db.session.delete(track)
+    db.session.commit()
 
 if __name__ == "__main__":
     manager.run()
