@@ -1,6 +1,6 @@
 # potsfyi models
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from flask.ext.sqlalchemy import SQLAlchemy
 
 # the db is initialized within the main app
@@ -17,7 +17,7 @@ class Track(db.Model):
     title = Column(String(240))
     filename = Column(String(256))
     track_num = Column(Integer)
-    mtime = Column(Float)
+    mtime = Column(Integer)
     album_id = Column(Integer, ForeignKey('album.id'))
     album = relationship('Album',
         backref=backref('tracks', lazy='dynamic'))
@@ -28,7 +28,7 @@ class Track(db.Model):
         self.album = album
         self.filename = filename
         self.track_num = track_num
-        self.mtime = mtime
+        self.mtime = int(mtime)  # get the floor of given float
 
     def __repr__(self):
         return u'<Track {0.artist} - {0.title}>'.format(self)

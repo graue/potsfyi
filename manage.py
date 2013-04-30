@@ -11,8 +11,6 @@ from potsfyi import app
 
 
 manager = Manager(app)
-music_dir = unicode(app.config['MUSIC_DIR'])
-
 
 HANDLED_FILETYPES = ('.ogg', '.mp3', '.flac', '.m4a')
 
@@ -64,8 +62,12 @@ class MetadataError(Exception):
 
 
 def get_or_create(session, model, **kwargs):
-    ''' return the object or make it if it doesn't exist '''
-    instance = session.query(model).filter_by(**kwargs).first()
+    ''' return the object or make it if it doesn't exist
+        filters only by artist and title at the moment
+    '''
+
+    instance = session.query(model).filter_by(artist=kwargs['artist'],
+                                              title=kwargs['title']).first()
     if instance:
         return (instance, False)
     else:
@@ -74,8 +76,10 @@ def get_or_create(session, model, **kwargs):
         return (instance, True)
 
 
-def aggregate_metadata(full_filename, cover_art):
-    ''' take a full path to a file and return Track and Album objects'''
+def aggregate_metadata(full_filename, music_dir, cover_art):
+    ''' take a full path to a file and the directory containing it
+        return Track and Album objects
+    '''
     #TODO possibly move verbose prints from other methods into this
     mtime = os.path.getmtime(full_filename)
     relative_filename = os.path.relpath(full_filename, music_dir)
@@ -109,10 +113,11 @@ def aggregate_metadata(full_filename, cover_art):
             ['album artist', 'album_artist', 'albumartist',
                 'artist'])
     release_date = multi_get_first(tags, ['date', 'year'])
-    album, new = get_or_create(db.session, Album, 
-                          artist=album_artist,
-                          title=album_title,
-                          date=release_date)
+    album, new = get_or_create(db.session, Album,
+                               artist=album_artist,
+                               title=album_title,
+                               date=release_date,
+                               cover_art=cover_art)
     #TODO do this the sqlalchemy way, if that exists
     if new:
         db.session.commit()
@@ -126,7 +131,7 @@ def aggregate_metadata(full_filename, cover_art):
     return track, album
 
 
-def get_cover_art(path, file_list):
+def get_cover_art(music_dir, path, file_list):
     ''' return path to cover art '''
     # See if there is cover art in this directory.
     # If so, apply it to any albums found in the dir.
@@ -135,6 +140,7 @@ def get_cover_art(path, file_list):
     for testfilename in ['folder.jpg', 'folder.png', 'folder.gif',
                             'cover.jpg', 'cover.png', 'cover.gif']:
         if testfilename in file_list:
+
             cover_art = os.path.relpath(os.path.join(path, testfilename),
                                         music_dir)
     return cover_art
@@ -155,14 +161,20 @@ def createdb(verbose=False):
 
 def populate_db(music_dir, verbose=False):
     for path, dirs, files in os.walk(music_dir, followlinks=True):
-        cover_art = get_cover_art(path, files)
+        # get cover art
+        cover_art = get_cover_art(music_dir, path, files)
+        if verbose and cover_art:
+            print("found cover art: {}".format(cover_art))
+
         for file in files:
             if not file.lower().endswith(HANDLED_FILETYPES):
                 continue
 
             full_filename = os.path.join(path, file)
             try:
-                (new_track, album) = aggregate_metadata(full_filename, cover_art)
+                (new_track, album) = aggregate_metadata(full_filename,
+                                                        music_dir,
+                                                        cover_art)
             except MetadataError:
                 continue
 
@@ -190,26 +202,39 @@ def populate_db(music_dir, verbose=False):
 def update(verbose=False):
     ''' After createdb is run, this allows you to update the db without
         duplicating tracks already in the db '''
+    # check db existence
+    music_dir = unicode(app.config['MUSIC_DIR'])
+    # check if db exists, if not, populate instead
+    update_db(music_dir, verbose)
 
+
+def update_db(music_dir, verbose):
     tracks_found = set()
     for path, dirs, files in os.walk(music_dir, followlinks=True):
-        cover_art = get_cover_art(path, files)
+        cover_art = get_cover_art(music_dir, path, files)
+        if verbose and cover_art:
+            print("found cover art: {}".format(cover_art))
         for file in files:
             if not file.lower().endswith(HANDLED_FILETYPES):
                 continue
 
             full_filename = os.path.join(path, file)
-            mtime = os.path.getmtime(full_filename)
+            mtime = int(os.path.getmtime(full_filename))  # TODO
             relative_filename = os.path.relpath(full_filename, music_dir)
 
             tracks_found.add(relative_filename)
             track = Track.query.filter_by(filename=relative_filename).first()
-            (_track, _album) = aggregate_metadata(full_filename, cover_art)
+            (_track, _album) = aggregate_metadata(full_filename,
+                                                  music_dir,
+                                                  cover_art)
             # track isn't in the db yet
             if track is None:
                 db.session.add(_track)
             # db is out of date, update the entry
-            elif track.mtime < mtime:
+            elif track.mtime != mtime:
+                print(track.mtime)
+                print(mtime)
+                print (track)
                 track.update({
                     'artist': _track.artist,
                     'title': _track.title,

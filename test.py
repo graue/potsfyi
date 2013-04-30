@@ -55,7 +55,7 @@ class TagTest(MyTest):
         tracks_in_db = Track.query.all()
         mock_tracks = self.mock_tracks
         for db_track in tracks_in_db:
-            filename = os.path.basename(db_track.filename)
+            filename = db_track.filename
             assert filename in mock_tracks
             assert db_track.artist == mock_tracks[filename]['artist']
             assert db_track.title == mock_tracks[filename]['title']
