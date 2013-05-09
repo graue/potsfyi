@@ -1,7 +1,4 @@
-var _ = require("underscore"),
-    Backbone = require("backbone");
-
-window._ = _;
-window.Backbone = Backbone;
+window._ = require("underscore");
+window.Backbone = require("backbone");
 exports.LocalStorage = require("./backbone.localStorage");
 
