@@ -219,22 +219,22 @@ def update_db(music_dir, verbose):
                 continue
 
             full_filename = os.path.join(path, file)
-            mtime = int(os.path.getmtime(full_filename))  # TODO
+            mtime = int(os.path.getmtime(full_filename))  #TODO
             relative_filename = os.path.relpath(full_filename, music_dir)
 
             tracks_found.add(relative_filename)
             track = Track.query.filter_by(filename=relative_filename).first()
-            (_track, _album) = aggregate_metadata(full_filename,
-                                                  music_dir,
-                                                  cover_art)
+            try:
+                (_track, _album) = aggregate_metadata(full_filename,
+                                                      music_dir,
+                                                      cover_art)
+            except MetadataError:
+                continue
             # track isn't in the db yet
             if track is None:
                 db.session.add(_track)
             # db is out of date, update the entry
             elif track.mtime != mtime:
-                print(track.mtime)
-                print(mtime)
-                print (track)
                 track.update({
                     'artist': _track.artist,
                     'title': _track.title,
