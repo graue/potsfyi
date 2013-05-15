@@ -6,6 +6,6 @@ Flask-Script==0.5.3
 Jinja2==2.6
 SQLAlchemy==0.8.0
 Werkzeug==0.8.3
-mutagen==1.20
+mutagen==1.21
 requests==1.1.0
 wsgiref==0.1.2
