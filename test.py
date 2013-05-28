@@ -9,6 +9,13 @@ from models import db, Track
 from manage import populate_db, update_db
 
 
+def filenames_unique(tracks):
+    """ Return True if no filename appears more than once in the given list
+    of tracks. """
+    filenames = [t.filename for t in tracks]
+    return sorted(filenames) == sorted(list(set(filenames)))
+
+
 class MyTest(TestCase):
 
     def create_app(self):
@@ -61,6 +68,8 @@ class TagTest(MyTest):
             assert db_track.artist == mock_tracks[filename]['artist']
             assert db_track.title == mock_tracks[filename]['title']
 
+        assert filenames_unique(tracks_in_db)  # no duplicates
+
     def tearDown(self):
         for track in self.mock_tracks:
             os.remove("test/" + track)
@@ -92,6 +101,7 @@ class UpdateTest(MyTest):
                                     artist=added_track[filename]['artist'],
                                     title=added_track[filename]['title'])
         assert found_track is not None
+        assert filenames_unique(Track.query.all())  # no duplicates
 
     def test_remove_track_update(self):
         ''' db doesn't included deleted tracks '''
@@ -102,6 +112,7 @@ class UpdateTest(MyTest):
         update_db('test', False)
         tracks_in_db = Track.query.all()
         assert removed_track not in tracks_in_db
+        assert filenames_unique(Track.query.all())  # no duplicates
 
     def test_mtime(self):
         ''' newest mtime is updated in db '''
