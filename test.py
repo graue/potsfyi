@@ -6,7 +6,7 @@ from flask.ext.testing import TestCase
 import unittest
 import time
 from models import db, Track
-from manage import populate_db, update_db
+from manage import update_db
 
 
 def filenames_unique(tracks):
@@ -59,7 +59,7 @@ class TagTest(MyTest):
         create_mock_tracks(self.mock_tracks)
 
     def test_tags(self):
-        populate_db('test', False)
+        update_db('test')
         tracks_in_db = Track.query.all()
         mock_tracks = self.mock_tracks
         for db_track in tracks_in_db:
@@ -93,9 +93,9 @@ class UpdateTest(MyTest):
     def test_added_track_update(self):
         ''' db is updated to new files in music_dir '''
         added_track = self.added_track
-        populate_db('test', False)
+        update_db('test')
         create_mock_tracks(added_track)
-        update_db('test', False)
+        update_db('test')
         filename = added_track.keys()[0]
         found_track = Track.query.filter_by(
                                     artist=added_track[filename]['artist'],
@@ -109,7 +109,7 @@ class UpdateTest(MyTest):
         # pop returns a tuple of (filename, file_info_dict)
         removed_track = mock_tracks.popitem()[0]  # just track name
         os.remove(os.path.join('test', removed_track))
-        update_db('test', False)
+        update_db('test')
         tracks_in_db = Track.query.all()
         assert removed_track not in tracks_in_db
         assert filenames_unique(Track.query.all())  # no duplicates
@@ -124,7 +124,7 @@ class UpdateTest(MyTest):
             atime = st.st_atime
             new_mtime = now
             os.utime(filename, (atime, new_mtime))  # modify the timestamp
-        update_db('test', False)
+        update_db('test')
         tracks_in_db = Track.query.all()
         for track in tracks_in_db:
             assert track.mtime == now
