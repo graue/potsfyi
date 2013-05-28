@@ -207,14 +207,8 @@ def update_db(music_dir, verbose=False):
                     filenames_found.remove(relative_filename)
                     continue
 
-                track.update({
-                    'artist': _track.artist,
-                    'title': _track.title,
-                    'filename': _track.filename,
-                    'track_num': _track.track_num,
-                    'mtime': mtime,
-                    'album_id': _album.id,
-                    'album': _album})
+                db.session.delete(track)
+                db.session.add(_track)
 
             # No need for an "else". If track is unchanged, do nothing.
 
