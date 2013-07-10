@@ -56,10 +56,13 @@ def multi_get_first(tag_dict, tags, default=''):
 
 
 class MetadataError(Exception):
-    ''' raised from aggregate_metadata in the case of
-        failed metadata extraction '''
-    #TODO give information with this exception rather than prints
-    pass
+    """ Represents a failure to open a music file, missing metadata, or
+    another problem that prevents the file's tags being sensibly added to
+    the database. """
+    def __init__(self, reason):
+        self.reason = reason
+    def __str__(self):
+        return self.reason
 
 
 def get_or_create(session, model, **kwargs):
@@ -87,24 +90,20 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
     try:
         tag_info = mutagen.File(full_filename, easy=True)
         if tag_info is None:
-            raise Exception('Mutagen could not open file')
+            raise MetadataError(u'Mutagen could not open file')
     except:
-        print(u'Skipping {0} due to error: {1}'.format(
-                relative_filename,
-                sys.exc_info()[0]))
-        raise MetadataError
+        # FIXME: We shouldn't catch all exceptions; this is an anti-pattern.
+        # What specific exception is really being looked for here?
+        raise MetadataError(u'error: {0}'.format(str(sys.exc_info()[0])))
 
     tags = tag_info.tags
     if tags is None:
-        print(u'Skipping {0}: no tags!'.format(relative_filename))
-        raise MetadataError
+        raise MetadataError(u'no tags!')
 
     artist = multi_get_first(tags, 'artist')
     title = multi_get_first(tags, 'title')
     if artist == '' or title == '':
-        print(u'Skipping {0}: empty artist or title tag'
-                .format(relative_filename))
-        raise MetadataError
+        raise MetadataError(u'empty artist or title tag')
 
     track_num = track_num_to_int(
         multi_get_first(tags, ['track', 'tracknumber'], '-1')
@@ -143,16 +142,24 @@ def get_cover_art(music_dir, path, file_list):
 
 
 @manager.command
-def update(verbose=False):
-    ''' After createdb is run, this allows you to update the db without
-        duplicating tracks already in the db '''
-    update_db(unicode(app.config['MUSIC_DIR']), verbose)
+def update(quiet=False):
+    """ Updates the music database to reflect the contents of your music
+    directory (by default "static/music", overridden by the MUSIC_DIR
+    environment variable).
+
+    If you don't have a music database yet, this command creates it.
+    """
+    update_db(unicode(app.config['MUSIC_DIR']), quiet)
 
 
-def update_db(music_dir, verbose=False):
+def update_db(music_dir, quiet=True):
     """ Update the music database to reflect contents of `music_dir` (and
-    its subdirectories). If `verbose`, extra messages are printed to the
-    standard output. """
+    its subdirectories). If `quiet`, no status line is printed.
+
+    Note that for the CLI, quiet (-q) defaults to False, but for this
+    internal function, it defaults to True. This is for convenience when
+    writing tests.
+    """
 
     # Create the appropriate DB tables if they don't exist.
     try:
@@ -164,6 +171,8 @@ def update_db(music_dir, verbose=False):
     # exist on disk, we keep track here of all track filenames
     # encountered. Others will be removed from the DB at the end.
     filenames_found = set()
+
+    track_count = 0  # For printing status.
 
     for path, _, files in os.walk(music_dir, followlinks=True):
         # Find cover art to apply to any albums in this directory.
@@ -180,31 +189,36 @@ def update_db(music_dir, verbose=False):
             filenames_found.add(relative_filename)
             track = Track.query.filter_by(filename=relative_filename).first()
 
-            if track is None:  # Track isn't in the DB yet.
+            # Add a track entry, or update it if the file's mtime changed.
+            if track is None or track.mtime != mtime:
                 try:
                     (_track, _album) = aggregate_metadata(full_filename,
                                                           music_dir,
                                                           cover_art)
-                except MetadataError:
-                    continue
-                db.session.add(_track)
-
-            elif track.mtime != mtime:  # DB is out of date, update the entry
-                try:
-                    (_track, _album) = aggregate_metadata(full_filename,
-                                                          music_dir,
-                                                          cover_art)
-                except MetadataError:
-                    # Track no longer has valid metadata.
-                    # By not counting it as "found", we'll get it removed
-                    # from the DB.
+                except MetadataError as e:
+                    # Track doesn't have valid metadata.
+                    # If it was in the DB previously, removing from
+                    # filenames_found will get it removed when we clean the
+                    # DB at the end.
                     filenames_found.remove(relative_filename)
+
+                    sys.stderr.write(u'\r\033[KSkipping {0}: {1}\n'.format(
+                        relative_filename, e))
                     continue
 
-                db.session.delete(track)
+                if track is not None:
+                    db.session.delete(track)
                 db.session.add(_track)
 
-            # No need for an "else". If track is unchanged, do nothing.
+            # Increment the track count only in case of valid metadata,
+            # so the final count will match the number in the database.
+            track_count += 1
+
+        # When we finish a directory, provide a status indicator.
+        if not quiet:
+            last_path_component = path[path.rfind('/') + 1:]
+            sys.stderr.write(u'\r\033[K{0} tracks; in {1}'.format(
+                track_count, last_path_component[:60]))
 
     # Purge the database entries that aren't in the music directory.
     # XXX Should we handle orphan albums here? If all tracks belonging to an
@@ -213,6 +227,11 @@ def update_db(music_dir, verbose=False):
         if track.filename not in filenames_found:
             db.session.delete(track)
     db.session.commit()
+
+    if not quiet:
+        sys.stderr.write(u'\r\033[KDone, {0} {1} processed.\n'.format(
+            track_count, 'track' + ('' if track_count == 1 else 's')))
+
 
 if __name__ == "__main__":
     manager.run()
