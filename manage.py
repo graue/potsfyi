@@ -143,12 +143,6 @@ def get_cover_art(music_dir, path, file_list):
 
 
 @manager.command
-def createdb(verbose=False):
-    '''  initial creation of the tracks database '''
-    update_db(unicode(app.config['MUSIC_DIR']), verbose)
-
-
-@manager.command
 def update(verbose=False):
     ''' After createdb is run, this allows you to update the db without
         duplicating tracks already in the db '''
