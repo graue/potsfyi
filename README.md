@@ -33,11 +33,15 @@ This requires [npm](http://npmjs.org/) version >= 0.8.0.
 
 ### Quick start
 
-Install LibAV's avconv. On Ubuntu/Debian:
+Install LibAV's avconv and Python's pip and virtualenv. On Ubuntu/Debian:
 
-    sudo apt-get install libav-tools
+    sudo apt-get install libav-tools python-pip python-virtualenv
 
-Make sure you have pip, virtualenv and npm. Then:
+You will also need Node.js and npm for later. There *is* an Ubuntu package
+for Node.js, but it may not be a new enough version, so you may have to
+compile your own.
+
+Anyway, once you've got pip and virtualenv, run:
 
     git clone https://github.com/graue/potsfyi
     cd potsfyi
@@ -45,10 +49,10 @@ Make sure you have pip, virtualenv and npm. Then:
     . venv/bin/activate
     pip install -r requirements.pip
     ln -s /some/dir/that/has/music/in/it static/music
-    ./manage.py createdb
+    ./manage.py update
 
 Your server is now ready to go.
-To build client-side scripts:
+To build client-side scripts (the part that requires Node):
 
     (cd script && npm install)
     make
