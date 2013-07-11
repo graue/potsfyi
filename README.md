@@ -49,7 +49,14 @@ Anyway, once you've got pip and virtualenv, run:
     . venv/bin/activate
     pip install -r requirements.pip
     ln -s /some/dir/that/has/music/in/it static/music
-    ./manage.py update
+    SECRET_KEY=foo ./manage.py update
+
+(The symbolic link to `/some/dir/that/has/music/in/it` should obviously be
+replaced with an actual path. Pots, fyi will make all supported music files
+under this path (searching recursively) available through the web interface.
+Currently, it won't create or change any files here, so don't worry about it
+messing anything up. Also, don't worry about the specific `SECRET_KEY` in
+the update command. It's just a bug that you have to provide one.)
 
 Your server is now ready to go.
 To build client-side scripts (the part that requires Node):
@@ -61,7 +68,9 @@ Finally, to start a debug server on http://localhost:5000:
 
     DEBUG=True ./potsfyi.py
 
-To search, just start typing.
+At the login screen you can enter any valid email that you control.
+
+To search, type in the box.
 To queue, click on a search result.
 To play, click on a song in the play queue (on the right).
 
