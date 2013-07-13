@@ -4,6 +4,7 @@ from __future__ import print_function
 import os
 import re
 import sys
+from datetime import datetime
 import mutagen
 from flask.ext.script import Manager
 from sqlalchemy.exc import OperationalError
@@ -173,6 +174,7 @@ def update_db(music_dir, quiet=True):
     filenames_found = set()
 
     track_count = 0  # For printing status.
+    start_time = datetime.today()
 
     for path, _, files in os.walk(music_dir, followlinks=True):
         # Find cover art to apply to any albums in this directory.
@@ -228,9 +230,11 @@ def update_db(music_dir, quiet=True):
             db.session.delete(track)
     db.session.commit()
 
+    end_time = datetime.today()
     if not quiet:
-        sys.stderr.write(u'\r\033[KDone, {0} {1} processed.\n'.format(
-            track_count, 'track' + ('' if track_count == 1 else 's')))
+        sys.stderr.write(u'\r\033[KDone, {0} {1} processed in {2} sec.\n'
+            .format(track_count, 'track' + ('' if track_count == 1 else 's'),
+                    (end_time - start_time).total_seconds()))
 
 
 if __name__ == "__main__":
