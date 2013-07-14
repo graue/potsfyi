@@ -4,6 +4,7 @@ from __future__ import print_function
 import os
 import re
 import sys
+from datetime import datetime
 import mutagen
 from flask.ext.script import Manager
 from potsfyi import db, Track, Album, app
@@ -56,6 +57,10 @@ def multi_get_first(tag_dict, tags, default=''):
 @manager.command
 def createdb(verbose=False):
     '''  initial creation of the tracks database '''
+
+    start_time = datetime.today()
+    track_count = 0  # For printing status.
+
     try:
         if Track.query.all():
             print('db already exists. Try using the update command.')
@@ -90,14 +95,14 @@ def createdb(verbose=False):
                 if tag_info is None:
                     raise Exception('Mutagen could not open file')
             except:
-                print(u'Skipping {0} due to error: {1}'.format(
+                sys.stderr.write(u'Skipping {0} due to error: {1}\n'.format(
                         relative_filename,
                         sys.exc_info()[0]))
                 continue
 
             tags = tag_info.tags
             if tags is None:
-                print(u'Skipping {0}: no tags!'.format(relative_filename))
+                sys.stderr.write(u'Skipping {0}: no tags!\n'.format(relative_filename))
                 continue
 
             artist = multi_get_first(tags, 'artist')
@@ -150,7 +155,17 @@ def createdb(verbose=False):
             # save album in case next track belongs to it as well
             last_album = album
 
+            track_count += 1
+
+        # When we finish a directory, provide a status indicator.
+        last_path_component = path[path.rfind('/') + 1:]
+        sys.stderr.write(u'\r\033[K{0} tracks; in {1}'.format(
+            track_count, last_path_component[:60]))
+
     db.session.commit()
+    end_time = datetime.today()
+    sys.stderr.write('Done, tracks processed in {0} sec.\n'.format(
+        (end_time - start_time).total_seconds()))
 
 
 @manager.command
