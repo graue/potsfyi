@@ -5,5 +5,6 @@ venv/
 *.db
 static/music
 static/bundle.js
+static/login.js
 script/node_modules
 *.log
