@@ -37,7 +37,7 @@ var Playlist = Backbone.Model.extend({
 
     initialize: function() {
         _.bindAll(this, 'getPlaylistFromLocalStorage', 'parse',
-            'syncToLocalStorage', 'addSong', 'addAlbum');
+            'syncToLocalStorage', 'addSong', 'addAlbum', 'reorder');
 
         // Proxy the inner collection's "add" and "remove" events.
         var playlistModel = this;
@@ -163,6 +163,12 @@ var Playlist = Backbone.Model.extend({
             // (or at) current
             this.set('position', this.get('position') - 1);
         }
+    },
+
+    reorder: function(oldPos, newPos) {
+        var model = this.attributes.songCollection.at(oldPos);
+        this.attributes.songCollection.remove(model);
+        this.attributes.songCollection.add(model, {at: newPos});
     }
 });
 

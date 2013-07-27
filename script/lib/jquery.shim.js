@@ -3,3 +3,5 @@ require("./jquery");
 // but after the require we can just export the jQuery
 // global from this module
 module.exports = window.jQuery;
+
+require("./jquery-ui");
