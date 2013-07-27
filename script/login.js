@@ -12,7 +12,7 @@
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (xhr.readyState != 4) return;
-            xhr.onReadyStateChange = function() {};
+            xhr.onreadystatechange = function() {};
             if (xhr.status >= 200 && xhr.status < 300)
                 success(xhr.responseText, xhr);
             else
