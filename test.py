@@ -11,6 +11,8 @@ from manage import update_db
 
 # relative location to where the mock tracks will be written
 TRACK_DIR = 'test/tracks/'
+if not os.path.exists(TRACK_DIR):
+  os.mkdir(TRACK_DIR)
 
 def filenames_unique(tracks):
     """ Return True if no filename appears more than once in the given list
