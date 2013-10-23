@@ -1,6 +1,7 @@
 "use strict";
 
 var $ = require('./lib/jquery.shim');
+require('backbone').$ = $;
 
 $(document).ready(function() {
     var PlayingSongInfo = require('./models/PlayingSongInfo'),
