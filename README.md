@@ -61,8 +61,8 @@ the update command. It's just a bug that you have to provide one.)
 Your server is now ready to go.
 To build client-side scripts (the part that requires Node):
 
-    (cd script && npm install)
-    make
+    cd script
+    npm install && make
 
 Finally, to start a debug server on http://localhost:5000:
 
