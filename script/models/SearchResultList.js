@@ -1,6 +1,7 @@
 "use strict";
 
 var Backbone = require('backbone'),
+    _ = require('underscore'),
     SongInfo = require('./SongInfo');
 
 var SearchResultList = Backbone.Collection.extend({
@@ -21,18 +22,12 @@ var SearchResultList = Backbone.Collection.extend({
         // Only update if search string has actually changed.
         if (newSearchString !== this.searchString) {
             this.searchString = newSearchString;
-
-            // Clear the old search-as-you-type timer
-            if (this.timeout)
-                clearTimeout(this.timeout);
-
-            // Set a timer to search
-            // after a short interval (unless the string changes again).
-            this.timeout = setTimeout(this.search, 200);
+            this.search();
         }
     },
 
-    search: function() {
+    search: _.throttle(function() {
+        console.log('search called');
         if (this.searchString === '') {
             // empty search string: display no results
             this.reset();
@@ -40,7 +35,10 @@ var SearchResultList = Backbone.Collection.extend({
             this.url = '/search?q=' + encodeURIComponent(this.searchString);
             this.fetch({reset: true});
         }
-    }
+    // Throttle to prevent excessive requests while the user is still typing,
+    // and avoid making a leading-edge request (which will usually just be a
+    // single letter: not useful).
+    }, 200, {leading: false})
 });
 
 module.exports = SearchResultList;
