@@ -8,6 +8,7 @@ from datetime import datetime
 import mutagen
 from flask.ext.script import Manager
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.sql import select
 from models import Track, Album, db
 from potsfyi import app
 
@@ -223,11 +224,18 @@ def update_db(music_dir, quiet=True):
                 track_count, last_path_component[:60]))
 
     # Purge the database entries that aren't in the music directory.
-    # XXX Should we handle orphan albums here? If all tracks belonging to an
-    # album are removed, the album will remain.
-    for track in db.session.query(Track).all():
+    for track in Track.query.all():
         if track.filename not in filenames_found:
             db.session.delete(track)
+    db.session.commit()
+
+    # Remove albums which contain no tracks.
+    # FIXME: This is a naive approach, and we should instead do it with
+    # foreign keys and an on-delete cascade clause. But I have no idea how to
+    # do that via the SQLAlchemy ORM. (sf, Dec 2013)
+    orphaned_albums = Album.query.filter(~Album.id.in_(select([Track.album_id])))
+    for album in orphaned_albums:
+        db.session.delete(album)
     db.session.commit()
 
     end_time = datetime.today()
