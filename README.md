@@ -5,12 +5,15 @@ intended to run on a personal server.
 
 ## Current status
 
-It's a little ugly, and it's missing some obvious features.
-But it can already search your collection, show cover art,
-queue up tracks or albums to play in sequence,
-and transcode tracks from formats your browser doesn't natively support.
+Works well. Needs a better UI design and some obvious features (see
+the issues on GitHub). But it can search your collection, show cover
+art, queue up tracks or albums to play in sequence, and transcode
+tracks from formats your browser doesn't natively support. I (Scott)
+am already using it.
 
-All recent-ish versions of Firefox and Chrome work great with it.
+All recent versions of Firefox and Chrome work great with it. Safari
+and IE9+ may work, but aren't tested. Older IE won't work because we
+rely on the HTML5 `<audio>` tag — there is no Flash fallback.
 
 
 ### Dependencies
@@ -40,6 +43,13 @@ Install LibAV's avconv and Python's pip and virtualenv. On Ubuntu/Debian:
 You will also need Node.js and npm for later. There *is* an Ubuntu package
 for Node.js, but it may not be a new enough version, so you may have to
 compile your own.
+
+On OS X you can install most of this stuff with brew, but when we
+tried it, there was no brew package for avconv. We had to compile that
+from source and it was a little annoying. Sorry OS X users. You *can*
+do it though! [There's some instructions on installing avconv on OS X
+here](http://superuser.com/a/568465). I welcome ideas on how to make
+this easier.
 
 Anyway, once you've got pip and virtualenv, run:
 
