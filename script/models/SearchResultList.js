@@ -27,7 +27,6 @@ var SearchResultList = Backbone.Collection.extend({
     },
 
     search: _.throttle(function() {
-        console.log('search called');
         if (this.searchString === '') {
             // empty search string: display no results
             this.reset();
