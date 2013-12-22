@@ -161,7 +161,7 @@ class TestUpdate(TaggingTest):
         update_db(TRACK_DIR)
         remove_mock_tracks([fname])
         update_db(TRACK_DIR)
-        found_album = Album.query.filter_by(title=tags['album'])
+        found_album = Album.query.filter_by(title=tags['album']).first()
         assert found_album is None
 
 
