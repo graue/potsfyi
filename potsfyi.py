@@ -153,7 +153,7 @@ def get_album_art(album_id):
 @app.route('/')
 @login_required
 def front_page():
-    return render_template('app.html')
+    return render_template('app.html', nologin=app.config['NO_LOGIN'])
 
 
 @app.route('/login')

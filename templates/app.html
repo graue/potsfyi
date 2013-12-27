@@ -26,10 +26,14 @@
     <div id="player">
       <!-- Audio element rendered here-->
     </div>
+    {% if not nologin %}
     <!-- XXX: This button is really ugly and in the way. -->
     <button id="browserid-logout">Logout</button>
+    {% endif %}
     <script type="text/javascript" src="static/bundle.js"></script>
+    {% if not nologin %}
     <script src="https://browserid.org/include.js" type="text/javascript"></script>
     <script type="text/javascript">{{ auth_script|safe }}</script>
+    {% endif %}
   </body>
 </html>
