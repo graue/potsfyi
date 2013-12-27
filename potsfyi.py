@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding: utf-8
 import os
 import re
 import sys
@@ -6,7 +7,7 @@ from subprocess import Popen, PIPE
 from flask import (Flask, request, render_template, jsonify, abort, redirect,
                    Response, url_for)
 from flask.ext.login import (LoginManager, UserMixin, current_user,
-                             login_required)
+                             login_required, login_user)
 from flask.ext.browserid import BrowserID
 from wsgi_utils import PipeWrapper
 from models import Track, Album, db
@@ -19,6 +20,7 @@ db.init_app(app)
 
 app.config.update(
     DEBUG=(True if os.environ.get('DEBUG') in ['1', 'True'] else False),
+    NO_LOGIN=(True if os.environ.get('NO_LOGIN') in ['1', 'True'] else False),
     PORT=int(os.environ.get('PORT', 5000)),
     SQLALCHEMY_DATABASE_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db')),
     MUSIC_DIR=(os.environ.get('MUSIC_DIR', 'static/music')),
@@ -156,6 +158,15 @@ def front_page():
 
 @app.route('/login')
 def login_view():
+    if app.config['NO_LOGIN']:
+        # Log the user in as a fake user object, to bypass the actual login
+        # screen.
+        #
+        # FIXME: If you restart the server without NO_LOGIN, we should
+        # invalidate "fake@example.com" users — currently they can still
+        # reuse the session.
+        login_user(User('fake@example.com'))
+
     if current_user.is_authenticated():
         return redirect(url_for('front_page'))
     return render_template('login.html')
