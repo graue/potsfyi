@@ -3,7 +3,13 @@
 var $ = require('./lib/jquery.shim');
 require('backbone').$ = $;
 
-$(document).ready(function() {
+$(function() {
+    if (window.loginEnabled)
+        require('./login').attachAuthHandlers();
+
+    if (!window.loggedIn)
+        return;
+
     var PlayingSongInfo = require('./models/PlayingSongInfo'),
         Playlist = require('./models/Playlist'),
         SearchResultList = require('./models/SearchResultList'),
@@ -12,15 +18,15 @@ $(document).ready(function() {
         PlaylistView = require('./views/PlaylistView');
 
     window.playingSong = new PlayingSongInfo();
-    window.playlist = new Playlist(playingSong);
+    window.playlist = new Playlist(window.playingSong);
 
     var resultList = new SearchResultList();
     var resultListView = new SearchResultListView({
         collection: resultList
     });
 
-    resultListView.on('song-clicked', playlist.addSong);
-    resultListView.on('album-clicked', playlist.addAlbum);
+    resultListView.on('song-clicked', window.playlist.addSong);
+    resultListView.on('album-clicked', window.playlist.addAlbum);
 
     $('input#search-box').on('keyup', function() {
         var newValue = $('input#search-box').val();

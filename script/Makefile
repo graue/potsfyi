@@ -6,7 +6,7 @@
 all: realAll
 	@true
 
-realAll: ../static/bundle.js ../static/login.js
+realAll: ../static/bundle.js
 
 TEMPLATES = $(shell find . -maxdepth 2 -name "*.hbs")
 SCRIPTS = $(shell find . -maxdepth 2 -name "*.js")
@@ -14,8 +14,5 @@ SCRIPTS = $(shell find . -maxdepth 2 -name "*.js")
 ../static/bundle.js: $(TEMPLATES) $(SCRIPTS)
 	browserify -t hbsfy main.js -o ../static/bundle.js
 
-../static/login.js: login.js
-	cp login.js ../static/login.js
-
 clean:
-	rm -f ../static/bundle.js ../static/login.js
+	rm -f ../static/bundle.js
