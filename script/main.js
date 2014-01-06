@@ -2,6 +2,7 @@
 
 var $ = require('./lib/jquery.shim');
 require('backbone').$ = $;
+require('./lib/react.backbone');
 
 $(function() {
     if (window.loginEnabled)
