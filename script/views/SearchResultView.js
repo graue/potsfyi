@@ -1,40 +1,42 @@
+/** @jsx React.DOM */
 "use strict";
 
-var _ = require('underscore'),
-    Backbone = require('backbone'),
-    tmplResult = require('../template/result.hbs');
+var React = require('react');
 
-var SearchResultView = Backbone.View.extend({
-    tagName: 'li',
-    className: function() {
+var SearchResultView = React.createBackboneClass({
+    render: function() {
+        var m = this.getModel();
+        var hasCoverArt = m.get('has_cover_art');
+        var title = m.get('title');
+        var artist = m.get('artist');
+        var id = m.get('id');
+
         // XXX Pretty hacky... we test whether the response has a
         // has_cover_art attribute. If it does (even if the attribute
         // is false!), it's an album, otherwise it's a song result.
-        if (this.model.get('has_cover_art') !== undefined)
-            return 'result-album';
+        var isAlbum = (hasCoverArt !== undefined);
 
-        return 'result-song';
-    },
-    events: {'click a': 'handleClick'},
+        var clickHandler = (function() {
+            if (isAlbum)
+                this.props.albumClickHandler(id);
+            else
+                this.props.songClickHandler(this.getModel().attributes);
+        }).bind(this);
 
-    initialize: function() {
-        _.bindAll(this, 'render', 'handleClick', 'className');
-        this.render();
-    },
-
-    render: function() {
-        this.$el.html(tmplResult({
-            artist: this.model.get('artist'),
-            title: this.model.get('title'),
-            id: this.model.get('id'),
-            has_cover_art: this.model.get('has_cover_art'),
-            is_album: this.className() === 'result-album'}));
-        return this;
-    },
-
-    handleClick: function(event) {
-        event.preventDefault();
-        this.trigger('click');
+        return (
+            <li className={isAlbum ? 'result-album' : 'result-song'}>
+                <a href="#" onClick={clickHandler}>
+                    {hasCoverArt
+                        ? <img alt="" src={'/albumart/' + id} />
+                        : ''}
+                    <span className="artist-name">{artist}</span>
+                    {isAlbum ? <br /> : ' — '}
+                    <span className={isAlbum ? 'album-name' : 'song-name'}>
+                    {title}
+                    </span>
+                </a>
+            </li>
+        );
     }
 });
 
