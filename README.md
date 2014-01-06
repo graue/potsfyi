@@ -72,7 +72,12 @@ Your server is now ready to go.
 To build client-side scripts (the part that requires Node):
 
     cd script
-    npm install && make
+    npm install
+    npm run watch
+
+(The last command will watch JavaScript source files for changes and rebuild
+if a change is made. If you don't plan to edit the code, just Ctrl-C it after
+it builds once.)
 
 Finally, to start a debug server on http://localhost:5000:
 
