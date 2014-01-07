@@ -1,36 +1,32 @@
+/** @jsx React.DOM */
 "use strict";
 
 var _ = require('underscore'),
     Backbone = require('backbone'),
-    tmplPlaylistSong = require('../template/playlistSong.hbs');
+    React = require('react');
 
-var PlaylistItemView = Backbone.View.extend({
-    tagName: 'li',
-    className: 'solo-track',
-    events: {'click span': 'play',
-             'click a.remove-link': 'removeFromPlaylist'},
-
-    initialize: function() {
-        _.bindAll(this, 'render', 'play', 'removeFromPlaylist');
-        this.$el.attr('id', this.model.get('htmlId'));
-        this.render();
-    },
-
+var PlaylistItemView = React.createBackboneClass({
     render: function() {
-        this.$el.html(tmplPlaylistSong({
-            artist: this.model.get('artist'),
-            title: this.model.get('title')
-        }));
-        return this;
-    },
-
-    play: function(event) {
-        window.playlist.seekToSong(this.model.cid);
-    },
-
-    removeFromPlaylist: function(event) {
-        event.preventDefault();
-        window.playlist.removeSong(this.model);
+        var m = this.getModel();
+        var clickHandler = function() {
+            this.props.clickHandler(m.attributes);
+        }.bind(this);
+        var removeClickHandler = function() {
+            this.props.removeClickHandler(m.attributes);
+        }.bind(this);
+        return (
+            <li className={'solo-track'
+                           + (this.props.playing ? ' now-playing' : '')}>
+                <a href="#" className="remove-link"
+                   onClick={removeClickHandler}>{'[X]'}</a>
+                {' '}
+                <span onClick={clickHandler}
+                      className="artist-name">{m.get('artist')}</span>
+                {' — '}
+                <span onClick={clickHandler}
+                      className="song-name">{m.get('title')}</span>
+            </li>
+        );
     }
 });
 

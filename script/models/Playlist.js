@@ -37,7 +37,9 @@ var Playlist = Backbone.Model.extend({
 
     initialize: function() {
         _.bindAll(this, 'getPlaylistFromLocalStorage', 'parse',
-            'syncToLocalStorage', 'addSong', 'addAlbum', 'reorder');
+            'syncToLocalStorage', 'addSong', 'addAlbum', 'reorder',
+            'seekByIndex', 'seekById', 'removeSongById', 'removeSong',
+            'nextSong', 'prevSong');
 
         // Proxy the inner collection's "add" and "remove" events.
         var playlistModel = this;
@@ -106,22 +108,28 @@ var Playlist = Backbone.Model.extend({
         return resp;
     },
 
-    seekToSong: function(cid) {
-        // cid refers to the cid of a model in the Playlist.
-        var newSong = this.get('songCollection').get(cid);
-        this.set('position',
-                    this.get('songCollection').indexOf(newSong));
+    seekByIndex: function(index) {
+        this.set('position', index);
+    },
+
+    seekById: function(id) {
+        var matchedSongs = this.get('songCollection').where({id: id});
+        if (matchedSongs.length !== 1)
+            throw ("ID " + id + " matches " + matchedSongs.length + " songs,"
+                   + " expected 1");
+        this.seekByIndex(this.get('songCollection').indexOf(matchedSongs[0]));
     },
 
     nextSong: function() {
         var oldPos = this.get('position');
 
-        // is there a next song?
-        if (oldPos + 1 >= this.get('songCollection').size())
-            return false;  // no next song
+        // If there is no next song, seek to -1, which stops the music.
+        if (oldPos + 1 >= this.get('songCollection').size()) {
+            this.seekByIndex(-1);
+            return;
+        }
 
-        this.seekToSong(this.get('songCollection').at(oldPos + 1).cid);
-        return true;  // success
+        this.seekByIndex(oldPos + 1);
     },
 
     prevSong: function() {
@@ -131,7 +139,7 @@ var Playlist = Backbone.Model.extend({
         if (oldPos <= 0)
             return false;  // no previous song
 
-        this.seekToSong(this.get('songCollection').at(oldPos - 1).cid);
+        this.seekByIndex(oldPos - 1);
         return true;  // success
     },
 
@@ -143,19 +151,20 @@ var Playlist = Backbone.Model.extend({
         this.attributes.songCollection.addAlbum(albumId);
     },
 
+    removeSongById: function(id) {
+        this.removeSong(this.get('songCollection').where({id: id})[0]);
+    },
+
     removeSong: function(song) {
         var removedIndex = this.get('songCollection').indexOf(song);
         if (removedIndex == -1) {
-            console.log('tried to remove song not in playlist!');
+            console.warn('tried to remove song not in playlist!');
             return;
         }
         if (removedIndex === this.get('position')) {
             // removing currently playing song,
             // skip to next
-            if (!this.nextSong()) {
-                // already on last song
-                this.seekToSong(-1);
-            }
+            this.nextSong();
         }
         this.get('songCollection').remove(song);
         if (removedIndex < this.get('position')) {

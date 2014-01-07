@@ -9,6 +9,7 @@ var SearchResultListView = React.createBackboneClass({
         var that = this;
         var resultNodes = this.getModel().models.map(function(result) {
             return <SearchResultView model={result}
+                        key={result.cid}
                         songClickHandler={that.props.songClickHandler}
                         albumClickHandler={that.props.albumClickHandler} />;
         });

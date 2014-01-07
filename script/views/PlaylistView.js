@@ -1,70 +1,29 @@
+/** @jsx React.DOM */
 "use strict";
 
 var $ = require('../lib/jquery.shim'),
     _ = require('underscore'),
     Backbone = require('backbone'),
+    React = require('react'),
     PlaylistItemView = require('./PlaylistItemView');
 
-var PlaylistView = Backbone.View.extend({
-    el: $('ul#playlist'),
+var PlaylistView = React.createBackboneClass({
+    render: function() {
+        var coll = this.getModel().get('songCollection');
+        var position = this.getModel().get('position');
+        var itemNodes = coll.map(function(song, index) {
+            return <PlaylistItemView model={song} key={song.cid}
+                       playing={index === position}
+                       clickHandler={this.props.clickHandler}
+                       removeClickHandler={this.props.removeClickHandler} />;
+        }.bind(this));
 
-    initialize: function() {
-        _.bindAll(this, 'addSong', 'removeSong', 'updateNowPlaying',
-            'startSort', 'reorder');
-
-        // The Playlist model proxies "add", "remove" and "sort" events
-        // from its inner collection.
-        this.model.on('add', this.addSong);
-        this.model.on('remove', this.removeSong);
-        this.model.on('change:position', this.updateNowPlaying);
-
-        this.$el.sortable();
-        this.$el.disableSelection();
-        this.$el.on('sortstart', this.startSort);
-        this.$el.on('sortupdate', this.reorder);
+        return <ul id="playlist">{itemNodes}</ul>;
     },
-
-    addSong: function(track, collection, options) {
-        var itemView = new PlaylistItemView({model: track});
-        var rendered = itemView.render().el;
-
-        if (options.at === undefined) {
-            this.$el.append(rendered);
-        } else {
-            // Added at a specific index. We need to put it in the proper
-            // location.
-            if (options.at === 0) {
-                this.$el.prepend(rendered);
-            } else {
-                var previous = collection.at(options.at - 1);
-                this.$('#' + previous.get('htmlId')).after(rendered);
-            }
-        }
-    },
-
-    removeSong: function(track) {
-        this.$('#' + track.get('htmlId')).remove();
-    },
-
-    startSort: function(event, ui) {
-        window.sortedItem = ui.item;
-        window.myEl = this.$el;
-        this.draggedIndex = ui.item.index();
-    },
-
-    reorder: function(event, ui) {
-        var newIndex = ui.item.index();
-        this.model.reorder(this.draggedIndex, newIndex);
-    },
-
-    updateNowPlaying: function() {
-        var oldPlayPos = this.model.previous('position');
-        var newPlayPos = this.model.get('position');
-        this.$('li:nth-child(' + (oldPlayPos+1) + ')')
-            .removeClass('now-playing');
-        this.$('li:nth-child(' + (newPlayPos+1) + ')')
-            .addClass('now-playing');
-    }
+    changeOptions: 'add remove change:position'
 });
+
+// TODO: add sorting like it was in the pre-React version
+// see https://gist.github.com/petehunt/7882164
 
 module.exports = PlaylistView;
