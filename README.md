@@ -31,7 +31,7 @@ rely on the HTML5 `<audio>` tag — there is no Flash fallback.
 #### Client side
 
 Pots, fyi uses [Browserify](http://browserify.org/) to bundle together
-its client-side dependencies (JQuery, Backbone, Underscore and Handlebars).
+its client-side dependencies.
 This requires [npm](http://npmjs.org/) version >= 0.8.0.
 
 ### Quick start
