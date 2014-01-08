@@ -19,7 +19,7 @@ var PlaylistItemView = React.createBackboneClass({
                            + (this.props.playing ? ' now-playing' : '')}
                 data-idx={this.props.sortIndex}>
                 <a href="#" className="remove-link"
-                   onClick={removeClickHandler}>{'[X]'}</a>
+                   onClick={removeClickHandler}>{'☒'}</a>
                 {' '}
                 <span onClick={clickHandler}
                       className="artist-name">{m.get('artist')}</span>
