@@ -31,6 +31,7 @@ var PlaylistView = React.createBackboneClass({
         $(rootNode)
             .disableSelection()
             .sortable({
+                distance: 10,
                 stop: function(event, ui) {
                     // jQuery UI doesn't give us the old (pre-drag) index,
                     // so use the data-idx attribute (which was set via the
