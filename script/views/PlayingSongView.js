@@ -47,7 +47,7 @@ var PlayingSongView = React.createBackboneClass({
                     : ''}
                 <div id="control-buttons">
                     <button id="btn-play-pause" type="button"
-                            onClick={this.playPauseHandler.bind(this)}>
+                            onClick={this.playPauseHandler}>
                         {isPlaying ? "Pause" : "Play"}
                     </button>
                     <button id="btn-prev" type="button"

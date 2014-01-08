@@ -29,7 +29,8 @@ var AppView = require('react').createClass({
             <div id="playlist-window">
                 <PlaylistView model={this.props.playlist}
                     clickHandler={playlistClick}
-                    removeClickHandler={playlistRemove} />
+                    removeClickHandler={playlistRemove}
+                    onReorder={this.props.playlist.reorder} />
             </div>
             <PlayingSongView model={this.props.playingSong}
                 nextSongHandler={this.props.playlist.nextSong}

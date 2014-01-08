@@ -16,7 +16,8 @@ var PlaylistItemView = React.createBackboneClass({
         }.bind(this);
         return (
             <li className={'solo-track'
-                           + (this.props.playing ? ' now-playing' : '')}>
+                           + (this.props.playing ? ' now-playing' : '')}
+                data-idx={this.props.sortIndex}>
                 <a href="#" className="remove-link"
                    onClick={removeClickHandler}>{'[X]'}</a>
                 {' '}
