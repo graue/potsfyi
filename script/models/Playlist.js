@@ -166,9 +166,12 @@ var Playlist = Backbone.Model.extend({
     },
 
     reorder: function(oldPos, newPos) {
-        var model = this.attributes.songCollection.at(oldPos);
-        this.attributes.songCollection.remove(model);
-        this.attributes.songCollection.add(model, {at: newPos});
+        var coll = this.attributes.songCollection;
+        var positionId = coll.at(this.get('position')).get('id');
+        var model = coll.at(oldPos);
+        coll.remove(model);
+        coll.add(model, {at: newPos});
+        this.set('position', coll.indexOf(coll.where({id: positionId})[0]));
     }
 });
 
