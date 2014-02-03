@@ -105,6 +105,15 @@ def get_artists():
     return jsonify(objects=[a.artist for a in albums])
 
 
+@app.route('/artist/<artist>')
+@login_required
+def get_artist_albums(artist):
+    # Return a list of an artist's albums.
+    albums = (Album.query.filter(Album.artist == artist)
+              .order_by(Album.title).order_by(Album.date))
+    return jsonify(objects=[a.serialize for a in albums])
+
+
 @app.route('/album/<int:album_id>')
 @login_required
 def list_album(album_id):
