@@ -92,6 +92,19 @@ def search_results():
     return jsonify(objects=[t.serialize for t in (albums + tracks)])
 
 
+@app.route('/artist')
+@login_required
+def get_artists():
+    # Return artists lexicographically after 'start', if provided.
+    start = request.args.get('start', '')
+
+    limit = request.args.get('limit', 30)
+
+    albums = (Album.query.filter(Album.artist > start).group_by(Album.artist)
+              .order_by(Album.artist).limit(limit)).all()
+    return jsonify(objects=[a.artist for a in albums])
+
+
 @app.route('/album/<int:album_id>')
 @login_required
 def list_album(album_id):
