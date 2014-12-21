@@ -12,9 +12,6 @@ from flask.ext.browserid import BrowserID
 from wsgi_utils import PipeWrapper
 from models import Track, Album, db
 
-# Insecure, from the Flask manual - for testing and development only.
-DEFAULT_SECRET_KEY = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
-
 app = Flask(__name__)
 db.init_app(app)
 
@@ -28,10 +25,11 @@ app.config.update(
     SEND_FILE_MAX_AGE_DEFAULT=10
 )
 
+# Insecure, from the Flask manual - for testing and development only.
+DEFAULT_SECRET_KEY = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+
+# Checked below to make sure it's not the default in production.
 app.secret_key = os.environ.get('SECRET_KEY', DEFAULT_SECRET_KEY)
-if app.secret_key == DEFAULT_SECRET_KEY and not app.config['DEBUG']:
-    sys.stderr.write("Error: You need to specify a SECRET_KEY\n")
-    sys.exit(1)
 
 
 class User(UserMixin):
@@ -171,5 +169,13 @@ def login_view():
         return redirect(url_for('front_page'))
     return render_template('login.html')
 
+
+def check_secret_key():
+    if app.secret_key == DEFAULT_SECRET_KEY and not app.config['DEBUG']:
+        sys.stderr.write("Error: You need to specify a SECRET_KEY\n")
+        sys.exit(1)
+
+
 if __name__ == '__main__':
+    check_secret_key()
     app.run(port=app.config['PORT'])
