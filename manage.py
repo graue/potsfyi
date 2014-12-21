@@ -39,7 +39,7 @@ def track_num_to_int(track_num_str):
     return track_num
 
 
-def multi_get_first(tag_dict, tags, default=''):
+def first_defined_tag(tag_dict, tags, default=''):
     """ Get first defined tag out of the list in tags.
         Example usage: tags=['track', 'tracknumber', 'track_number']
         To cope with Mutagen's data structures,
@@ -86,7 +86,6 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
     ''' take a full path to a file and the directory containing it
         return Track and Album objects
     '''
-    #TODO possibly move verbose prints from other methods into this
     mtime = os.path.getmtime(full_filename)
     relative_filename = os.path.relpath(full_filename, music_dir)
     try:
@@ -102,19 +101,19 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
     if tags is None:
         raise MetadataError(u'no tags!')
 
-    artist = multi_get_first(tags, 'artist')
-    title = multi_get_first(tags, 'title')
+    artist = first_defined_tag(tags, 'artist')
+    title = first_defined_tag(tags, 'title')
     if artist == '' or title == '':
         raise MetadataError(u'empty artist or title tag')
 
     track_num = track_num_to_int(
-        multi_get_first(tags, ['track', 'tracknumber'], '-1')
+        first_defined_tag(tags, ['track', 'tracknumber'], '-1')
     )
-    album_title = multi_get_first(tags, 'album')
-    album_artist = multi_get_first(tags,
+    album_title = first_defined_tag(tags, 'album')
+    album_artist = first_defined_tag(tags,
             ['album artist', 'album_artist', 'albumartist',
                 'artist'])
-    release_date = multi_get_first(tags, ['date', 'year'])
+    release_date = first_defined_tag(tags, ['date', 'year'])
     album, new = get_or_create(db.session, Album,
                                artist=album_artist,
                                title=album_title,
