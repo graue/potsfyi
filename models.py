@@ -1,15 +1,11 @@
-# potsfyi models
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Column, Integer, String, ForeignKey
 from flask.ext.sqlalchemy import SQLAlchemy
 
-# the db is initialized within the main app
-db = SQLAlchemy()
+db = SQLAlchemy()  # Imported and initialized in potsfyi.py.
 
 
 class Track(db.Model):
-    ''' artist, track, filename, album '''
-
     __tablename__ = 'track'
 
     id = Column(Integer, primary_key=True)
@@ -19,8 +15,10 @@ class Track(db.Model):
     track_num = Column(Integer)
     mtime = Column(Integer)
     album_id = Column(Integer, ForeignKey('album.id'))
-    album = relationship('Album',
-        backref=backref('tracks', lazy='dynamic'))
+    album = relationship(
+        'Album',
+        backref=backref('tracks', lazy='dynamic')
+    )
 
     def __init__(self, artist, title, filename, album, track_num, mtime):
         self.artist = artist
@@ -45,18 +43,16 @@ class Track(db.Model):
 
 
 class Album(db.Model):
-    ''' artist, title, date, label, cat# '''
-
     __tablename__ = 'album'
 
     id = Column(Integer, primary_key=True)
     artist = Column(String(200))
     title = Column(String(240))
-    # date format?
+    # TODO: Use a real date format.
     date = Column(String(16))
     label = Column(String(240))
     cat_number = Column(String(32))
-    cover_art = Column(String(256))  # filename of cover art, jpg/png
+    cover_art = Column(String(256))  # Filename of cover art, jpg/png.
 
     def __init__(self, artist, title, date=None, label=None, cat_number=None,
                  cover_art=None):
@@ -68,8 +64,9 @@ class Album(db.Model):
         self.cover_art = cover_art
 
     def __repr__(self):
-        return (u'<Album {0.title} - ' +
-            u'{0.artist} ({0.date})>').format(self)
+        return (
+            u'<Album {0.title} - ' + u'{0.artist} ({0.date})>'
+        ).format(self)
 
     @property
     def serialize(self):

@@ -61,19 +61,23 @@ class MetadataError(Exception):
     """ Represents a failure to open a music file, missing metadata, or
     another problem that prevents the file's tags being sensibly added to
     the database. """
+
     def __init__(self, reason):
         self.reason = reason
+
     def __str__(self):
         return self.reason
 
 
 def get_or_create(session, model, **kwargs):
-    ''' return the object or make it if it doesn't exist
-        filters only by artist and title at the moment
-    '''
+    """ Return the object or make it if the artist/title pair doesn't exist.
+    """
 
-    instance = session.query(model).filter_by(artist=kwargs['artist'],
-                                              title=kwargs['title']).first()
+    instance = session.query(model).filter_by(
+        artist=kwargs['artist'],
+        title=kwargs['title']
+    ).first()
+
     if instance:
         return (instance, False)
     else:
@@ -83,9 +87,9 @@ def get_or_create(session, model, **kwargs):
 
 
 def aggregate_metadata(full_filename, music_dir, cover_art):
-    ''' take a full path to a file and the directory containing it
-        return Track and Album objects
-    '''
+    """ Take a full path to a file and the root music_dir. Return Track
+    and Album objects corresponding to that file.
+    """
     mtime = os.path.getmtime(full_filename)
     relative_filename = os.path.relpath(full_filename, music_dir)
     try:
@@ -93,8 +97,10 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
         if tag_info is None:
             raise MetadataError(u'Mutagen could not open file')
     except:
-        # FIXME: We shouldn't catch all exceptions; this is an anti-pattern.
-        # What specific exception is really being looked for here?
+        # XXX: We shouldn't catch all exceptions; this is an anti-pattern.
+        # However, unfortunately, Mutagen doesn't have its own exceptions and
+        # each file format loader seems to use different ones, so there isn't
+        # a good workaround without patching Mutagen.
         raise MetadataError(u'error: {0}'.format(str(sys.exc_info()[0])))
 
     tags = tag_info.tags
@@ -110,25 +116,27 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
         first_defined_tag(tags, ['track', 'tracknumber'], '-1')
     )
     album_title = first_defined_tag(tags, 'album')
-    album_artist = first_defined_tag(tags,
-            ['album artist', 'album_artist', 'albumartist',
-                'artist'])
+    album_artist = first_defined_tag(
+        tags,
+        ['album artist', 'album_artist', 'albumartist', 'artist']
+    )
     release_date = first_defined_tag(tags, ['date', 'year'])
     album, new = get_or_create(db.session, Album,
                                artist=album_artist,
                                title=album_title,
                                date=release_date,
                                cover_art=cover_art)
-    #TODO do this the sqlalchemy way, if that exists
+    # TODO: Do this the SQLAlchemy way, if that exists.
     if new:
         db.session.commit()
     track = Track(
-                artist=artist,
-                title=title,
-                filename=relative_filename,
-                album=album,
-                track_num=track_num,
-                mtime=mtime)
+        artist=artist,
+        title=title,
+        filename=relative_filename,
+        album=album,
+        track_num=track_num,
+        mtime=mtime
+    )
     return track, album
 
 
@@ -232,16 +240,23 @@ def update_db(music_dir, quiet=True):
     # FIXME: This is a naive approach, and we should instead do it with
     # foreign keys and an on-delete cascade clause. But I have no idea how to
     # do that via the SQLAlchemy ORM. (sf, Dec 2013)
-    orphaned_albums = Album.query.filter(~Album.id.in_(select([Track.album_id])))
+    orphaned_albums = Album.query.filter(
+        ~Album.id.in_(select([Track.album_id]))
+    )
     for album in orphaned_albums:
         db.session.delete(album)
     db.session.commit()
 
     end_time = datetime.today()
     if not quiet:
-        sys.stderr.write(u'\r\033[KDone, {0} {1} processed in {2} sec.\n'
-            .format(track_count, 'track' + ('' if track_count == 1 else 's'),
-                    (end_time - start_time).total_seconds()))
+        sys.stderr.write(
+            u'\r\033[KDone, {0} {1} processed in {2} sec.\n'
+            .format(
+                track_count,
+                'track' + ('' if track_count == 1 else 's'),
+                (end_time - start_time).total_seconds()
+            )
+        )
 
 
 if __name__ == "__main__":
