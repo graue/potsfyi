@@ -16,7 +16,8 @@ var SearchResultView = React.createBackboneClass({
         // is false!), it's an album, otherwise it's a song result.
         var isAlbum = (hasCoverArt !== undefined);
 
-        var clickHandler = (function() {
+        var clickHandler = (function(event) {
+            event.preventDefault();
             if (isAlbum)
                 this.props.albumClickHandler(id);
             else

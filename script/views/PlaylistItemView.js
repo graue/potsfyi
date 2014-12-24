@@ -11,7 +11,8 @@ var PlaylistItemView = React.createBackboneClass({
         var clickHandler = function() {
             this.props.clickHandler(m.attributes);
         }.bind(this);
-        var removeClickHandler = function() {
+        var removeClickHandler = function(event) {
+            event.preventDefault();
             this.props.removeClickHandler(m.attributes);
         }.bind(this);
         return (
