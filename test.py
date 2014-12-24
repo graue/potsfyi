@@ -12,13 +12,13 @@ from manage import update_db
 # relative location to where the mock tracks will be written
 TRACK_DIR = 'test/tracks/'
 if not os.path.exists(TRACK_DIR):
-  os.mkdir(TRACK_DIR)
+    os.mkdir(TRACK_DIR)
+
 
 def filenames_unique(tracks):
-    """ Return True if no filename appears more than once in the given list
-    of tracks. """
     filenames = [t.filename for t in tracks]
-    return sorted(filenames) == sorted(list(set(filenames)))
+    return len(set(filenames)) == len(filenames)
+
 
 def create_mock_tracks(tracks, src_track="test/sinewave.mp3"):
     """ Create mock tracks with the given tags.
@@ -32,12 +32,10 @@ def create_mock_tracks(tracks, src_track="test/sinewave.mp3"):
             song_tag[k] = unicode(v)
         song_tag.save()
 
+
 def remove_mock_tracks(tracks):
-    """ remove a list of mock tracks
-    """
     for track in tracks:
         os.remove(os.path.join(TRACK_DIR, track))
-
 
 
 class DatabaseTest(TestCase):
@@ -46,7 +44,6 @@ class DatabaseTest(TestCase):
         app = Flask(__name__)
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         app.config['TESTING'] = True
-        app.config['SECRET_KEY'] = 'xxx'  # XXX fix this
         db.init_app(app)
         return app
 
@@ -56,6 +53,7 @@ class DatabaseTest(TestCase):
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+
 
 class TaggingTest(DatabaseTest):
 
@@ -68,14 +66,13 @@ class TaggingTest(DatabaseTest):
         create_mock_tracks(self.mock_tracks)
 
     def tearDown(self):
-        ''' remove all but sinewave.mp3 '''
+        # Remove all mock tracks except the source track sinewave.mp3.
         for track in os.listdir(TRACK_DIR):
             if track != 'sinewave.mp3':
                 os.remove(TRACK_DIR + track)
 
 
 class TestTagging(TaggingTest):
-
 
     def test_tags(self):
         update_db(TRACK_DIR)
@@ -92,16 +89,16 @@ class TestTagging(TaggingTest):
 
 class TestUpdate(TaggingTest):
 
-
     def test_added_track_update(self):
-        ''' db is updated to new files in music_dir '''
+        """ Updates reflect newly added tracks. """
         added_filename = 'new_one.mp3'
         added_track = {'artist': 'Third Artist', 'title': 'Blobs'}
         create_mock_tracks({added_filename: added_track})
         update_db(TRACK_DIR)
         found_track = Track.query.filter_by(
-                                    artist=added_track['artist'],
-                                    title=added_track['title'])
+            artist=added_track['artist'],
+            title=added_track['title']
+        )
         assert found_track is not None
         assert filenames_unique(Track.query.all())  # no duplicates
 
@@ -127,7 +124,7 @@ class TestUpdate(TaggingTest):
         assert filenames_unique(Track.query.all())
 
     def test_remove_track_update(self):
-        ''' db doesn't included deleted tracks '''
+        """ Updates reflect deleted tracks. """
         mock_tracks = self.mock_tracks
         # pop returns a tuple of (filename, file_info_dict)
         removed_filename = mock_tracks.keys()[0]
@@ -137,7 +134,7 @@ class TestUpdate(TaggingTest):
         assert filenames_unique(Track.query.all())  # no duplicates
 
     def test_mtime(self):
-        ''' newest mtime is updated in db '''
+        """ Updates reflect each file's mtime accurately. """
         mock_tracks = self.mock_tracks
         now = int(time.time())
         for f in mock_tracks:
@@ -145,17 +142,20 @@ class TestUpdate(TaggingTest):
             st = os.stat(filename)
             atime = st.st_atime
             new_mtime = now
-            os.utime(filename, (atime, new_mtime))  # modify the timestamp
+            os.utime(filename, (atime, new_mtime))  # Modify the timestamp.
         update_db('test/tracks')
         tracks_in_db = Track.query.all()
         for track in tracks_in_db:
             assert track.mtime == now
 
     def test_orphan_albums(self):
-        ''' deleted tracks have their albums purged also
-        '''
+        """ Deleted tracks have their albums purged as well. """
         fname = 'blobs.mp3'
-        tags = {'artist': 'Third Artist', 'title': 'Blobs', 'album': 'The_album'}
+        tags = {
+            'artist': 'Third Artist',
+            'title': 'Blobs',
+            'album': 'The_album'
+        }
 
         create_mock_tracks({fname: tags})
         update_db(TRACK_DIR)
