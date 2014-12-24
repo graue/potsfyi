@@ -59,14 +59,13 @@ Anyway, once you've got pip and virtualenv, run:
     . venv/bin/activate
     pip install -r requirements.pip
     ln -s /some/dir/that/has/music/in/it static/music
-    SECRET_KEY=foo ./manage.py update
+    ./manage.py update
 
-(The symbolic link to `/some/dir/that/has/music/in/it` should obviously be
-replaced with an actual path. Pots, fyi will make all supported music files
+(Replace `/some/dir/that/has/music/in/it` with an appropriate path.
+Pots, fyi will make all supported music files
 under this path (searching recursively) available through the web interface.
 Currently, it won't create or change any files here, so don't worry about it
-messing anything up. Also, don't worry about the specific `SECRET_KEY` in
-the update command. It's just a bug that you have to provide one.)
+messing anything up.)
 
 Your server is now ready to go.
 To build client-side scripts (the part that requires Node):
