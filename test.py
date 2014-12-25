@@ -84,7 +84,41 @@ class TestTagging(TaggingTest):
             assert db_track.artist == mock_tracks[filename]['artist']
             assert db_track.title == mock_tracks[filename]['title']
 
-        assert filenames_unique(tracks_in_db)  # no duplicates
+        assert filenames_unique(tracks_in_db)
+
+    def test_albums(self):
+        """ Tracks with same artist/album pair get put into an Album. """
+        album_mock = {
+            '01 - Bicycle Day.mp3': {
+                'artist': 'Static Bass',
+                'album': 'Bicycle Day',
+                'tracknumber': '1/2',
+                'title': 'Bicycle Day'
+            },
+            '02 - No Phuture.mp3': {
+                'artist': 'Static Bass',
+                'album': 'Bicycle Day',
+                'tracknumber': '2/2',
+                'title': 'No Phuture'
+            }
+        }
+        create_mock_tracks(album_mock)
+        update_db(TRACK_DIR)
+        albums = Album.query.filter_by(
+            title='Bicycle Day',
+            artist='Static Bass'
+        ).all()
+        assert len(albums) == 1
+        tracks = (Track.query.filter_by(album_id=albums[0].id)
+                             .order_by(Track.track_num)
+                             .all())
+        assert len(tracks) == 2
+        assert tracks[0].artist == 'Static Bass'
+        assert tracks[0].track_num == 1
+        assert tracks[0].title == 'Bicycle Day'
+        assert tracks[1].artist == 'Static Bass'
+        assert tracks[1].track_num == 2
+        assert tracks[1].title == 'No Phuture'
 
 
 class TestUpdate(TaggingTest):
@@ -131,7 +165,7 @@ class TestUpdate(TaggingTest):
         os.remove(os.path.join(TRACK_DIR, removed_filename))
         update_db(TRACK_DIR)
         assert len(Track.query.filter_by(filename=removed_filename).all()) == 0
-        assert filenames_unique(Track.query.all())  # no duplicates
+        assert filenames_unique(Track.query.all())
 
     def test_mtime(self):
         """ Updates reflect each file's mtime accurately. """
