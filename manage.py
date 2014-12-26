@@ -238,8 +238,9 @@ def update_db(music_dir, quiet=True):
 
     # Remove albums which contain no tracks.
     # FIXME: This is a naive approach, and we should instead do it with
-    # foreign keys and an on-delete cascade clause. But I have no idea how to
-    # do that via the SQLAlchemy ORM. (sf, Dec 2013)
+    # foreign keys and an on-delete cascade clause. But SQLAlchemy claims
+    # it doesn't support that on SQLite, despite SQLite having the feature
+    # (sf, Dec 2014).
     orphaned_albums = Album.query.filter(
         ~Album.id.in_(select([Track.album_id]))
     )
