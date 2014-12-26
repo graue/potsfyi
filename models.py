@@ -65,7 +65,7 @@ class Album(db.Model):
 
     def __repr__(self):
         return (
-            u'<Album {0.title} - ' + u'{0.artist} ({0.date})>'
+            u'<Album {0.artist} - ' + u'{0.title} ({0.date})>'
         ).format(self)
 
     @property
