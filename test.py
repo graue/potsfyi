@@ -86,6 +86,21 @@ class TestTagging(TaggingTest):
 
         assert filenames_unique(tracks_in_db)
 
+    def test_non_album(self):
+        """ Album objects aren't created if the album tag is empty. """
+        mocks = {
+            'tetrawub.mp3': {
+                'artist': 'Adhesion',
+                'title': 'tetrawub',
+                'album': '',
+                'date': 2013
+            }
+        }
+        create_mock_tracks(mocks)
+        update_db(TRACK_DIR)
+        adhesion_albums = Album.query.filter_by(artist='Adhesion').all()
+        assert len(adhesion_albums) == 0
+
     def test_albums(self):
         """ Tracks with same artist/album pair get put into an Album. """
         album_mock = {
@@ -186,9 +201,9 @@ class TestUpdate(TaggingTest):
         """ Deleted tracks have their albums purged as well. """
         fname = 'blobs.mp3'
         tags = {
-            'artist': 'Third Artist',
-            'title': 'Blobs',
-            'album': 'The_album'
+            'artist': 'Yet Another Fake Artist',
+            'title': 'Fake Song #13',
+            'album': 'Fake Songs Vol. 2: Counterfeit Boogaloo'
         }
 
         create_mock_tracks({fname: tags})

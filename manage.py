@@ -69,26 +69,22 @@ class MetadataError(Exception):
         return self.reason
 
 
-def get_or_create(session, model, **kwargs):
+def get_or_create_album(artist, title, **kwargs):
     """ Return the object or make it if the artist/title pair doesn't exist.
     """
-
-    instance = session.query(model).filter_by(
-        artist=kwargs['artist'],
-        title=kwargs['title']
-    ).first()
-
+    instance = Album.query.filter_by(artist=artist, title=title).first()
     if instance:
-        return (instance, False)
+        return instance
     else:
-        instance = model(**kwargs)
-        session.add(instance)
-        return (instance, True)
+        instance = Album(artist, title, **kwargs)
+        db.session.add(instance)
+        db.session.flush()
+        return instance
 
 
 def aggregate_metadata(full_filename, music_dir, cover_art):
     """ Take a full path to a file and the root music_dir. Return Track
-    and Album objects corresponding to that file.
+    and Album objects (or None for no album) corresponding to that file.
     """
     mtime = os.path.getmtime(full_filename)
     relative_filename = os.path.relpath(full_filename, music_dir)
@@ -121,14 +117,16 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
         ['album artist', 'album_artist', 'albumartist', 'artist']
     )
     release_date = first_defined_tag(tags, ['date', 'year'])
-    album, new = get_or_create(db.session, Album,
-                               artist=album_artist,
-                               title=album_title,
-                               date=release_date,
-                               cover_art=cover_art)
-    # TODO: Do this the SQLAlchemy way, if that exists.
-    if new:
-        db.session.commit()
+
+    album = None
+    if album_title != '':
+        album = get_or_create_album(
+            album_artist,
+            album_title,
+            date=release_date,
+            cover_art=cover_art
+        )
+
     track = Track(
         artist=artist,
         title=title,
@@ -234,7 +232,7 @@ def update_db(music_dir, quiet=True):
     for track in Track.query.all():
         if track.filename not in filenames_found:
             db.session.delete(track)
-    db.session.commit()
+    db.session.flush()
 
     # Remove albums which contain no tracks.
     # FIXME: This is a naive approach, and we should instead do it with
@@ -242,10 +240,11 @@ def update_db(music_dir, quiet=True):
     # it doesn't support that on SQLite, despite SQLite having the feature
     # (sf, Dec 2014).
     orphaned_albums = Album.query.filter(
-        ~Album.id.in_(select([Track.album_id]))
-    )
+        ~Album.id.in_(select([Track.album_id], Track.album_id != None))
+    ).all()
     for album in orphaned_albums:
         db.session.delete(album)
+
     db.session.commit()
 
     end_time = datetime.today()
