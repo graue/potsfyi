@@ -135,12 +135,11 @@ var Playlist = Backbone.Model.extend({
     prevSong: function() {
         var oldPos = this.get('position');
 
-        // is there a previous song?
+        // Is there a previous song?
         if (oldPos <= 0)
-            return false;  // no previous song
+            return;
 
         this.seekByIndex(oldPos - 1);
-        return true;  // success
     },
 
     addSong: function(spec) {

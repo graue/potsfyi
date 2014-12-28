@@ -32,7 +32,7 @@ $(function() {
     // FIXME: pass in songClickHandler, albumClickHandler so
     // SearchResultListView can use them. Check this list of props -
     // is anything missing?
-    React.renderComponent(AppView({
+    React.render(React.createElement(AppView, {
         resultList: resultList,
         playlist: window.playlist,
         playingSong: window.playingSong
