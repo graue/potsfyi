@@ -12,10 +12,10 @@
         "react": "~0.12.2"
     },
     "devDependencies": {
-        "browserify": "~2.36.0",
-        "envify": "~1.2.0",
-        "watchify": "~0.4.1",
-        "reactify": "~0.4.0"
+        "browserify": "~8.0.2",
+        "envify": "~3.2.0",
+        "watchify": "~2.2.1",
+        "reactify": "~0.17.1"
     },
     "browserify": {
         "transform": [
