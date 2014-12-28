@@ -61,11 +61,12 @@ var PlayingSongView = React.createBackboneClass({
         );
     },
 
-    componentDidUpdate: function(prevProps, prevState, rootNode) {
+    componentDidUpdate: function(prevProps, prevState) {
         // FIXME: this should check if the new song = the old song, and should
         // play or pause appropriately - clicking play or pause button should
         // trigger an update here. Not reactive - copied from BB view.
 
+        var rootNode = this.getDOMNode();
         var audioSel = $('audio', rootNode);
         audioSel.trigger('play');
 

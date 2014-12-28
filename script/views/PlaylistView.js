@@ -21,11 +21,11 @@ var PlaylistView = React.createBackboneClass({
 
         return <ul id="playlist">{itemNodes}</ul>;
     },
-    componentDidMount: function(rootNode) {
-        this.makeSortable(rootNode);
+    componentDidMount: function() {
+        this.makeSortable(this.getDOMNode());
     },
-    componentDidUpdate: function(prevProps, prevState, rootNode) {
-        this.makeSortable(rootNode);
+    componentDidUpdate: function() {
+        this.makeSortable(this.getDOMNode());
     },
     makeSortable: function(rootNode) {
         $(rootNode)
