@@ -79,7 +79,7 @@ var PlayingSongView = React.createBackboneClass({
         if (this.getModel().has('album')) {
             var album = this.getModel().get('album');
             if (typeof album === 'object' && album.has_cover_art)
-                bg = '/albumart/' + album.id;
+                bg = '/album/' + album.id + '/art';
         }
         setBG(bg);
     },

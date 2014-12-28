@@ -28,7 +28,7 @@ var SearchResultView = React.createBackboneClass({
             <li className={isAlbum ? 'result-album' : 'result-song'}>
                 <a href="#" onClick={clickHandler}>
                     {hasCoverArt
-                        ? <img alt="" src={'/albumart/' + id} />
+                        ? <img alt="" src={'/album/' + id + '/art'} />
                         : ''}
                     <span className="artist-name">{artist}</span>
                     {isAlbum ? <br /> : ' — '}

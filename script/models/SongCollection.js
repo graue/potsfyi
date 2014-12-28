@@ -6,12 +6,6 @@ var Backbone = require('backbone'),
 var SongCollection = Backbone.Collection.extend({
     model: SongInfo,
 
-    // Override because Flask requires an object at top level.
-    // XXX code duplication: Also done for search results
-    parse: function(resp, xhr) {
-        return resp.objects;
-    },
-
     addAlbum: function(albumId) {
         this.url = '/album/' + albumId;
         var options = {}, coll = this;
@@ -24,7 +18,7 @@ var SongCollection = Backbone.Collection.extend({
             // attributes unchanged.
             options.merge = false;
 
-            coll.set(resp, options);
+            coll.set(resp.tracks, options);
         };
         Backbone.sync('read', this, options);
     },

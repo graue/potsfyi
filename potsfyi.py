@@ -94,6 +94,8 @@ def search_results():
 @login_required
 def get_artists():
     # Return artists lexicographically after 'start', if provided.
+    # TODO: Come up with a solution for artists who only have non-album
+    # tracks. For now, this only returns artists who have albums.
     start = request.args.get('start', '')
 
     limit = request.args.get('limit', 30)
@@ -107,6 +109,7 @@ def get_artists():
 @login_required
 def get_artist_albums(artist):
     # Return a list of an artist's albums.
+    # TODO: Come up with a solution for surfacing non-album tracks as well.
     albums = (Album.query.filter(Album.artist == artist)
               .order_by(Album.title).order_by(Album.date))
     return jsonify(objects=[a.serialize for a in albums])
@@ -114,17 +117,43 @@ def get_artist_albums(artist):
 
 @app.route('/album/<int:album_id>')
 @login_required
-def list_album(album_id):
-    """ Given an album ID, list its tracks. """
+def get_album(album_id):
+    """ Given an album ID, return its info, with a "tracks" attribute added
+    that lists all the tracks. """
+    album = Album.query.filter_by(id=album_id).first()
+    if album is None:
+        abort(404)
     tracks = Track.query.filter_by(album_id=album_id)\
                         .order_by(Track.track_num)
-    return jsonify(objects=[t.serialize for t in tracks])
+
+    response = album.serialize
+    response['tracks'] = [t.serialize for t in tracks]
+    return jsonify(response)
+
+
+@app.route('/album/<int:album_id>/art')
+@login_required
+def get_album_art(album_id):
+    album = Album.query.filter_by(id=album_id).first()
+    if album is None or album.cover_art is None:
+        abort(404)
+    return redirect(os.path.join('/' + app.config['MUSIC_DIR'],
+                                 album.cover_art))
+
+
+@app.route('/song/<int:track_id>')
+@login_required
+def get_track(track_id):
+    track = Track.query.filter_by(id=track_id).first()
+    if track is None:
+        abort(404)
+    return jsonify(track.serialize)
 
 
 @app.route('/song/<int:track_id>/<wanted_formats>')
 @login_required
-def get_track(track_id, wanted_formats):
-    """ Get a track.
+def get_track_audio(track_id, wanted_formats):
+    """ Get a track's audio.
     If `wanted_formats` (a comma-separated list) includes the file's actual
     format, a redirect is sent (so the static file can be handled as such).
     Otherwise, if `wanted_formats` includes ogg, it's transcoded on the fly.
@@ -158,16 +187,6 @@ def get_track(track_id, wanted_formats):
 
     return Response(PipeWrapper(pipe),
                     mimetype='audio/ogg', direct_passthrough=True)
-
-
-@app.route('/albumart/<int:album_id>')
-@login_required
-def get_album_art(album_id):
-    album = Album.query.filter_by(id=album_id).first()
-    if album is None or album.cover_art is None:
-        abort(404)
-    return redirect(os.path.join('/' + app.config['MUSIC_DIR'],
-                                 album.cover_art))
 
 
 @app.route('/')
