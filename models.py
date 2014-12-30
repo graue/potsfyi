@@ -36,7 +36,7 @@ class Track(db.Model):
         return {
             'artist': self.artist,
             'title': self.title,
-            'album': self.album.serialize if self.album else '',
+            'album_id': self.album.id if self.album else None,
             'track': self.track_num,
             'id': self.id
         }
@@ -70,12 +70,18 @@ class Album(db.Model):
 
     @property
     def serialize(self):
+        tracks = Track.query.filter_by(album_id=self.id)\
+                            .order_by(Track.track_num)
+        cover_art = None
+        if self.cover_art is not None:
+            cover_art = '/static/music/' + self.cover_art
         return {
             'artist': self.artist,
             'title': self.title,
             'date': self.date,
             'label': self.label,
             'cat_number': self.cat_number,
-            'has_cover_art': self.cover_art is not None,
-            'id': self.id
+            'cover_art': cover_art,
+            'track_ids': [t.id for t in tracks],
+            'id': self.id,
         }

@@ -81,13 +81,31 @@ def search_results():
 
     filters = [Track.title.contains(token) | Track.artist.contains(token)
                for token in tokens]
-    tracks = Track.query.filter(*filters).limit(30).all()
+    track_results = Track.query.filter(*filters).limit(30).all()
 
     album_filters = [Album.title.contains(token) |
                      Album.artist.contains(token) for token in tokens]
-    albums = Album.query.filter(*album_filters).limit(10).all()
+    album_results = Album.query.filter(*album_filters).limit(10).all()
 
-    return jsonify(objects=[t.serialize for t in (albums + tracks)])
+    tracks_to_include = set([t.id for t in track_results])
+    albums_to_include = set([t.album_id for t in track_results])
+    albums_to_include.discard(None)  # Whoops, some tracks aren't on an album.
+
+    albums_to_include |= set([a.id for a in album_results])
+    tracks_to_include |= set(
+        [t for a in album_results for t in a.serialize['track_ids']]
+    )
+
+    search_results = [['album', a.id] for a in album_results]
+    search_results += [['track', t.id] for t in track_results]
+
+    response = {
+        'albums': [Album.query.filter(Album.id == a).one().serialize for a in albums_to_include],
+        'tracks': [Track.query.filter(Track.id == t).one().serialize for t in tracks_to_include],
+        'search_results': search_results
+    }
+
+    return jsonify(response)
 
 
 @app.route('/artist')
@@ -141,7 +159,7 @@ def get_album_art(album_id):
                                  album.cover_art))
 
 
-@app.route('/song/<int:track_id>')
+@app.route('/track/<int:track_id>')
 @login_required
 def get_track(track_id):
     track = Track.query.filter_by(id=track_id).first()
@@ -150,7 +168,7 @@ def get_track(track_id):
     return jsonify(track.serialize)
 
 
-@app.route('/song/<int:track_id>/<wanted_formats>')
+@app.route('/track/<int:track_id>/<wanted_formats>')
 @login_required
 def get_track_audio(track_id, wanted_formats):
     """ Get a track's audio.

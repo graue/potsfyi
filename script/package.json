@@ -1,26 +1,26 @@
 {
-    "name": "potsfyi",
-    "version": "0.0.1",
-    "private": true,
-    "scripts": {
-        "watch": "watchify -o ../static/bundle.js main.js"
-    },
-    "dependencies": {
-        "underscore": "1.4.4",
-        "backbone": "1.1.0",
-        "jquery": "1.8.3",
-        "react": "~0.12.2"
-    },
-    "devDependencies": {
-        "browserify": "~8.0.2",
-        "envify": "~3.2.0",
-        "watchify": "~2.2.1",
-        "reactify": "~0.17.1"
-    },
-    "browserify": {
-        "transform": [
-            "reactify",
-            "envify"
-        ]
-    }
+  "name": "potsfyi",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "watch": "watchify -o ../static/bundle.js main.js"
+  },
+  "dependencies": {
+    "es6-promise": "^2.0.1",
+    "jquery": "1.8.3",
+    "react": "~0.12.2",
+    "underscore": "1.4.4"
+  },
+  "devDependencies": {
+    "browserify": "~8.0.2",
+    "envify": "~3.2.0",
+    "watchify": "~2.2.1",
+    "reactify": "~0.17.1"
+  },
+  "browserify": {
+    "transform": [
+      "reactify",
+      "envify"
+    ]
+  }
 }

@@ -1,0 +1,29 @@
+@font-face {
+  font-family: "foundation-icons";
+  src: url("/static/fonts/foundation-icons.eot");
+  src: url("/static/fonts/foundation-icons.eot?#iefix") format("embedded-opentype"),
+       url("/static/fonts/foundation-icons.woff") format("woff"),
+       url("/static/fonts/foundation-icons.ttf") format("truetype"),
+       url("/static/fonts/foundation-icons.svg#fontcustom") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Most of this as suggested by http://css-tricks.com/examples/IconFont/ */
+
+[data-icon]:before {
+  font-family: "foundation-icons";
+  content: attr(data-icon);
+  speak: none;
+  cursor: default;
+}
+
+.icon-standalone {
+  display: inline-block;  /* Supposedly Chrome 19 workaround...still needed? */
+}
+
+.screen-reader-text {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}

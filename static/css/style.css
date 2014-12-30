@@ -5,12 +5,13 @@
 }
 
 body {
-  background: #17171a;  /* cover image will be added by script */
-  background-position: center center;
+  background: #cccccc;
+  /*background: #17171a;  /* cover image will be added by script */
+  /*background-position: center center;
   background-size: contain;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-image: url(/static/img/pattern.png);
+  background-image: url(/static/img/pattern.png);*/
 }
 
 a {
@@ -105,4 +106,151 @@ button#browserid-logout {
   /* TODO: make this less ugly and terrible. */
   position: relative;
   left: 500px;
+}
+
+
+.UIBar {
+  width: 100%;
+  height: 36px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #2d2d2d;
+  z-index: 2;
+}
+
+.MainContentContainer {
+  padding-top: 36px;  /* Matches .UIBar height. */
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #cccccc;
+}
+
+.CoverArt {
+  width: 100%;  /* If actual image too wide, PlaylistArea will cover it. */
+  height: 100%;
+  margin: 0;
+  background-position: left center;
+  background-size: auto 100%;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  /* Script will set background-image. */
+}
+
+.PlaylistArea {
+  width: 300px;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+  right: 0px;
+  top: 0px;
+  padding-top: 36px;  /* .UIBar height again — any way to fix duplication? */
+  margin: 0;
+  background-color: rgba(204, 204, 204, 0.75);
+}
+
+.PlaylistItems {
+  list-style-type: none;
+  padding-left: 16px;
+}
+
+.PlaylistItem {
+  font-size: 13px;
+  padding-right: 15px;  /* Leaves room for PlaylistItemRemoveLink */
+}
+
+.PlaylistItemPlayingIndicator {
+  position: absolute;
+  left: 0;
+}
+
+.PlaylistItemRemoveLink {
+  position: absolute;
+  right: 3px;  /* Playlist's right padding provides room for this */
+  color: #222;
+  visibility: hidden;
+}
+
+.PlaylistItem:hover .PlaylistItemRemoveLink {
+  visibility: visible;
+}
+
+.UIBar {
+  color: #eeefee;
+}
+
+.Nav, .NavButton, .SearchArea, .DropdownMenuTrigger {
+  display: inline-block;
+}
+
+.NavButton {
+  margin-right: 15px;
+}
+
+.NavButtonDisabled {
+  color: #aaa;
+}
+
+.Nav {
+  line-height: 1.6;
+  font-size: 20px;
+  vertical-align: middle;
+  margin-left: 100px;
+}
+
+.SearchArea {
+  /* FIXME: Not responsive. Need a better way to position this.
+   * The idea is "over towards the right", overlapping the line between
+   * cover art and playlist.
+   */
+  margin-left: 420px;
+}
+
+.SearchBox {
+  margin-left: 10px;
+  position: relative;
+}
+
+.DropdownMenuTrigger {
+  position: absolute;
+  right: 10px;
+  line-height: 1.4;
+  font-size: 24px;
+  vertical-align: middle;
+}
+
+.SearchBoxInput {
+  width: 250px;
+}
+
+.SearchResultsDropdown {
+  position: absolute;
+  top: 22px;
+  right: 0;
+  width: 248px;  /* Matching SearchBoxInput, minus margin */
+  margin: 0 1px 0 1px;
+  padding-left: 4px;
+
+  background-color: #f0f0f0;
+  border: 1px solid #808080;
+  color: #222;
+
+  -webkit-box-shadow: 10px 10px 20px 0px rgba(128,128,128,1);
+  -moz-box-shadow: 10px 10px 20px 0px rgba(128,128,128,1);
+  box-shadow: 10px 10px 20px 0px rgba(128,128,128,1);
+
+  list-style-type: none;
+  font-size: 13px;
+  cursor: default;
+
+  /* ugh, this really isn't standardized yet? */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
