@@ -71,10 +71,10 @@ var SearchBox = React.createClass({
   },
 
   render: function() {
-    // TODO: 6to5
-    // var {query, results} = this.state;
-    var query = this.state.transientQuery;
-    var results = this.state.results;
+    var {
+      transientQuery: query,
+      results,
+    } = this.state;
 
     // TODO: Also don't render dropdown if the hypothetical LayerStore(?) says
     // not to (in case user clicks elsewhere on the page and hides it).
