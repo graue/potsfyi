@@ -22,12 +22,16 @@ var SearchResultItem = React.createClass({
     // TODO: Render the cover art if present.
     // TODO: Show albums differently from tracks (even if they don't have
     // cover art).
-    // TODO: Add a role attribute for accessibility.
     return (
-      <li className="SearchResultItem" onClick={this.handleClick}>
-        {this.props.artist}
-        {' — '}
-        {this.props.title}
+      <li className="SearchResultItem">
+        <a
+          className="SearchResultItemLink"
+          href="#"
+          onClick={this.handleClick}>
+          {this.props.artist}
+          {' — '}
+          {this.props.title}
+        </a>
       </li>
     );
   }

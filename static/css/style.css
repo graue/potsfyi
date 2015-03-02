@@ -254,3 +254,8 @@ button#browserid-logout {
   -ms-user-select: none;
   user-select: none;
 }
+
+.SearchResultItemLink {
+  color: inherit;
+  text-decoration: inherit;
+}
