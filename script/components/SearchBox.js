@@ -41,6 +41,8 @@ var SearchBox = React.createClass({
     // debounced version of this, so that as you're typing, you see the effect
     // of each keystroke immediately, but we limit actual AJAX requests.
     state.transientQuery = state.query || '';
+
+    state.dropdownHidden = false;
     return state;
   },
 
@@ -50,6 +52,47 @@ var SearchBox = React.createClass({
 
   componentWillUnmount: function() {
     SearchStore.removeChangeListener(this.handleChange);
+  },
+
+  handleBlur: function() {
+    this.setState({dropdownHidden: true});
+  },
+
+  handlePossibleBlur: function(e) {
+    // Filter blur events so that handleBlur is not called if some *part*
+    // of the search box (either the input, or a link in the dropdown) still
+    // has focus.
+    //
+    // For example:
+    // 1. Type in the input.
+    // 2. Autocomplete results show up.
+    // 3. Click an autocomplete result.
+    //
+    // That's a blur event for the <input />, but the result link still has
+    // focus, so that should *not* be a blur event for the <SearchBox />.
+    //
+    // setTimeout is because while this event handler is being called,
+    // document.activeElement is momentarily equal to the body element
+    // apparently.
+
+    setTimeout(() => {
+      if (!this.isMounted()) {
+        return;
+      }
+      if (
+        document.activeElement !== this.refs.input.getDOMNode() &&
+        (
+          !this.isDropdownPresent() ||
+          !this.refs.dropdown.getDOMNode().contains(document.activeElement)
+        )
+      ) {
+        this.handleBlur(e);
+      }
+    }, 0);
+  },
+
+  handleFocus: function() {
+    this.setState({dropdownHidden: false});
   },
 
   handleChange: function() {
@@ -70,29 +113,40 @@ var SearchBox = React.createClass({
     SearchActionCreators.changeQuery(query);
   },
 
+  isDropdownPresent: function() {
+    var {dropdownHidden, transientQuery, results} = this.state;
+    return (
+      !dropdownHidden &&
+      transientQuery !== '' &&
+      results && results.items.length > 0
+    );
+  },
+
   render: function() {
-    var {
-      transientQuery: query,
-      results,
-    } = this.state;
+    var {transientQuery, results} = this.state;
 
     // TODO: Also don't render dropdown if the hypothetical LayerStore(?) says
     // not to (in case user clicks elsewhere on the page and hides it).
-    var shouldRenderDropdown =
-      query !== '' && results && results.items.length > 0;
+    var shouldRenderDropdown = this.isDropdownPresent();
 
     // TODO: Maybe show in some way if the results are stale? Spinner?
     var maybeDropdown = shouldRenderDropdown ?
-      <SearchResultsDropdown items={results.items} /> :
+      <SearchResultsDropdown
+        items={results.items}
+        onBlur={this.handlePossibleBlur}
+        ref="dropdown"
+      /> :
       null;
 
     return (
       <span className="SearchBox">
         <input
           className="SearchBoxInput"
+          onBlur={this.handlePossibleBlur}
           onChange={this.handleInput}
+          onFocus={this.handleFocus}
           ref="input"
-          value={query}
+          value={transientQuery}
         />
         {maybeDropdown}
       </span>

@@ -27,6 +27,7 @@ var SearchResultItem = React.createClass({
         <a
           className="SearchResultItemLink"
           href="#"
+          onBlur={this.props.onBlur}
           onClick={this.handleClick}>
           {this.props.artist}
           {' — '}
