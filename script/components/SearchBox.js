@@ -8,6 +8,10 @@ var SearchStore = require('../stores/SearchStore');
 var TrackStore = require('../stores/TrackStore');
 var _ = require('underscore');
 
+// Don't fire off a query until you stop typing in the search box for this
+// many milliseconds.
+const SEARCH_DEBOUNCE_TIME = 200;
+
 // Fetch metadata for a search result (album or track).
 // Example:
 // Input: {id: 32, isAlbum: false}
@@ -48,10 +52,14 @@ var SearchBox = React.createClass({
 
   componentDidMount: function() {
     SearchStore.addChangeListener(this.handleChange);
+    this._searchTimeoutId = null;
   },
 
   componentWillUnmount: function() {
     SearchStore.removeChangeListener(this.handleChange);
+    if (this._searchTimeoutId !== null) {
+      clearTimeout(this._searchTimeoutId);
+    }
   },
 
   handleBlur: function() {
@@ -110,7 +118,20 @@ var SearchBox = React.createClass({
     this.setState({transientQuery: query});
 
     // TODO: Debounce this (except if query is '').
-    SearchActionCreators.changeQuery(query);
+    if (query === '') {
+      // This doesn't result in an actual request, so hide the results
+      // immediately.
+      SearchActionCreators.changeQuery(query);
+    } else {
+      // Debounce to prevent sending too many requests while you're still
+      // typing.
+      if (this._searchTimeoutId !== null) {
+        clearTimeout(this._searchTimeoutId);
+      }
+      this._searchTimeoutId = setTimeout(() => {
+        SearchActionCreators.changeQuery(query);
+      }, SEARCH_DEBOUNCE_TIME);
+    }
   },
 
   isDropdownPresent: function() {
