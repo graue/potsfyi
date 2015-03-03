@@ -1,19 +1,33 @@
 # Pots, fyi
 
-Pots, fyi will be a music streaming app
+Pots, fyi is a music streaming app
 intended to run on a personal server.
+Set it up and listen to *your* music collection
+wherever you might be, using only a web browser!
 
 ## Current status
 
-Works well. Needs a better UI design and some obvious features (see
-the issues on GitHub). But it can search your collection, show cover
-art, queue up tracks or albums to play in sequence, and transcode
-tracks from formats your browser doesn't natively support. I (Scott)
-am already using it.
+Things you can already do in Pots:
 
-All recent versions of Firefox and Chrome work great with it. Safari
-and IE9+ may work, but aren't tested. Older IE won't work because we
-rely on the HTML5 `<audio>` tag — there is no Flash fallback.
+* Search your collection with a typeahead
+* Show cover art
+* Queue up tracks and albums to play in sequence
+* Transcode tracks on the fly from formats your browser doesn't
+  natively support (i.e., FLAC)
+* Enjoy the beautiful redesign that just happened
+
+Things you can't do yet:
+
+* Seek within tracks
+* Browse all artists / all albums by an artist in order
+* Click a button to log out (you have to open the console and enter
+  `logout()` for now, dumb, I know)
+* Use it in mobile browsers unless you're truly desperate
+
+The things you can't do may be out of date; check the issues.
+
+It works in Firefox, Chrome and possibly Safari/IE10+ but I haven't
+tested.
 
 
 ### Dependencies
@@ -32,7 +46,7 @@ rely on the HTML5 `<audio>` tag — there is no Flash fallback.
 
 Pots, fyi uses [Browserify](http://browserify.org/) to bundle together
 its client-side dependencies.
-This requires [npm](http://npmjs.org/) version >= 0.8.0.
+This requires [npm](http://npmjs.org/).
 
 ### Quick start
 
@@ -64,7 +78,7 @@ Anyway, once you've got pip and virtualenv, run:
 (Replace `/some/dir/that/has/music/in/it` with an appropriate path.
 Pots, fyi will make all supported music files
 under this path (searching recursively) available through the web interface.
-Currently, it won't create or change any files here, so don't worry about it
+It won't create or change any files here, so don't worry about it
 messing anything up.)
 
 Your server is now ready to go.
@@ -120,3 +134,12 @@ guni.log, and sets a long timeout so that worker processes don't timeout
 and get shut down while sending audio. (You can partially work around the
 timeout issue by proxying your /static/ directory through nginx, but
 transcoded audio files will still go through Python.)
+
+### Making the most of it
+
+Run it on either a virtual server with a big disk, or a home server
+(I've used a Raspberry Pi with a USB hard drive attached). Reverse
+proxy through nginx. For bonus points, get a [free SSL
+cert](http://blog.ruilopes.com/from-http-to-https-with-free-certificates.html)
+and configure HTTPS on Nginx, so no one can snoop on the music you're
+listening to :)
