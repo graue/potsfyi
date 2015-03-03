@@ -1,3 +1,5 @@
+"use strict";
+
 function ajaxPost(url, data, success, error) {
   $.ajax({
     type: 'POST',
@@ -8,7 +10,7 @@ function ajaxPost(url, data, success, error) {
   });
 }
 
-exports.gotAssertion = function(assertion) {
+function gotAssertion(assertion) {
   if (!assertion) {
     return;
   }
@@ -25,7 +27,7 @@ exports.gotAssertion = function(assertion) {
   );
 }
 
-exports.logoutCallback = function() {
+function logoutCallback() {
   ajaxPost(
     '/api/logout',
     '',
@@ -38,14 +40,21 @@ exports.logoutCallback = function() {
   );
 }
 
-exports.attachAuthHandlers = function() {
+function attachLoginButtonHandler() {
   $('#browserid-login').on('click', function(event) {
     event.preventDefault();
-    navigator.id.get(exports.gotAssertion);
+    navigator.id.get(gotAssertion);
   });
 
-  $('#browserid-logout').on('click', function(event) {
-    event.preventDefault();
-    navigator.id.logout(exports.logoutCallback);
-  });
+  // Logout button appears on a React-rendered page and can handle its own
+  // damn click events. (It calls exports.logOut(), below)
+}
+
+function logOut() {
+  navigator.id.logout(logoutCallback);
+}
+
+module.exports = {
+  attachLoginButtonHandler,
+  logOut,
 };
