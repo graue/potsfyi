@@ -82,7 +82,7 @@ var Player = React.createClass({
     // the file would keep downloading, even with the element removed from
     // the DOM. I might be misremembering and this is unnecessary...
     this.getAudioElement().pause();
-    this.getAudioElement().src.value = '';
+    this.getAudioElement().src = '';
   },
 
   componentWillUpdate: function(nextProps, nextState) {
