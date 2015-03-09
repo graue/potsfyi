@@ -3,6 +3,7 @@
 var PlayStatusStore = require('../stores/PlayStatusStore');
 var PlaybackActionCreators = require('../actions/PlaybackActionCreators');
 var React = require('react');
+var emptyTrackURI = require('../utils/emptyTrackURI');
 var invariant = require('../utils/invariant');
 var supportedAudioFormats = require('../utils/supportedAudioFormats');
 
@@ -82,7 +83,7 @@ var Player = React.createClass({
     // the file would keep downloading, even with the element removed from
     // the DOM. I might be misremembering and this is unnecessary...
     this.getAudioElement().pause();
-    this.getAudioElement().src = '';
+    this.getAudioElement().src = emptyTrackURI;
   },
 
   componentWillUpdate: function(nextProps, nextState) {
@@ -120,7 +121,7 @@ var Player = React.createClass({
       <div>
         <audio
           ref="audioEl"
-          src={this.state.haveTrack ? this.state.filename : ''}
+          src={this.state.haveTrack ? this.state.filename : emptyTrackURI}
         />
       </div>
     );
