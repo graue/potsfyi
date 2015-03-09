@@ -43,9 +43,6 @@ var Playlist = React.createClass({
   },
 
   makeSortable: function() {
-    if (this.state.playlist.length < 1) {
-      return;
-    }
     var rootNode = this.refs.itemList.getDOMNode();
     $(rootNode).disableSelection().sortable({
       distance: 10,
@@ -67,44 +64,39 @@ var Playlist = React.createClass({
   },
 
   teardownSortable: function() {
-    if (this.state.playlist.length < 1) {
-      return;
-    }
     var rootNode = this.refs.itemList.getDOMNode();
     $(rootNode).sortable('destroy');
   },
 
   render: function() {
-    var items;
-
     var playlist = this.state.playlist;
-    if (playlist.length < 1) {
-      // FIXME: Probably don't really want this goofy message. Maybe show
-      // browse/discovery content instead eventually.
-      items = (
-        <p className="PlaylistEmptyMessage">
-          Nothing in playlist yet. Queue up some tunes!
-        </p>
+
+    // FIXME: Probably don't really want this goofy message. Maybe show
+    // browse/discovery content instead eventually.
+    var emptyMsg = (
+      <p className="PlaylistEmptyMessage">
+        Nothing in playlist yet. Queue up some tunes!
+      </p>
+    );
+
+    var items = playlist.map((track, index) => {
+      var isPlaying = index === this.state.playingIndex;
+      return (
+        <PlaylistItem
+          track={track}
+          key={track.id}
+          isPlaying={isPlaying}
+          sortIndex={index}
+        />
       );
-    } else {
-      var _this = this;
-      items = playlist.map(function(track, index) {
-        var isPlaying = index === _this.state.playingIndex;
-        return (
-          <PlaylistItem
-            track={track}
-            key={track.id}
-            isPlaying={isPlaying}
-            sortIndex={index}
-          />
-        );
-      });
-      items = <ul className="PlaylistItems" ref="itemList">{items}</ul>;
-    }
+    });
 
     return (
       <div className="Playlist">
-        {items}
+        {playlist.length < 1 && emptyMsg}
+        <ul className="PlaylistItems" ref="itemList">
+          {items}
+        </ul>
       </div>
     );
   }
