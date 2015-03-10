@@ -32,6 +32,32 @@ var SearchStore = _.extend({}, EventEmitter.prototype, {
   },
 });
 
+var pendingRequest = null;  // A jQuery "jqXHR" object.
+
+function sendSearchRequest(query) {
+  // Cancel any request currently being sent, to avoid wasting bandwidth or
+  // server CPU.
+  if (pendingRequest != null) {
+    pendingRequest.abort();
+  }
+
+  pendingRequest = $.get(
+    '/search',
+    {q: query},
+    onServerResponse.bind(null, query),
+    'json'
+  );
+}
+
+function onServerResponse(forQuery, data, textStatus, xhr) {
+  // Ignore stale responses for old queries.
+  if (xhr !== pendingRequest) {
+    return;
+  }
+  pendingRequest = null;
+  ServerActionCreators.receiveSearchResults(forQuery, data);
+}
+
 SearchStore.dispatchToken = PotsDispatcher.register(function(payload) {
   var action = payload.action;
 
@@ -46,27 +72,23 @@ SearchStore.dispatchToken = PotsDispatcher.register(function(payload) {
           // different letter).
           results = null;
         } else {
-          $.get('/search', {q: query}, function(data, textStatus, xhr) {
-            ServerActionCreators.receiveSearchResults(action.query, data);
-          }, 'json');
+          sendSearchRequest(query);
         }
         SearchStore._emitChange();
       }
       break;
 
     case ActionConstants.RECEIVE_SEARCH_RESULTS:
-      if (action.forQuery === query) {
-        results = {
-          forQuery: action.forQuery,
-          items: action.results.map(function(rawItem) {
-            return {
-              id: rawItem[1] + '',
-              isAlbum: rawItem[0] === 'album',
-            };
-          }),
-        };
-        SearchStore._emitChange();
-      }
+      results = {
+        forQuery: action.forQuery,
+        items: action.results.map(function(rawItem) {
+          return {
+            id: rawItem[1] + '',
+            isAlbum: rawItem[0] === 'album',
+          };
+        }),
+      };
+      SearchStore._emitChange();
       break;
   }
 });
