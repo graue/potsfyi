@@ -47,7 +47,7 @@ SearchStore.dispatchToken = PotsDispatcher.register(function(payload) {
           results = null;
         } else {
           $.get('/search', {q: query}, function(data, textStatus, xhr) {
-            ServerActionCreators.receiveSearchResults(query, data);
+            ServerActionCreators.receiveSearchResults(action.query, data);
           }, 'json');
         }
         SearchStore._emitChange();
@@ -55,16 +55,18 @@ SearchStore.dispatchToken = PotsDispatcher.register(function(payload) {
       break;
 
     case ActionConstants.RECEIVE_SEARCH_RESULTS:
-      results = {
-        forQuery: action.forQuery,
-        items: action.results.map(function(rawItem) {
-          return {
-            id: rawItem[1] + '',
-            isAlbum: rawItem[0] === 'album',
-          };
-        }),
-      };
-      SearchStore._emitChange();
+      if (action.forQuery === query) {
+        results = {
+          forQuery: action.forQuery,
+          items: action.results.map(function(rawItem) {
+            return {
+              id: rawItem[1] + '',
+              isAlbum: rawItem[0] === 'album',
+            };
+          }),
+        };
+        SearchStore._emitChange();
+      }
       break;
   }
 });
