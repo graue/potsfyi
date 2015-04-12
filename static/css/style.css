@@ -4,8 +4,29 @@
   -webkit-box-sizing: border-box;
 }
 
+body, html {
+  height: 100%;
+}
+
 body {
-  background: #cccccc;
+  margin: 0;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+#app-container {
+  display: flex;
+  flex-flow: column nowrap;
+  flex-grow: 1;
+  height: 100%;
+}
+
+#app {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+  height: 100%;
+  flex-grow: 1;
 }
 
 a {
@@ -14,30 +35,29 @@ a {
 }
 
 .UIBar {
-  width: 100%;
   height: 36px;
-  position: absolute;
-  top: 0;
-  left: 0;
   background: #2d2d2d;
-  z-index: 2;
+  color: #eeefee;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .MainContentContainer {
-  padding-top: 36px;  /* Matches .UIBar height. */
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
   background-color: #cccccc;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
+  height: 100%;
 }
 
 .CoverArt {
-  width: 100%;  /* If actual image too wide, PlaylistArea will cover it. */
-  height: 100%;
-  margin: 0;
-  background-position: left center;
+  flex-grow: 3;
+  flex-shrink: 1;
+  flex-basis: 300px;
+  margin: 0 50px 0 0;
+  background-position: right center;
   background-size: auto 100%;
   background-repeat: no-repeat;
   background-attachment: scroll;
@@ -45,20 +65,15 @@ a {
 }
 
 .PlaylistArea {
-  width: 300px;
-  height: 100%;
-  position: absolute;
-  z-index: 1;
-  right: 0px;
-  top: 0px;
-  padding-top: 36px;  /* .UIBar height again — any way to fix duplication? */
+  flex-basis: 300px;
+  flex-grow: 1;
   margin: 0;
-  background-color: rgba(204, 204, 204, 0.75);
 }
 
 .PlaylistItems {
   list-style-type: none;
   padding-left: 16px;
+  position: relative;  /* So we can position the play arrow and X. */
 }
 
 .PlaylistItem {
@@ -82,14 +97,6 @@ a {
   visibility: visible;
 }
 
-.UIBar {
-  color: #eeefee;
-}
-
-.Nav, .NavButton, .SearchArea, .DropdownMenuTrigger {
-  display: inline-block;
-}
-
 .NavButton {
   margin-right: 15px;
 }
@@ -99,31 +106,18 @@ a {
 }
 
 .Nav {
-  line-height: 1.6;
   font-size: 20px;
-  vertical-align: middle;
-  margin-left: 100px;
-}
-
-.SearchArea {
-  /* FIXME: Not responsive. Need a better way to position this.
-   * The idea is "over towards the right", overlapping the line between
-   * cover art and playlist.
-   */
-  margin-left: 420px;
+  margin-left: 100px; /* FIXME: get rid of this hardcoding, bad on phone */
 }
 
 .SearchBox {
   margin-left: 10px;
-  position: relative;
+  position: relative; /* Need this so dropdown can position itself. */
 }
 
 .DropdownMenuTrigger {
-  position: absolute;
-  right: 10px;
-  line-height: 1.4;
   font-size: 24px;
-  vertical-align: middle;
+  margin-right: 10px;
 }
 
 .SearchBoxInput {
@@ -132,6 +126,7 @@ a {
 
 .SearchResultsDropdown {
   position: absolute;
+  z-index: 1;
   top: 22px;
   right: 0;
   width: 248px;  /* Matching SearchBoxInput, minus margin */

@@ -11,10 +11,6 @@
   <body>
     <div id="app-container">
     </div>
-    {% if not nologin %}
-    <!-- XXX: This button is really ugly and in the way. -->
-    <button id="browserid-logout">Logout</button>
-    {% endif %}
     <script type="text/javascript">loggedIn = true;</script>
     {% if not nologin %}
     <script type="text/javascript">loginEnabled = true;</script>
