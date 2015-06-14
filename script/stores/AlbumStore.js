@@ -44,18 +44,6 @@ AlbumStore.dispatchToken = PotsDispatcher.register(function(payload) {
   var dataChanged = false;
 
   switch (action.type) {
-    case ActionConstants.RECEIVE_TRACK_INFO:
-      if (action.album) {
-        _addAlbumFromSerializedObject(action.album);
-        AlbumStore._emitChange();
-      }
-      break;
-
-    case ActionConstants.RECEIVE_ALBUM_INFO:
-      _addAlbumFromSerializedObject(action);
-      AlbumStore._emitChange();
-      break;
-
     case ActionConstants.RECEIVE_SEARCH_RESULTS:
       action.albums.forEach(function(rawAlbum) {
         _addAlbumFromSerializedObject(rawAlbum);

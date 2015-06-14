@@ -6,9 +6,6 @@ var ActionConstants = keyMirror({
   CHANGE_SEARCH_QUERY: null,
   RECEIVE_SEARCH_RESULTS: null,
 
-  RECEIVE_TRACK_INFO: null,
-  RECEIVE_ALBUM_INFO: null,
-
   PAUSE_TRACK: null,
   PLAY_TRACK: null,
   TRACK_ENDED: null,
