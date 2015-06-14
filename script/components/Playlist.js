@@ -11,8 +11,14 @@ var $ = require('../lib/jquery.shim');
 function getStateFromStores() {
   var state = {
     playingIndex: PlayStatusStore.getPlayingIndex(),
-    playlist: PlayStatusStore.getPlaylist().map(function(trackId) {
-      return _.extend({id: trackId}, TrackStore.getTrack(trackId));
+    tracks: PlayStatusStore.getTracksWithKeys().map(([trackId, key]) => {
+      return _.extend(
+        {
+          id: trackId,
+          key,
+        },
+        TrackStore.getTrack(trackId)
+      );
     }),
   };
   return state;
@@ -69,7 +75,7 @@ var Playlist = React.createClass({
   },
 
   render: function() {
-    var playlist = this.state.playlist;
+    var tracks = this.state.tracks;
 
     // FIXME: Probably don't really want this goofy message. Maybe show
     // browse/discovery content instead eventually.
@@ -79,12 +85,12 @@ var Playlist = React.createClass({
       </p>
     );
 
-    var items = playlist.map((track, index) => {
+    var items = tracks.map((track, index) => {
       var isPlaying = index === this.state.playingIndex;
       return (
         <PlaylistItem
           track={track}
-          key={track.id}
+          key={track.key}
           isPlaying={isPlaying}
           sortIndex={index}
         />
@@ -93,7 +99,7 @@ var Playlist = React.createClass({
 
     return (
       <div className="Playlist">
-        {playlist.length < 1 && emptyMsg}
+        {tracks.length < 1 && emptyMsg}
         <ul className="PlaylistItems" ref="itemList">
           {items}
         </ul>

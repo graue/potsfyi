@@ -14,7 +14,7 @@ var SearchResultItem = React.createClass({
   },
 
   handleClick: function() {
-    var tracksToAdd = this.props.isAlbum ? this.props.tracks : this.props.id;
+    var tracksToAdd = this.props.isAlbum ? this.props.tracks : [this.props.id];
     PlaylistActionCreators.addToPlaylist(tracksToAdd);
   },
 

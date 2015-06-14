@@ -11,7 +11,10 @@ function getStateFromStores() {
   return {
     index: PlayStatusStore.getPlayingIndex(),
     paused: PlayStatusStore.getTrackPlayStatus().paused,
-    playlist: PlayStatusStore.getPlaylist(),
+    canPrev: PlayStatusStore.canPrev(),
+    canNext: PlayStatusStore.canNext(),
+    canPlay: PlayStatusStore.canPlay(),
+    canPause: PlayStatusStore.canPause(),
   };
 }
 
@@ -51,16 +54,7 @@ var Nav = React.createClass({
   },
 
   render: function() {
-    var isPlaylistEmpty = this.state.playlist.length === 0;
-    var isAnythingPlaying =
-      this.state.index !== PlayStatusStore.NO_PLAYING_INDEX;
-
-    var canPrev = isAnythingPlaying && this.state.index > 0;
-    var canNext =
-      isAnythingPlaying && this.state.index < this.state.playlist.length - 1;
-    var canPlay =
-      !isPlaylistEmpty && (!isAnythingPlaying || this.state.paused);
-    var canPause = isAnythingPlaying && !this.state.paused;
+    var {canPrev, canNext, canPlay, canPause} = this.state;
 
     return (
       <div className="Nav">

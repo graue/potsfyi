@@ -8,7 +8,12 @@ var invariant = require('../utils/invariant');
 
 var NO_PLAYING_INDEX = -1;
 
-var playlist = [];  // IDs of tracks.
+var _insertionCount = 1;
+function createNonce() {
+  return _insertionCount++;
+}
+
+var playlist = [];  // Tuples of [track ID, nonce].
 var playingIndex = NO_PLAYING_INDEX;
 var trackPlayStatus = {
   paused: false,
@@ -28,7 +33,7 @@ var PlayStatusStore = _.extend({}, EventEmitter.prototype, {
     this.removeListener('change', cb);
   },
 
-  getPlaylist: function() {
+  getTracksWithKeys: function() {
     return playlist;
   },
 
@@ -36,8 +41,44 @@ var PlayStatusStore = _.extend({}, EventEmitter.prototype, {
     return playingIndex;
   },
 
+  getPlayingTrack: function() {
+    if (playingIndex === NO_PLAYING_INDEX) {
+      return null;
+    } else {
+      return playlist[playingIndex][0];
+    }
+  },
+
   getTrackPlayStatus: function() {
     return trackPlayStatus;
+  },
+
+  isPlaylistEmpty: function() {
+    return playlist.length === 0;
+  },
+
+  isAnythingPlaying: function() {
+    return playingIndex !== NO_PLAYING_INDEX;
+  },
+
+  canPrev: function() {
+    return this.isAnythingPlaying() && playingIndex > 0;
+  },
+
+  canNext: function() {
+    return this.isAnythingPlaying() && playingIndex < playlist.length - 1;
+  },
+
+  canPlay: function() {
+    return (
+      !this.isPlaylistEmpty() && (
+        !this.isAnythingPlaying() || trackPlayStatus.paused
+      )
+    );
+  },
+
+  canPause: function() {
+    return this.isAnythingPlaying() && !trackPlayStatus.paused;
   },
 });
 
@@ -75,7 +116,9 @@ PlayStatusStore.dispatchToken = PotsDispatcher.register(function(payload) {
       break;
 
     case ActionConstants.ADD_TO_PLAYLIST:
-      playlist = playlist.concat(action.trackIds);
+      playlist = playlist.concat(
+        action.trackIds.map((trackId) => [trackId, createNonce()])
+      );
       PlayStatusStore._emitChange();
       break;
 

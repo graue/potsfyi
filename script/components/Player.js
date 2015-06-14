@@ -8,13 +8,11 @@ var invariant = require('../utils/invariant');
 var supportedAudioFormats = require('../utils/supportedAudioFormats');
 
 function getStateFromStores() {
-  var index = PlayStatusStore.getPlayingIndex();
+  var trackId = PlayStatusStore.getPlayingTrack();
 
-  if (index === PlayStatusStore.NO_PLAYING_INDEX) {
+  if (trackId == null) {
     return {haveTrack: false};
   }
-
-  var trackId = PlayStatusStore.getPlaylist()[index];
 
   // In future we might depend on the TrackStore, call getTrack with the id,
   // and look up the resulting filename. However, for now, we can generate

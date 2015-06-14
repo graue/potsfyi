@@ -7,9 +7,8 @@ var TrackStore = require('../stores/TrackStore');
 
 function getStateFromStores() {
   var art = '/static/img/pattern.png';
-  var index = PlayStatusStore.getPlayingIndex();
-  if (index !== PlayStatusStore.NO_PLAYING_INDEX) {
-    var trackId = PlayStatusStore.getPlaylist()[index];
+  var trackId = PlayStatusStore.getPlayingTrack();
+  if (trackId != null) {
     var track = TrackStore.getTrack(trackId);
     if (track.albumId != null) {
       var album = AlbumStore.getAlbum(track.albumId);
