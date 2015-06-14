@@ -12,15 +12,11 @@
     "underscore": "1.4.4"
   },
   "devDependencies": {
-    "babelify": "~5.0.3",
-    "browserify": "~9.0.3",
-    "envify": "~3.2.0",
-    "watchify": "~2.4.0"
+    "babelify": "~6.1.2",
+    "browserify": "~10.2.4",
+    "watchify": "~3.2.2"
   },
   "browserify": {
-    "transform": [
-      "babelify",
-      "envify"
-    ]
+    "transform": ["babelify"]
   }
 }
