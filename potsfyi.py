@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+import errno
 import os
 import re
 import sys
@@ -20,6 +21,7 @@ app.config.update(
     NO_LOGIN=(True if os.environ.get('NO_LOGIN') in ['1', 'True'] else False),
     PORT=int(os.environ.get('PORT', 5000)),
     SQLALCHEMY_DATABASE_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db')),
+    CACHE_DIR=(os.environ.get('CACHE_DIR', 'static/cache')),
     MUSIC_DIR=(os.environ.get('MUSIC_DIR', 'static/music')),
     ADMIN_EMAIL=(os.environ.get('ADMIN_EMAIL', None)),
     SEND_FILE_MAX_AGE_DEFAULT=10
@@ -68,6 +70,15 @@ login_manager.setup_app(app)
 browser_id = BrowserID()
 browser_id.user_loader(get_user)
 browser_id.init_app(app)
+
+# Create cache dir if it doesn't exist
+try:
+    os.mkdir(app.config['CACHE_DIR'])
+except OSError as e:
+    # Re-raise the error unless the error is that the cache dir already
+    # exists (that's okay).
+    if e[0] != errno.EEXIST:
+        raise
 
 
 @app.route('/search')
