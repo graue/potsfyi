@@ -17,7 +17,7 @@ from flask.ext.login import (LoginManager, UserMixin, current_user,
                              login_required, login_user)
 from flask.ext.browserid import BrowserID
 from models import Track, Album, db
-import transcode
+from transcode import Transcoder
 
 app = Flask(__name__)
 db.init_app(app)
@@ -85,6 +85,11 @@ except OSError as e:
     # exists (that's okay).
     if e[0] != errno.EEXIST:
         raise
+
+transcoder = Transcoder(
+    music_dir = app.config['MUSIC_DIR'],
+    cache_dir = app.config['CACHE_DIR'],
+)
 
 
 @app.route('/search')
@@ -199,7 +204,7 @@ def get_track_audio(track_id, wanted_formats):
     if track is None:
         abort(404)
 
-    if not transcode.needs_transcode(track.filename, wanted_formats):
+    if not transcoder.needs_transcode(track.filename, wanted_formats):
         return redirect(
             os.path.join(
                 '/' + app.config['MUSIC_DIR'],
@@ -207,11 +212,13 @@ def get_track_audio(track_id, wanted_formats):
             )
         )
 
-    if not transcode.can_transcode(track.filename, wanted_formats):
+    if not transcoder.can_transcode(track.filename, wanted_formats):
         abort(404)
 
-    full_filename = os.path.join(app.config['MUSIC_DIR'], track.filename)
-    return transcode.transcode_and_stream(full_filename)
+    return transcoder.transcode_and_stream(
+        track.filename,
+        cache_key=str(track.id),
+    )
 
 
 @app.route('/')
