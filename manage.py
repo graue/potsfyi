@@ -248,6 +248,9 @@ def update_db(music_dir, quiet=True):
 
     db.session.commit()
 
+    # TODO: empty the cache dir here to avoid returning the wrong track
+    # in case an auto-generated track ID was reused.
+
     end_time = datetime.today()
     if not quiet:
         sys.stderr.write(

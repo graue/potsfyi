@@ -1,7 +1,7 @@
 import os
 import re
-from flask import Response
-from subprocess import Popen, PIPE
+from flask import Response, redirect
+from subprocess import PIPE, Popen
 from wsgi_utils import PipeWrapper
 
 TRANSCODABLE_FORMATS = ['mp3', 'ogg', 'flac', 'm4a', 'wav']
@@ -31,6 +31,19 @@ class Transcoder(object):
         cache_filename = None
         if cache_key:
             cache_filename = self.path_for_cache_key(cache_key)
+
+            # See if the transcode is already cached.
+            try:
+                os.stat(cache_filename)
+                return redirect(os.path.join('/', cache_filename))
+            except OSError:
+                pass
+
+        # TODO: maintain a set of tasks for currently ongoing transcodes
+        # to avoid transcoding a track twice at the same time. Then try
+        # sending Accept-Ranges: bytes and honoring range requests, while
+        # not providing a Content-Length. See if this makes Firefox's
+        # media file fetching happy.
 
         # Transcode to ogg.
         # The filename should come out of the DB and *not* be user-specified
