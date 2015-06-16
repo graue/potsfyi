@@ -4,14 +4,20 @@ import errno
 import os
 import re
 import sys
-from subprocess import Popen, PIPE
-from flask import (Flask, request, render_template, jsonify, abort, redirect,
-                   Response, url_for)
+from flask import (
+    Flask,
+    abort,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for
+)
 from flask.ext.login import (LoginManager, UserMixin, current_user,
                              login_required, login_user)
 from flask.ext.browserid import BrowserID
-from wsgi_utils import PipeWrapper
 from models import Track, Album, db
+import transcode
 
 app = Flask(__name__)
 db.init_app(app)
@@ -188,34 +194,24 @@ def get_track_audio(track_id, wanted_formats):
     Otherwise, if `wanted_formats` includes ogg, it's transcoded on the fly.
     """
 
-    TRANSCODABLE_FORMATS = ['mp3', 'ogg', 'flac', 'm4a', 'wav']
     wanted_formats = re.split(',', wanted_formats)
-
     track = Track.query.filter_by(id=track_id).first()
     if track is None:
         abort(404)
 
-    actual_format = re.search('\.([^.]+)$', track.filename).group(1)
-    if actual_format in wanted_formats:
-        # No need to transcode. Just redirect to the static file.
-        return redirect(os.path.join('/' + app.config['MUSIC_DIR'],
-                                     track.filename))
+    if not transcode.needs_transcode(track.filename, wanted_formats):
+        return redirect(
+            os.path.join(
+                '/' + app.config['MUSIC_DIR'],
+                track.filename
+            )
+        )
 
-    if (actual_format not in TRANSCODABLE_FORMATS
-            or 'ogg' not in wanted_formats):
-        # Can't transcode this. We only go from TRANSCODABLE_FORMATS to ogg.
+    if not transcode.can_transcode(track.filename, wanted_formats):
         abort(404)
 
-    # Transcode to ogg.
-    # Note that track.filename came out of the DB and is *not* user-specified
-    # (through the web interface), so can be trusted.
-    command = ['avconv', '-v', 'quiet',
-               '-i', os.path.join(app.config['MUSIC_DIR'], track.filename),
-               '-f', 'ogg', '-acodec', 'libvorbis', '-aq', '5', '-']
-    pipe = Popen(command, stdout=PIPE)
-
-    return Response(PipeWrapper(pipe),
-                    mimetype='audio/ogg', direct_passthrough=True)
+    full_filename = os.path.join(app.config['MUSIC_DIR'], track.filename)
+    return transcode.transcode_and_stream(full_filename)
 
 
 @app.route('/')
