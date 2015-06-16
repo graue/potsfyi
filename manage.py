@@ -92,11 +92,12 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
         tag_info = mutagen.File(full_filename, easy=True)
         if tag_info is None:
             raise MetadataError(u'Mutagen could not open file')
+    # Hack: Mutagen's exceptions don't inherit from a standard base class so
+    # we kinda have to catch everything. But let's at least special-case
+    # Ctrl-C and any code attempting to exit the program.
+    except (KeyboardInterrupt, SystemExit):
+        raise
     except:
-        # XXX: We shouldn't catch all exceptions; this is an anti-pattern.
-        # However, unfortunately, Mutagen doesn't have its own exceptions and
-        # each file format loader seems to use different ones, so there isn't
-        # a good workaround without patching Mutagen.
         raise MetadataError(u'error: {0}'.format(str(sys.exc_info()[0])))
 
     tags = tag_info.tags
