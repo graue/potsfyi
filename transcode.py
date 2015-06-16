@@ -28,10 +28,9 @@ class Transcoder(object):
 
     def transcode_and_stream(self, filename, cache_key=None):
         full_filename = os.path.join(self.music_dir, filename)
-        cache_file = None
+        cache_filename = None
         if cache_key:
             cache_filename = self.path_for_cache_key(cache_key)
-            cache_file = open(cache_filename, 'w')
 
         # Transcode to ogg.
         # The filename should come out of the DB and *not* be user-specified
@@ -44,7 +43,7 @@ class Transcoder(object):
         pipe = Popen(command, stdout=PIPE)
 
         return Response(
-            PipeWrapper(pipe, copy_to_file=cache_file),
+            PipeWrapper(pipe, copy_to_filename=cache_filename),
             mimetype='audio/ogg',
             direct_passthrough=True
         )
