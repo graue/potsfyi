@@ -2,11 +2,13 @@
 
 var PlaylistActionCreators = require('../actions/PlaylistActionCreators');
 var React = require('react');
+var Spinner = require('./Spinner');
 
 var SearchResultItem = React.createClass({
   propTypes: {
     isAlbum: React.PropTypes.bool.isRequired,
     artist: React.PropTypes.string.isRequired,
+    hasSpinner: React.PropTypes.bool,
     title: React.PropTypes.string.isRequired,
     id: React.PropTypes.string.isRequired,
     tracks: React.PropTypes.arrayOf(React.PropTypes.string),
@@ -18,12 +20,25 @@ var SearchResultItem = React.createClass({
     PlaylistActionCreators.addToPlaylist(tracksToAdd);
   },
 
+  maybeRenderSpinner: function() {
+    if (this.props.hasSpinner) {
+      return (
+        <div className="SearchResultItem_Spinner">
+          <Spinner />
+        </div>
+      );
+    } else {
+      return null;
+    }
+  },
+
   render: function() {
     // TODO: Render the cover art if present.
     // TODO: Show albums differently from tracks (even if they don't have
     // cover art).
     return (
       <li className="SearchResultItem">
+        {this.maybeRenderSpinner()}
         <a
           className="SearchResultItemLink"
           href="#"

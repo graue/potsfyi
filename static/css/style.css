@@ -158,3 +158,22 @@ a {
   color: inherit;
   text-decoration: inherit;
 }
+
+.SearchResultItem_Spinner {
+  float: right;
+  width: 16px;
+  height: 16px;
+}
+
+.SearchResultsDropdown .react-spinner {
+  width: 16px;
+  height: 16px;
+}
+
+.SearchResultsDropdown .react-spinner_bar {
+  background-color: #2d2d2d;
+}
+
+.SearchResultsDropdown_Spinner {
+  height: 20px;
+}

@@ -9,6 +9,7 @@ var $ = require('../lib/jquery.shim');
 
 var query = '';
 var results = null;
+var pendingRequest = null;  // A jQuery "jqXHR" object.
 
 var SearchStore = _.extend({}, EventEmitter.prototype, {
   _emitChange: function() {
@@ -30,9 +31,11 @@ var SearchStore = _.extend({}, EventEmitter.prototype, {
   getResults: function() {
     return results;
   },
-});
 
-var pendingRequest = null;  // A jQuery "jqXHR" object.
+  isLoading: function() {
+    return !!pendingRequest;
+  },
+});
 
 function sendSearchRequest(query) {
   // Cancel any request currently being sent, to avoid wasting bandwidth or

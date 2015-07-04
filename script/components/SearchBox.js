@@ -23,6 +23,7 @@ function hydrate(item) {
 
 function getStateFromStores() {
   var state = {
+    isLoading: SearchStore.isLoading(),
     query: SearchStore.getQuery(),
     results: SearchStore.getResults(),
   };
@@ -135,25 +136,24 @@ var SearchBox = React.createClass({
   },
 
   isDropdownPresent: function() {
-    var {dropdownHidden, transientQuery, results} = this.state;
+    var {dropdownHidden, query, transientQuery} = this.state;
     return (
-      !dropdownHidden &&
-      transientQuery !== '' &&
-      results && results.items.length > 0
+      !dropdownHidden
+      && transientQuery !== ''
+      && query !== ''
     );
   },
 
   render: function() {
-    var {transientQuery, results} = this.state;
+    var {transientQuery, results, isLoading} = this.state;
 
-    // TODO: Also don't render dropdown if the hypothetical LayerStore(?) says
-    // not to (in case user clicks elsewhere on the page and hides it).
     var shouldRenderDropdown = this.isDropdownPresent();
 
     // TODO: Maybe show in some way if the results are stale? Spinner?
     var maybeDropdown = shouldRenderDropdown ?
       <SearchResultsDropdown
-        items={results.items}
+        isLoading={isLoading}
+        items={results ? results.items : []}
         onBlur={this.handlePossibleBlur}
         ref="dropdown"
       /> :
