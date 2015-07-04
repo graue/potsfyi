@@ -1,12 +1,12 @@
 "use strict";
 
-var React = require('react');
-var SearchResultItem = require('./SearchResultItem');
+import React, {PropTypes} from 'react';
+import SearchResultItem from './SearchResultItem';
 
-var SearchResultsDropdown = React.createClass({
-  render: function() {
-    var rows = this.props.items.map((item) => {
-      var key = (item.isAlbum ? 'a' : 't') + item.id;
+class SearchResultsDropdown extends React.Component {
+  render() {
+    let rows = this.props.items.map((item) => {
+      let key = (item.isAlbum ? 'a' : 't') + item.id;
       return (
         <SearchResultItem
           key={key}
@@ -22,6 +22,11 @@ var SearchResultsDropdown = React.createClass({
       </ul>
     );
   }
-});
+}
+SearchResultsDropdown.propTypes = {
+  items: PropTypes.arrayOf(PropTypes.shape({
+    isAlbum: PropTypes.bool,
+  })),
+};
 
-module.exports = SearchResultsDropdown;
+export default SearchResultsDropdown;
