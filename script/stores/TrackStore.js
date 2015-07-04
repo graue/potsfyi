@@ -29,9 +29,7 @@ function _addTrackInfo(id, info) {
   tracks[id] = info;
 }
 
-TrackStore.dispatchToken = PotsDispatcher.register(function(payload) {
-  var action = payload.action;
-
+TrackStore.dispatchToken = PotsDispatcher.register(function(action) {
   switch (action.type) {
     case ActionConstants.RECEIVE_SEARCH_RESULTS:
       action.tracks.forEach(function(rawTrack) {

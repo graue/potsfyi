@@ -58,9 +58,7 @@ function onServerResponse(forQuery, data, textStatus, xhr) {
   ServerActionCreators.receiveSearchResults(forQuery, data);
 }
 
-SearchStore.dispatchToken = PotsDispatcher.register(function(payload) {
-  var action = payload.action;
-
+SearchStore.dispatchToken = PotsDispatcher.register(function(action) {
   switch (action.type) {
     case ActionConstants.CHANGE_SEARCH_QUERY:
       if (action.query !== query) {

@@ -84,9 +84,7 @@ var PlayStatusStore = _.extend({}, EventEmitter.prototype, {
 
 PlayStatusStore.NO_PLAYING_INDEX = NO_PLAYING_INDEX;
 
-PlayStatusStore.dispatchToken = PotsDispatcher.register(function(payload) {
-  var action = payload.action;
-
+PlayStatusStore.dispatchToken = PotsDispatcher.register(function(action) {
   switch (action.type) {
     case ActionConstants.REORDER_PLAYLIST:
       invariant(

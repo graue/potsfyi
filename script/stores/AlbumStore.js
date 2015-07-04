@@ -39,8 +39,7 @@ function _addAlbumFromSerializedObject(rawAlbum) {
   });
 }
 
-AlbumStore.dispatchToken = PotsDispatcher.register(function(payload) {
-  var action = payload.action;
+AlbumStore.dispatchToken = PotsDispatcher.register(function(action) {
   var dataChanged = false;
 
   switch (action.type) {

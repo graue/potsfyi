@@ -5,14 +5,14 @@ var PotsDispatcher = require('../dispatcher/PotsDispatcher');
 
 var PlaybackActionCreators = {
   playTrack: function(indexOrNull) {
-    PotsDispatcher.handleViewAction({
+    PotsDispatcher.dispatch({
       type: ActionConstants.PLAY_TRACK,
       index: indexOrNull,
     });
   },
 
   pauseTrack: function() {
-    PotsDispatcher.handleViewAction({
+    PotsDispatcher.dispatch({
       type: ActionConstants.PAUSE_TRACK,
     });
   },
@@ -20,7 +20,7 @@ var PlaybackActionCreators = {
   trackEnded: function() {
     // XXX: Is this really a view action? Unlike all the others, it's not
     // in direct response to user input.
-    PotsDispatcher.handleViewAction({
+    PotsDispatcher.dispatch({
       type: ActionConstants.TRACK_ENDED,
     });
   },

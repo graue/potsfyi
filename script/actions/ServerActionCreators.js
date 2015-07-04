@@ -5,7 +5,7 @@ var PotsDispatcher = require('../dispatcher/PotsDispatcher');
 
 var ServerActionCreators = {
   receiveSearchResults: function(query, responseObj) {
-    PotsDispatcher.handleServerAction({
+    PotsDispatcher.dispatch({
       forQuery: query,
       albums: responseObj.albums,
       tracks: responseObj.tracks,

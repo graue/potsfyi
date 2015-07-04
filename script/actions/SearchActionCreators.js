@@ -5,7 +5,7 @@ var PotsDispatcher = require('../dispatcher/PotsDispatcher');
 
 var SearchActionCreators = {
   changeQuery: function(query) {
-    PotsDispatcher.handleViewAction({
+    PotsDispatcher.dispatch({
       query: query,
       type: ActionConstants.CHANGE_SEARCH_QUERY,
     });
