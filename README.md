@@ -44,7 +44,7 @@ tested.
 
 #### Client side
 
-Pots, fyi uses [Browserify](http://browserify.org/) to bundle together
+Pots, fyi uses Webpack to bundle together
 its client-side dependencies.
 This requires [npm](http://npmjs.org/).
 
