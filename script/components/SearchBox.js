@@ -88,10 +88,10 @@ var SearchBox = React.createClass({
         return;
       }
       if (
-        document.activeElement !== this.refs.input.getDOMNode() &&
+        document.activeElement !== React.findDOMNode(this.refs.input) &&
         (
           !this.isDropdownPresent() ||
-          !this.refs.dropdown.getDOMNode().contains(document.activeElement)
+          !React.findDOMNode(this.refs.dropdown).contains(document.activeElement)
         )
       ) {
         this.handleBlur(e);
@@ -108,7 +108,7 @@ var SearchBox = React.createClass({
   },
 
   focus: function() {
-    var node = this.refs.input.getDOMNode();
+    var node = React.findDOMNode(this.refs.input);
     node.focus();
     node.select();
   },

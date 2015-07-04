@@ -69,7 +69,7 @@ var Player = React.createClass({
       'Attempted to get audio element, but component not mounted'
     );
 
-    return this.refs.audioEl.getDOMNode();
+    return React.findDOMNode(this.refs.audioEl);
   },
 
   forceStopDownloading: function() {

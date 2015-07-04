@@ -49,7 +49,7 @@ var Playlist = React.createClass({
   },
 
   makeSortable: function() {
-    var rootNode = this.refs.itemList.getDOMNode();
+    var rootNode = React.findDOMNode(this.refs.itemList);
     $(rootNode).disableSelection().sortable({
       distance: 10,
       stop: function(event, ui) {
@@ -70,7 +70,7 @@ var Playlist = React.createClass({
   },
 
   teardownSortable: function() {
-    var rootNode = this.refs.itemList.getDOMNode();
+    var rootNode = React.findDOMNode(this.refs.itemList);
     $(rootNode).sortable('destroy');
   },
 
