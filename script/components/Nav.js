@@ -5,7 +5,8 @@ var PlayStatusStore = require('../stores/PlayStatusStore');
 var PlaybackActionCreators = require('../actions/PlaybackActionCreators');
 var React = require('react/addons');
 var Srt = require('./Srt');
-var cx = React.addons.classSet;
+
+var cx = require('classnames');
 
 function getStateFromStores() {
   return {

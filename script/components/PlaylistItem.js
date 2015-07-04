@@ -4,7 +4,8 @@ var Icon = require('./Icon');
 var PlaybackActionCreators = require('../actions/PlaybackActionCreators');
 var PlaylistActionCreators = require('../actions/PlaylistActionCreators');
 var React = require('react/addons');
-var cx = React.addons.classSet;
+
+var cx = require('classnames');
 
 var PlaylistItem = React.createClass({
   handleClick: function() {
