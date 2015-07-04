@@ -1,8 +1,8 @@
 "use strict";
 
-var React = require('react');
-var Srt = require('./Srt');
-var keyMirror = require('react/lib/keyMirror');
+import React, {PropTypes} from 'react';
+import Srt from './Srt';
+import keyMirror from 'react/lib/keyMirror';
 
 // Webfont-based icons that are intended to be reasonably accessible to
 // screen reader users, inspired by the suggestions at:
@@ -12,7 +12,7 @@ var keyMirror = require('react/lib/keyMirror');
 // the names in here.
 //
 // In the meantime, just a few icons we plan to use are here.
-var NAME_TO_CHARCODE = {
+const NAME_TO_CHARCODE = {
   LIST: 0xf169,
   X: 0xf217,
   PLUS: 0xf199,
@@ -23,27 +23,23 @@ var NAME_TO_CHARCODE = {
   MAGNIFYING_GLASS: 0xf16c,
 };
 
-var ICON_NAMES = keyMirror(NAME_TO_CHARCODE);
+const ICON_NAMES = keyMirror(NAME_TO_CHARCODE);
 
-var Icon = React.createClass({
+let Icon = React.createClass({
   propTypes: {
-    alt: React.PropTypes.string,  // Alt text for a11y. Should be present if
-                                  // icon is used standalone.
-    className: React.PropTypes.string,
-    name: React.PropTypes.oneOf(Object.keys(ICON_NAMES)).isRequired,
-    onClick: React.PropTypes.func,
+    alt: PropTypes.string,  // Alt text for a11y. Should be present if
+                            // icon is used standalone.
+    className: PropTypes.string,
+    name: PropTypes.oneOf(Object.keys(ICON_NAMES)).isRequired,
+    onClick: PropTypes.func,
   },
 
-  render: function() {
-    // TODO: Double-check this logic to make sure I didn't fuck it up when
-    // adding className. Once you have checked and are confident of the
-    // absence of a fuck-up, delete this comment.
+  render() {
+    const character = String.fromCharCode(NAME_TO_CHARCODE[this.props.name]);
+    const iconSpan = <span aria-hidden="true" data-icon={character} />;
+    let classes = this.props.className || '';
 
-    var character = String.fromCharCode(NAME_TO_CHARCODE[this.props.name]);
-    var classes = this.props.className || '';
-    var iconSpan = <span aria-hidden="true" data-icon={character} />;
-
-    var possibleAltText = '';
+    let possibleAltText = '';
     if (this.props.alt) {
       possibleAltText = <Srt text={this.props.alt} />;
     } else {
@@ -56,9 +52,9 @@ var Icon = React.createClass({
         {possibleAltText}
       </span>
     );
-  }
+  },
 });
 
 Icon.NAMES = ICON_NAMES;
 
-module.exports = Icon;
+export default Icon;

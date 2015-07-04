@@ -1,55 +1,55 @@
 "use strict";
 
-var AlbumStore = require('../stores/AlbumStore');
-var PlayStatusStore = require('../stores/PlayStatusStore');
-var React = require('react');
-var TrackStore = require('../stores/TrackStore');
+import AlbumStore from '../stores/AlbumStore';
+import PlayStatusStore from '../stores/PlayStatusStore';
+import React from 'react';
+import TrackStore from '../stores/TrackStore';
 
 function getStateFromStores() {
-  var art = '/static/img/pattern.png';
-  var trackId = PlayStatusStore.getPlayingTrack();
+  let art = '/static/img/pattern.png';
+  const trackId = PlayStatusStore.getPlayingTrack();
   if (trackId != null) {
-    var track = TrackStore.getTrack(trackId);
+    const track = TrackStore.getTrack(trackId);
     if (track.albumId != null) {
-      var album = AlbumStore.getAlbum(track.albumId);
+      const album = AlbumStore.getAlbum(track.albumId);
       if (album.coverArt) {
         art = album.coverArt;
       }
     }
   }
-  return {art: art};
+  return {art};
 }
 
-var CoverArt = React.createClass({
-  getInitialState: function() {
+const CoverArt = React.createClass({
+  getInitialState() {
     return getStateFromStores();
   },
 
-  componentDidMount: function() {
+  componentDidMount() {
     AlbumStore.addChangeListener(this.handleChange);
     PlayStatusStore.addChangeListener(this.handleChange);
     TrackStore.addChangeListener(this.handleChange);
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     AlbumStore.removeChangeListener(this.handleChange);
     PlayStatusStore.removeChangeListener(this.handleChange);
     TrackStore.removeChangeListener(this.handleChange);
   },
 
-  handleChange: function() {
+  handleChange() {
     this.setState(getStateFromStores());
   },
 
-  render: function() {
-    var styles = {
+  render() {
+    const styles = {
       backgroundImage: 'url(' + encodeURI(this.state.art) + ')',
     };
 
     return (
       <div className="CoverArt" style={styles} />
     );
-  }
+  },
 });
 
-module.exports = CoverArt;
+export default CoverArt;

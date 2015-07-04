@@ -1,8 +1,8 @@
 "use strict";
 
-var keyMirror = require('react/lib/keyMirror');
+import keyMirror from 'react/lib/keyMirror';
 
-var ActionConstants = keyMirror({
+let ActionConstants = keyMirror({
   CHANGE_SEARCH_QUERY: null,
   RECEIVE_SEARCH_RESULTS: null,
 
@@ -15,4 +15,4 @@ var ActionConstants = keyMirror({
   REORDER_PLAYLIST: null,
 });
 
-module.exports = ActionConstants;
+export default ActionConstants;

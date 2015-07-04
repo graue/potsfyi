@@ -1,24 +1,21 @@
 "use strict";
 
-var PlayStatusStore = require('../stores/PlayStatusStore');
-var PlaylistActionCreators = require('../actions/PlaylistActionCreators');
-var PlaylistItem = require('./PlaylistItem');
-var React = require('react');
-var TrackStore = require('../stores/TrackStore');
-var _ = require('underscore');
-var $ = require('../lib/jquery.shim');
+import PlayStatusStore from '../stores/PlayStatusStore';
+import PlaylistActionCreators from '../actions/PlaylistActionCreators';
+import PlaylistItem from './PlaylistItem';
+import React from 'react';
+import TrackStore from '../stores/TrackStore';
+import $ from '../lib/jquery.shim';
 
 function getStateFromStores() {
   var state = {
     playingIndex: PlayStatusStore.getPlayingIndex(),
     tracks: PlayStatusStore.getTracksWithKeys().map(([trackId, key]) => {
-      return _.extend(
-        {
-          id: trackId,
-          key,
-        },
-        TrackStore.getTrack(trackId)
-      );
+      return {
+        id: trackId,
+        key,
+        ...TrackStore.getTrack(trackId)
+      };
     }),
   };
   return state;

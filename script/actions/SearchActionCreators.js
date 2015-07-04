@@ -1,15 +1,15 @@
 "use strict";
 
-var ActionConstants = require('../actions/ActionConstants');
-var PotsDispatcher = require('../dispatcher/PotsDispatcher');
+import ActionConstants from './ActionConstants';
+import PotsDispatcher from '../dispatcher/PotsDispatcher';
 
-var SearchActionCreators = {
-  changeQuery: function(query) {
+class SearchActionCreators {
+  static changeQuery(query) {
     PotsDispatcher.dispatch({
       query: query,
       type: ActionConstants.CHANGE_SEARCH_QUERY,
     });
-  },
-};
+  }
+}
 
-module.exports = SearchActionCreators;
+export default SearchActionCreators;

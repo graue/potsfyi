@@ -1,10 +1,10 @@
 "use strict";
 
-var ActionConstants = require('../actions/ActionConstants');
-var PotsDispatcher = require('../dispatcher/PotsDispatcher');
+import ActionConstants from './ActionConstants';
+import PotsDispatcher from '../dispatcher/PotsDispatcher';
 
-var ServerActionCreators = {
-  receiveSearchResults: function(query, responseObj) {
+class ServerActionCreators {
+  static receiveSearchResults(query, responseObj) {
     PotsDispatcher.dispatch({
       forQuery: query,
       albums: responseObj.albums,
@@ -12,7 +12,7 @@ var ServerActionCreators = {
       results: responseObj.search_results,
       type: ActionConstants.RECEIVE_SEARCH_RESULTS,
     });
-  },
-};
+  }
+}
 
-module.exports = ServerActionCreators;
+export default ServerActionCreators;

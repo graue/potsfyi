@@ -1,12 +1,12 @@
 "use strict";
 
-var DropdownMenu = require('./DropdownMenu');
-var Nav = require('./Nav');
-var React = require('react');
-var SearchArea = require('./SearchArea');
+import DropdownMenu from './DropdownMenu';
+import Nav from './Nav';
+import React from 'react';
+import SearchArea from './SearchArea';
 
-var UIBar = React.createClass({
-  render: function() {
+const UIBar = React.createClass({
+  render() {
     return (
       <div className="UIBar">
         <Nav />
@@ -14,7 +14,7 @@ var UIBar = React.createClass({
         <DropdownMenu {...this.props} />
       </div>
     );
-  }
+  },
 });
 
-module.exports = UIBar;
+export default UIBar;

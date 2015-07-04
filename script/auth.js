@@ -40,21 +40,13 @@ function logoutCallback() {
   );
 }
 
-function attachLoginButtonHandler() {
+export function attachLoginButtonHandler() {
   $('#browserid-login').on('click', function(event) {
     event.preventDefault();
     navigator.id.get(gotAssertion);
   });
-
-  // Logout button appears on a React-rendered page and can handle its own
-  // damn click events. (It calls exports.logOut(), below)
 }
 
-function logOut() {
+export function logOut() {
   navigator.id.logout(logoutCallback);
 }
-
-module.exports = {
-  attachLoginButtonHandler,
-  logOut,
-};

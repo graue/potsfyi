@@ -1,32 +1,32 @@
 "use strict";
 
-var Icon = require('./Icon');
-var PlaybackActionCreators = require('../actions/PlaybackActionCreators');
-var PlaylistActionCreators = require('../actions/PlaylistActionCreators');
-var React = require('react/addons');
+import Icon from './Icon';
+import PlaybackActionCreators from '../actions/PlaybackActionCreators';
+import PlaylistActionCreators from '../actions/PlaylistActionCreators';
+import React from 'react/addons';
 
-var cx = require('classnames');
+import cx from 'classnames';
 
-var PlaylistItem = React.createClass({
-  handleClick: function() {
+const PlaylistItem = React.createClass({
+  handleClick() {
     // FIXME: sortIndex is the wrong name for the prop, since here we're using
     // it for something that clearly isn't sorting.
     PlaybackActionCreators.playTrack(this.props.sortIndex);
   },
 
-  handleRemoveClick: function() {
+  handleRemoveClick() {
     PlaylistActionCreators.removeFromPlaylist(this.props.sortIndex);
   },
 
-  render: function() {
-    var track = this.props.track;
+  render() {
+    const track = this.props.track;
 
-    var classes = cx({
+    const classes = cx({
       PlaylistItem: true,
       PlaylistItemPlaying: this.props.isPlaying
     });
 
-    var playingIndicator = '';
+    let playingIndicator = '';
     if (this.props.isPlaying) {
       // TODO: Maybe to be extra clever, make this a pause icon if the track
       // is playing, and allow clicking it to toggle play/pause state.
@@ -64,4 +64,4 @@ var PlaylistItem = React.createClass({
   }
 });
 
-module.exports = PlaylistItem;
+export default PlaylistItem;

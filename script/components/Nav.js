@@ -1,12 +1,12 @@
 "use strict";
 
-var Icon = require('./Icon');
-var PlayStatusStore = require('../stores/PlayStatusStore');
-var PlaybackActionCreators = require('../actions/PlaybackActionCreators');
-var React = require('react/addons');
-var Srt = require('./Srt');
+import Icon from './Icon';
+import PlayStatusStore from '../stores/PlayStatusStore';
+import PlaybackActionCreators from '../actions/PlaybackActionCreators';
+import React from 'react/addons';
+import Srt from './Srt';
 
-var cx = require('classnames');
+import cx from 'classnames';
 
 function getStateFromStores() {
   return {
@@ -19,32 +19,32 @@ function getStateFromStores() {
   };
 }
 
-var Nav = React.createClass({
-  getInitialState: function() {
+const Nav = React.createClass({
+  getInitialState() {
     return getStateFromStores();
   },
 
-  componentDidMount: function() {
+  componentDidMount() {
     PlayStatusStore.addChangeListener(this.handleChange);
   },
 
-  componentWillMount: function() {
+  componentWillMount() {
     PlayStatusStore.removeChangeListener(this.handleChange);
   },
 
-  handleChange: function() {
+  handleChange() {
     this.setState(getStateFromStores());
   },
 
-  handlePrevClick: function() {
+  handlePrevClick() {
     PlaybackActionCreators.playTrack(this.state.index - 1);
   },
 
-  handleNextClick: function() {
+  handleNextClick() {
     PlaybackActionCreators.playTrack(this.state.index + 1);
   },
 
-  handlePlayPauseClick: function() {
+  handlePlayPauseClick() {
     if (this.state.index === PlayStatusStore.NO_PLAYING_INDEX) {
       PlaybackActionCreators.playTrack(0);
     } else if (this.state.paused) {
@@ -54,7 +54,7 @@ var Nav = React.createClass({
     }
   },
 
-  render: function() {
+  render() {
     var {canPrev, canNext, canPlay, canPause} = this.state;
 
     return (
@@ -93,4 +93,4 @@ var Nav = React.createClass({
   },
 });
 
-module.exports = Nav;
+export default Nav;

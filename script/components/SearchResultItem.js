@@ -1,26 +1,27 @@
 "use strict";
 
-var PlaylistActionCreators = require('../actions/PlaylistActionCreators');
-var React = require('react');
-var Spinner = require('./Spinner');
+import PlaylistActionCreators from '../actions/PlaylistActionCreators';
+import React, {PropTypes} from 'react';
+import Spinner from './Spinner';
 
-var SearchResultItem = React.createClass({
+const SearchResultItem = React.createClass({
   propTypes: {
-    isAlbum: React.PropTypes.bool.isRequired,
-    artist: React.PropTypes.string.isRequired,
-    hasSpinner: React.PropTypes.bool,
-    title: React.PropTypes.string.isRequired,
-    id: React.PropTypes.string.isRequired,
-    tracks: React.PropTypes.arrayOf(React.PropTypes.string),
-    coverArt: React.PropTypes.string,
+    isAlbum: PropTypes.bool.isRequired,
+    artist: PropTypes.string.isRequired,
+    hasSpinner: PropTypes.bool,
+    title: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
+    tracks: PropTypes.arrayOf(PropTypes.string),
+    coverArt: PropTypes.string,
   },
 
-  handleClick: function() {
-    var tracksToAdd = this.props.isAlbum ? this.props.tracks : [this.props.id];
+  handleClick() {
+    const tracksToAdd = this.props.isAlbum ?
+      this.props.tracks : [this.props.id];
     PlaylistActionCreators.addToPlaylist(tracksToAdd);
   },
 
-  maybeRenderSpinner: function() {
+  maybeRenderSpinner() {
     if (this.props.hasSpinner) {
       return (
         <div className="SearchResultItem_Spinner">
@@ -32,7 +33,7 @@ var SearchResultItem = React.createClass({
     }
   },
 
-  render: function() {
+  render() {
     // TODO: Render the cover art if present.
     // TODO: Show albums differently from tracks (even if they don't have
     // cover art).
@@ -50,7 +51,7 @@ var SearchResultItem = React.createClass({
         </a>
       </li>
     );
-  }
+  },
 });
 
 module.exports = SearchResultItem;

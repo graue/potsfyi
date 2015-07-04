@@ -1,30 +1,28 @@
 "use strict";
 
-var ActionConstants = require('../actions/ActionConstants');
-var PotsDispatcher = require('../dispatcher/PotsDispatcher');
+import ActionConstants from './ActionConstants';
+import PotsDispatcher from '../dispatcher/PotsDispatcher';
 
-var PlaylistActionCreators = {
-  reorderPlaylist: function(fromIndex, toIndex) {
+class PlaylistActionCreators {
+  static reorderPlaylist(fromIndex, toIndex) {
     PotsDispatcher.dispatch({
       type: ActionConstants.REORDER_PLAYLIST,
       from: fromIndex,
       to: toIndex,
     });
-  },
-
-  addToPlaylist: function(trackIds) {
+  }
+  static addToPlaylist(trackIds) {
     PotsDispatcher.dispatch({
       type: ActionConstants.ADD_TO_PLAYLIST,
-      trackIds: trackIds,
+      trackIds,
     });
-  },
-
-  removeFromPlaylist: function(index) {
+  }
+  static removeFromPlaylist(index) {
     PotsDispatcher.dispatch({
       type: ActionConstants.REMOVE_FROM_PLAYLIST,
-      index: index,
+      index,
     });
-  },
-};
+  }
+}
 
-module.exports = PlaylistActionCreators;
+export default PlaylistActionCreators;

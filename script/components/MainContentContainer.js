@@ -1,18 +1,18 @@
 "use strict";
 
-var CoverArt = require('./CoverArt');
-var PlaylistArea = require('./PlaylistArea');
-var React = require('react');
+import CoverArt from './CoverArt';
+import PlaylistArea from './PlaylistArea';
+import React from 'react';
 
-var MainContentContainer = React.createClass({
-  render: function() {
+const MainContentContainer = React.createClass({
+  render() {
     return (
       <div className="MainContentContainer">
         <CoverArt {...this.props} />
         <PlaylistArea {...this.props} />
       </div>
     );
-  }
+  },
 });
 
-module.exports = MainContentContainer;
+export default MainContentContainer;

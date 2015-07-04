@@ -1,16 +1,16 @@
 "use strict";
 
-var Playlist = require('./Playlist');
-var React = require('react');
+import Playlist from './Playlist';
+import React from 'react';
 
-var PlaylistArea = React.createClass({
-  render: function() {
+class PlaylistArea extends React.Component {
+  render() {
     return (
       <div className="PlaylistArea">
         <Playlist {...this.props} />
       </div>
     );
   }
-});
+}
 
-module.exports = PlaylistArea;
+export default PlaylistArea;

@@ -1,14 +1,14 @@
 "use strict";
 
-var PlayStatusStore = require('../stores/PlayStatusStore');
-var PlaybackActionCreators = require('../actions/PlaybackActionCreators');
-var React = require('react');
-var emptyTrackURI = require('../utils/emptyTrackURI');
-var invariant = require('../utils/invariant');
-var supportedAudioFormats = require('../utils/supportedAudioFormats');
+import PlayStatusStore from '../stores/PlayStatusStore';
+import PlaybackActionCreators from '../actions/PlaybackActionCreators';
+import React from 'react';
+import emptyTrackURI from '../utils/emptyTrackURI';
+import invariant from '../utils/invariant';
+import supportedAudioFormats from '../utils/supportedAudioFormats';
 
 function getStateFromStores() {
-  var trackId = PlayStatusStore.getPlayingTrack();
+  const trackId = PlayStatusStore.getPlayingTrack();
 
   if (trackId == null) {
     return {haveTrack: false};
@@ -18,21 +18,21 @@ function getStateFromStores() {
   // and look up the resulting filename. However, for now, we can generate
   // the filename from just the ID and the server redirects us (or transcodes
   // on the fly).
-  var filename = '/track/' + trackId + '/' + supportedAudioFormats();
+  const filename = '/track/' + trackId + '/' + supportedAudioFormats();
 
   return {
     haveTrack: true,
-    filename: filename,
+    filename,
     paused: PlayStatusStore.getTrackPlayStatus().paused,
   };
 }
 
-var Player = React.createClass({
-  getInitialState: function() {
+const Player = React.createClass({
+  getInitialState() {
     return getStateFromStores();
   },
 
-  componentDidMount: function() {
+  componentDidMount() {
     PlayStatusStore.addChangeListener(this.handleChange);
 
     // Attach event handlers. Sadly React doesn't support media element events.
@@ -48,22 +48,22 @@ var Player = React.createClass({
     }
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     // FIXME: Does this ever get called tho? <Player /> always rendered
     // in app...
     PlayStatusStore.removeChangeListener(this.handleChange);
     this.forceStopDownloading();
   },
 
-  handleChange: function() {
+  handleChange() {
     this.setState(getStateFromStores());
   },
 
-  handleEnded: function() {
+  handleEnded() {
     PlaybackActionCreators.trackEnded();
   },
 
-  getAudioElement: function() {
+  getAudioElement() {
     invariant(
       this.isMounted(),
       'Attempted to get audio element, but component not mounted'
@@ -72,7 +72,7 @@ var Player = React.createClass({
     return React.findDOMNode(this.refs.audioEl);
   },
 
-  forceStopDownloading: function() {
+  forceStopDownloading() {
     // Force the browser to stop downloading the current track, if it's
     // downloading.
     //
@@ -84,7 +84,7 @@ var Player = React.createClass({
     this.getAudioElement().src = emptyTrackURI;
   },
 
-  componentWillUpdate: function(nextProps, nextState) {
+  componentWillUpdate(nextProps, nextState) {
     // If the track is changing or there's no new track, stop downloading
     // the current one.
     if (
@@ -97,7 +97,7 @@ var Player = React.createClass({
     }
   },
 
-  componentDidUpdate: function(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
     // Handle pausing, unpausing, and loading new tracks. Ugly imperative mess.
 
     if (this.state.haveTrack) {
@@ -114,7 +114,7 @@ var Player = React.createClass({
     }
   },
 
-  render: function() {
+  render() {
     return (
       <div>
         <audio
@@ -123,7 +123,7 @@ var Player = React.createClass({
         />
       </div>
     );
-  }
+  },
 });
 
-module.exports = Player;
+export default Player;

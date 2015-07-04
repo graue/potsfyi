@@ -1,17 +1,17 @@
 "use strict";
 
-var Icon = require('./Icon');
-var React = require('react');
-var SearchBox = require('./SearchBox');
+import Icon from './Icon';
+import React from 'react';
+import SearchBox from './SearchBox';
 
 // Search box and magnifying glass next to it (which focuses).
 
-var SearchArea = React.createClass({
-  handleClick: function() {
+const SearchArea = React.createClass({
+  handleClick() {
     this.refs['box'].focus();
   },
 
-  render: function() {
+  render() {
     return (
       <div className="SearchArea">
         <Icon
@@ -25,4 +25,4 @@ var SearchArea = React.createClass({
   },
 });
 
-module.exports = SearchArea;
+export default SearchArea;

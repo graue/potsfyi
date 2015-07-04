@@ -1,6 +1,6 @@
 "use strict";
 
-var React = require('react');
+import React, {PropTypes} from 'react';
 
 // Srt = screen reader text.
 //
@@ -12,14 +12,14 @@ var React = require('react');
 // text for screen readers when used in a standalone way, but without putting
 // spaces in between, you'd end up with "Previous TrackPauseNext Track".
 
-var Srt = React.createClass({
+const Srt = React.createClass({
   propTypes: {
-    text: React.PropTypes.string.isRequired
+    text: PropTypes.string.isRequired,
   },
 
   render: function() {
     return <span className="screen-reader-text">{this.props.text}</span>;
-  }
+  },
 });
 
-module.exports = Srt;
+export default Srt;

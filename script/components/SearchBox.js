@@ -1,12 +1,11 @@
 "use strict";
 
-var AlbumStore = require('../stores/AlbumStore');
-var React = require('react');
-var SearchActionCreators = require('../actions/SearchActionCreators');
-var SearchResultsDropdown = require('./SearchResultsDropdown');
-var SearchStore = require('../stores/SearchStore');
-var TrackStore = require('../stores/TrackStore');
-var _ = require('underscore');
+import AlbumStore from '../stores/AlbumStore';
+import React from 'react';
+import SearchActionCreators from '../actions/SearchActionCreators';
+import SearchResultsDropdown from './SearchResultsDropdown';
+import SearchStore from '../stores/SearchStore';
+import TrackStore from '../stores/TrackStore';
 
 // Don't fire off a query until you stop typing in the search box for this
 // many milliseconds.
@@ -17,12 +16,12 @@ const SEARCH_DEBOUNCE_TIME = 200;
 // Input: {id: 32, isAlbum: false}
 // Output: {id: 32, isAlbum: false, title: 'Get Lucky', artist: 'Daft Punk'}
 function hydrate(item) {
-  var fetcher = item.isAlbum ? AlbumStore.getAlbum : TrackStore.getTrack;
-  return _.extend({}, item, fetcher(item.id));
+  const fetcher = item.isAlbum ? AlbumStore.getAlbum : TrackStore.getTrack;
+  return {...item, ...fetcher(item.id)};
 }
 
 function getStateFromStores() {
-  var state = {
+  let state = {
     isLoading: SearchStore.isLoading(),
     query: SearchStore.getQuery(),
     results: SearchStore.getResults(),
@@ -38,8 +37,8 @@ function getStateFromStores() {
 }
 
 var SearchBox = React.createClass({
-  getInitialState: function() {
-    var state = _.extend({}, getStateFromStores());
+  getInitialState() {
+    let state = getStateFromStores();
 
     // Transient query: whatever's actually in the textbox right now. The
     // 'query' value we put in an action and pull from the store is a
@@ -51,23 +50,23 @@ var SearchBox = React.createClass({
     return state;
   },
 
-  componentDidMount: function() {
+  componentDidMount() {
     SearchStore.addChangeListener(this.handleChange);
     this._searchTimeoutId = null;
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     SearchStore.removeChangeListener(this.handleChange);
     if (this._searchTimeoutId !== null) {
       clearTimeout(this._searchTimeoutId);
     }
   },
 
-  handleBlur: function() {
+  handleBlur() {
     this.setState({dropdownHidden: true});
   },
 
-  handlePossibleBlur: function(e) {
+  handlePossibleBlur(e) {
     // Filter blur events so that handleBlur is not called if some *part*
     // of the search box (either the input, or a link in the dropdown) still
     // has focus.
@@ -100,22 +99,22 @@ var SearchBox = React.createClass({
     }, 0);
   },
 
-  handleFocus: function() {
+  handleFocus() {
     this.setState({dropdownHidden: false});
   },
 
-  handleChange: function() {
+  handleChange() {
     this.setState(getStateFromStores());
   },
 
-  focus: function() {
-    var node = React.findDOMNode(this.refs.input);
+  focus() {
+    let node = React.findDOMNode(this.refs.input);
     node.focus();
     node.select();
   },
 
-  handleInput: function(event) {
-    var query = event.target.value;
+  handleInput(event) {
+    const query = event.target.value;
     this.setState({transientQuery: query});
 
     // TODO: Debounce this (except if query is '').
@@ -135,8 +134,8 @@ var SearchBox = React.createClass({
     }
   },
 
-  isDropdownPresent: function() {
-    var {dropdownHidden, query, transientQuery} = this.state;
+  isDropdownPresent() {
+    const {dropdownHidden, query, transientQuery} = this.state;
     return (
       !dropdownHidden
       && transientQuery !== ''
@@ -144,13 +143,12 @@ var SearchBox = React.createClass({
     );
   },
 
-  render: function() {
-    var {transientQuery, results, isLoading} = this.state;
-
-    var shouldRenderDropdown = this.isDropdownPresent();
+  render() {
+    const {transientQuery, results, isLoading} = this.state;
+    const shouldRenderDropdown = this.isDropdownPresent();
 
     // TODO: Maybe show in some way if the results are stale? Spinner?
-    var maybeDropdown = shouldRenderDropdown ?
+    const maybeDropdown = shouldRenderDropdown ?
       <SearchResultsDropdown
         isLoading={isLoading}
         items={results ? results.items : []}
@@ -172,7 +170,7 @@ var SearchBox = React.createClass({
         {maybeDropdown}
       </span>
     );
-  }
+  },
 });
 
-module.exports = SearchBox;
+export default SearchBox;
