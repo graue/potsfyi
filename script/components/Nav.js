@@ -55,7 +55,7 @@ const Nav = React.createClass({
   },
 
   render() {
-    var {canPrev, canNext, canPlay, canPause} = this.state;
+    const {canPrev, canNext, canPlay, canPause} = this.state;
 
     return (
       <div className="Nav">

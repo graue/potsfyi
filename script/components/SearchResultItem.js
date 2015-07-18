@@ -54,4 +54,4 @@ const SearchResultItem = React.createClass({
   },
 });
 
-module.exports = SearchResultItem;
+export default SearchResultItem;

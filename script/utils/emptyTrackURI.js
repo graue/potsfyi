@@ -3,7 +3,7 @@
 // One second of silence as an ogg file,
 // since <audio src=""> tries to interpret the page HTML as an audio track.
 
-module.exports = `
+export default `
   data:audio/ogg;base64,
   T2dnUwACAAAAAAAAAAAc1TENAAAAAH4fuwIBHgF2b3JiaXMAAAAAAkSsAAAAAAAAgDgBAAAAAAC4
   AU9nZ1MAAAAAAAAAAAAAHNUxDQEAAACV2EHnDz3/////////////////qQN2b3JiaXMtAAAAWGlw

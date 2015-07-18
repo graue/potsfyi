@@ -1,9 +1,9 @@
 "use strict";
 
-var App = require('./components/App');
-var React = require('react');
-var $ = require('./lib/jquery.shim');
-var auth = require('./auth');
+import App from './components/App';
+import React from 'react';
+import $ from './lib/jquery.shim';
+import auth from './auth';
 
 $(function() {
   if (window.loginEnabled) {

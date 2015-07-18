@@ -8,13 +8,13 @@
 
 function invariant(condition, format, a, b, c, d, e, f, g, h, i, j) {
   if (!condition) {
-    var args = [a, b, c, d, e, f, g, h, i, j];
-    var index = 0;
-    var errString = format.replace(/{}/g, function() {
+    const args = [a, b, c, d, e, f, g, h, i, j];
+    let index = 0;
+    const errString = format.replace(/{}/g, function() {
       return args[index++];
     });
     throw new Error('Invariant violation: ' + errString);
   }
 }
 
-module.exports = invariant;
+export default invariant;

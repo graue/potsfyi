@@ -67,7 +67,7 @@ class Dispatcher {
       if (!this._listeners.has(id)) {
         throw new Error('Not an active listener: ' + id);
       }
-      var listener = this._listeners.get(id);
+      const listener = this._listeners.get(id);
 
       if (!listener.pending) {
         this._invoke(listener);

@@ -8,7 +8,7 @@ import TrackStore from '../stores/TrackStore';
 import $ from '../lib/jquery.shim';
 
 function getStateFromStores() {
-  var state = {
+  return {
     playingIndex: PlayStatusStore.getPlayingIndex(),
     tracks: PlayStatusStore.getTracksWithKeys().map(([trackId, key]) => {
       return {
@@ -18,21 +18,20 @@ function getStateFromStores() {
       };
     }),
   };
-  return state;
 }
 
-var Playlist = React.createClass({
-  getInitialState: function() {
+const Playlist = React.createClass({
+  getInitialState() {
     return getStateFromStores();
   },
 
-  componentDidMount: function() {
+  componentDidMount() {
     PlayStatusStore.addChangeListener(this.handleChange);
     TrackStore.addChangeListener(this.handleChange);
     this.makeSortable();
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     PlayStatusStore.removeChangeListener(this.handleChange);
     TrackStore.removeChangeListener(this.handleChange);
     this.teardownSortable();
@@ -41,20 +40,20 @@ var Playlist = React.createClass({
   // TODO: Do we need makeSortable/teardownSortable on DidUpdate and
   // WillUpdate? Delete this comment if you determine that we don't.
 
-  handleChange: function() {
+  handleChange() {
     this.setState(getStateFromStores());
   },
 
-  makeSortable: function() {
-    var rootNode = React.findDOMNode(this.refs.itemList);
+  makeSortable() {
+    const rootNode = React.findDOMNode(this.refs.itemList);
     $(rootNode).disableSelection().sortable({
       distance: 10,
-      stop: function(event, ui) {
+      stop: (event, ui) => {
         // jQuery UI doesn't give us the old (pre-drag) index,
         // so use the data-idx attribute (which was set via the
         // PlaylistItemView's sortIndex prop).
-        var fromIndex = ui.item.attr('data-idx') | 0;
-        var toIndex = ui.item.index();
+        const fromIndex = ui.item.attr('data-idx') | 0;
+        const toIndex = ui.item.index();
 
         // Prevent jQuery UI from actually moving the element,
         // which would confuse React.
@@ -62,28 +61,28 @@ var Playlist = React.createClass({
 
         // Instead, fire an action and we'll eventually end up rerendering.
         PlaylistActionCreators.reorderPlaylist(fromIndex, toIndex);
-      }.bind(this)
+      },
     });
   },
 
-  teardownSortable: function() {
-    var rootNode = React.findDOMNode(this.refs.itemList);
+  teardownSortable() {
+    const rootNode = React.findDOMNode(this.refs.itemList);
     $(rootNode).sortable('destroy');
   },
 
-  render: function() {
-    var tracks = this.state.tracks;
+  render() {
+    const tracks = this.state.tracks;
 
     // FIXME: Probably don't really want this goofy message. Maybe show
     // browse/discovery content instead eventually.
-    var emptyMsg = (
+    const emptyMsg = (
       <p className="PlaylistEmptyMessage">
         Nothing in playlist yet. Queue up some tunes!
       </p>
     );
 
-    var items = tracks.map((track, index) => {
-      var isPlaying = index === this.state.playingIndex;
+    const items = tracks.map((track, index) => {
+      const isPlaying = index === this.state.playingIndex;
       return (
         <PlaylistItem
           track={track}
@@ -102,7 +101,7 @@ var Playlist = React.createClass({
         </ul>
       </div>
     );
-  }
+  },
 });
 
-module.exports = Playlist;
+export default Playlist;

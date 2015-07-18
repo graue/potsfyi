@@ -36,7 +36,7 @@ function getStateFromStores() {
   return state;
 }
 
-var SearchBox = React.createClass({
+const SearchBox = React.createClass({
   getInitialState() {
     let state = getStateFromStores();
 

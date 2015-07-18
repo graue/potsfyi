@@ -41,7 +41,7 @@ function _addAlbumFromSerializedObject(rawAlbum) {
 }
 
 AlbumStore.dispatchToken = PotsDispatcher.register(function(action) {
-  var dataChanged = false;
+  let dataChanged = false;
 
   switch (action.type) {
     case ActionConstants.RECEIVE_SEARCH_RESULTS:
