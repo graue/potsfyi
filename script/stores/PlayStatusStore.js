@@ -1,86 +1,90 @@
 "use strict";
 
-var ActionConstants = require('../actions/ActionConstants');
-var EventEmitter = require('events').EventEmitter;
-var PotsDispatcher = require('../dispatcher/PotsDispatcher');
-var _ = require('underscore');
-var invariant = require('../utils/invariant');
+import ActionConstants from '../actions/ActionConstants';
+import {EventEmitter} from 'events';
+import PotsDispatcher from '../dispatcher/PotsDispatcher';
+import invariant from '../utils/invariant';
 
-var NO_PLAYING_INDEX = -1;
+const NO_PLAYING_INDEX = -1;
 
-var _insertionCount = 1;
+// Every track in the playlist needs a unique ID associated with it, and
+// we can't use track IDs because you can add a track to the playlist twice.
+// Hence, we use nonces.
+let _insertionCount = 1;
 function createNonce() {
   return _insertionCount++;
 }
 
-var playlist = [];  // Tuples of [track ID, nonce].
-var playingIndex = NO_PLAYING_INDEX;
-var trackPlayStatus = {
+let playlist = [];  // Tuples of [track ID, nonce].
+let playingIndex = NO_PLAYING_INDEX;
+let trackPlayStatus = {
   paused: false,
   // TODO: Add time offset in track, to enable seeking.
 };
 
-var PlayStatusStore = _.extend({}, EventEmitter.prototype, {
-  _emitChange: function() {
+class PlayStatusStoreClass extends EventEmitter {
+  _emitChange() {
     this.emit('change');
-  },
+  }
 
-  addChangeListener: function(cb) {
+  addChangeListener(cb) {
     this.on('change', cb);
-  },
+  }
 
-  removeChangeListener: function(cb) {
+  removeChangeListener(cb) {
     this.removeListener('change', cb);
-  },
+  }
 
-  getTracksWithKeys: function() {
+  getTracksWithKeys() {
     return playlist;
-  },
+  }
 
-  getPlayingIndex: function() {
+  getPlayingIndex() {
     return playingIndex;
-  },
+  }
 
-  getPlayingTrack: function() {
+  getPlayingTrack() {
     if (playingIndex === NO_PLAYING_INDEX) {
       return null;
     } else {
       return playlist[playingIndex][0];
     }
-  },
+  }
 
-  getTrackPlayStatus: function() {
+  getTrackPlayStatus() {
     return trackPlayStatus;
-  },
+  }
 
-  isPlaylistEmpty: function() {
+  isPlaylistEmpty() {
     return playlist.length === 0;
-  },
+  }
 
-  isAnythingPlaying: function() {
+  isAnythingPlaying() {
     return playingIndex !== NO_PLAYING_INDEX;
-  },
+  }
 
-  canPrev: function() {
+  canPrev() {
     return this.isAnythingPlaying() && playingIndex > 0;
-  },
+  }
 
-  canNext: function() {
+  canNext() {
     return this.isAnythingPlaying() && playingIndex < playlist.length - 1;
-  },
+  }
 
-  canPlay: function() {
+  canPlay() {
     return (
       !this.isPlaylistEmpty() && (
         !this.isAnythingPlaying() || trackPlayStatus.paused
       )
     );
-  },
+  }
 
-  canPause: function() {
+  canPause() {
     return this.isAnythingPlaying() && !trackPlayStatus.paused;
-  },
-});
+  }
+}
+
+let PlayStatusStore = new PlayStatusStoreClass();
 
 PlayStatusStore.NO_PLAYING_INDEX = NO_PLAYING_INDEX;
 
@@ -95,11 +99,11 @@ PlayStatusStore.dispatchToken = PotsDispatcher.register(function(action) {
       );
 
       if (action.to !== action.from) {
-        var moved = playlist.splice(action.from, 1)[0];
+        const moved = playlist.splice(action.from, 1)[0];
         playlist.splice(action.to, 0, moved);
 
         if (playingIndex !== NO_PLAYING_INDEX) {
-          var preChange = playingIndex;
+          const preChange = playingIndex;
           if (playingIndex === action.from) {
             playingIndex = action.to;
           } else if (playingIndex < action.from && playingIndex >= action.to) {
@@ -167,4 +171,4 @@ PlayStatusStore.dispatchToken = PotsDispatcher.register(function(action) {
   }
 });
 
-module.exports = PlayStatusStore;
+export default PlayStatusStore;

@@ -1,29 +1,30 @@
 "use strict";
 
-var ActionConstants = require('../actions/ActionConstants');
-var EventEmitter = require('events').EventEmitter;
-var PotsDispatcher = require('../dispatcher/PotsDispatcher');
-var _ = require('underscore');
+import ActionConstants from '../actions/ActionConstants';
+import {EventEmitter} from 'events';
+import PotsDispatcher from '../dispatcher/PotsDispatcher';
 
-var albums = {};
+let albums = {};
 
-var AlbumStore = _.extend({}, EventEmitter.prototype, {
-  _emitChange: function() {
+class AlbumStoreClass extends EventEmitter {
+  _emitChange() {
     this.emit('change');
-  },
+  }
 
-  addChangeListener: function(cb) {
+  addChangeListener(cb) {
     this.on('change', cb);
-  },
+  }
 
-  removeChangeListener: function(cb) {
+  removeChangeListener(cb) {
     this.removeListener('change', cb);
-  },
+  }
 
-  getAlbum: function(id) {
+  getAlbum(id) {
     return albums[id];
-  },
-});
+  }
+}
+
+let AlbumStore = new AlbumStoreClass();
 
 function _addAlbumInfo(id, info) {
   albums[id] = info;
@@ -35,7 +36,7 @@ function _addAlbumFromSerializedObject(rawAlbum) {
     coverArt: rawAlbum.cover_art,
     date: rawAlbum.date,
     title: rawAlbum.title,
-    tracks: rawAlbum.track_ids.map(function(n) { return '' + n; }),
+    tracks: rawAlbum.track_ids.map((id) => id.toString()),
   });
 }
 
@@ -44,7 +45,7 @@ AlbumStore.dispatchToken = PotsDispatcher.register(function(action) {
 
   switch (action.type) {
     case ActionConstants.RECEIVE_SEARCH_RESULTS:
-      action.albums.forEach(function(rawAlbum) {
+      action.albums.forEach((rawAlbum) => {
         _addAlbumFromSerializedObject(rawAlbum);
         dataChanged = true;
       });
@@ -55,4 +56,4 @@ AlbumStore.dispatchToken = PotsDispatcher.register(function(action) {
   }
 });
 
-module.exports = AlbumStore;
+export default AlbumStore;

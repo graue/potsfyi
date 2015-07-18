@@ -1,41 +1,42 @@
 "use strict";
 
-var ActionConstants = require('../actions/ActionConstants');
-var EventEmitter = require('events').EventEmitter;
-var PotsDispatcher = require('../dispatcher/PotsDispatcher');
-var ServerActionCreators = require('../actions/ServerActionCreators');
-var _ = require('underscore');
-var $ = require('../lib/jquery.shim');
+import ActionConstants from '../actions/ActionConstants';
+import {EventEmitter} from 'events';
+import PotsDispatcher from '../dispatcher/PotsDispatcher';
+import ServerActionCreators from '../actions/ServerActionCreators';
+import $ from '../lib/jquery.shim';
 
-var query = '';
-var results = null;
-var pendingRequest = null;  // A jQuery "jqXHR" object.
+let query = '';
+let results = null;
+let pendingRequest = null;  // A jQuery "jqXHR" object.
 
-var SearchStore = _.extend({}, EventEmitter.prototype, {
-  _emitChange: function() {
+class SearchStoreClass extends EventEmitter {
+  _emitChange() {
     this.emit('change');
-  },
+  }
 
-  addChangeListener: function(cb) {
+  addChangeListener(cb) {
     this.on('change', cb);
-  },
+  }
 
-  removeChangeListener: function(cb) {
+  removeChangeListener(cb) {
     this.removeListener('change', cb);
-  },
+  }
 
-  getQuery: function() {
+  getQuery() {
     return query;
-  },
+  }
 
-  getResults: function() {
+  getResults() {
     return results;
-  },
+  }
 
-  isLoading: function() {
+  isLoading() {
     return !!pendingRequest;
-  },
-});
+  }
+}
+
+let SearchStore = new SearchStoreClass();
 
 function sendSearchRequest(query) {
   // Cancel any request currently being sent, to avoid wasting bandwidth or
@@ -94,4 +95,4 @@ SearchStore.dispatchToken = PotsDispatcher.register(function(action) {
   }
 });
 
-module.exports = SearchStore;
+export default SearchStore;

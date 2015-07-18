@@ -1,29 +1,30 @@
 "use strict";
 
-var ActionConstants = require('../actions/ActionConstants');
-var EventEmitter = require('events').EventEmitter;
-var PotsDispatcher = require('../dispatcher/PotsDispatcher');
-var _ = require('underscore');
+import ActionConstants from '../actions/ActionConstants';
+import {EventEmitter} from 'events';
+import PotsDispatcher from '../dispatcher/PotsDispatcher';
 
-var tracks = {};
+let tracks = {};
 
-var TrackStore = _.extend({}, EventEmitter.prototype, {
-  _emitChange: function() {
+class TrackStoreClass extends EventEmitter {
+  _emitChange() {
     this.emit('change');
-  },
+  }
 
-  addChangeListener: function(cb) {
+  addChangeListener(cb) {
     this.on('change', cb);
-  },
+  }
 
-  removeChangeListener: function(cb) {
+  removeChangeListener(cb) {
     this.removeListener('change', cb);
-  },
+  }
 
-  getTrack: function(id) {
+  getTrack(id) {
     return tracks[id];
-  },
-});
+  }
+}
+
+let TrackStore = new TrackStoreClass();
 
 function _addTrackInfo(id, info) {
   tracks[id] = info;
@@ -44,4 +45,4 @@ TrackStore.dispatchToken = PotsDispatcher.register(function(action) {
   }
 });
 
-module.exports = TrackStore;
+export default TrackStore;
