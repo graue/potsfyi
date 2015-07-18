@@ -6,7 +6,7 @@ import React from 'react';
 import TrackStore from '../stores/TrackStore';
 
 function getStateFromStores() {
-  let art = '/static/img/pattern.png';
+  let art = null;
   const trackId = PlayStatusStore.getPlayingTrack();
   if (trackId != null) {
     const track = TrackStore.getTrack(trackId);
@@ -43,7 +43,9 @@ const CoverArt = React.createClass({
 
   render() {
     const styles = {
-      backgroundImage: 'url(' + encodeURI(this.state.art) + ')',
+      backgroundImage: this.state.art
+        ? 'url(' + encodeURI(this.state.art) + ')'
+        : '',
     };
 
     return (
