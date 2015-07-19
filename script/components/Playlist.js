@@ -73,14 +73,6 @@ const Playlist = React.createClass({
   render() {
     const tracks = this.state.tracks;
 
-    // FIXME: Probably don't really want this goofy message. Maybe show
-    // browse/discovery content instead eventually.
-    const emptyMsg = (
-      <p className="PlaylistEmptyMessage">
-        Nothing in playlist yet. Queue up some tunes!
-      </p>
-    );
-
     const items = tracks.map((track, index) => {
       const isPlaying = index === this.state.playingIndex;
       return (
@@ -95,7 +87,6 @@ const Playlist = React.createClass({
 
     return (
       <div className="Playlist">
-        {tracks.length < 1 && emptyMsg}
         <ul className="PlaylistItems" ref="itemList">
           {items}
         </ul>
