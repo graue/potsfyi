@@ -1,5 +1,8 @@
 "use strict";
 
+// The AlbumStore maps album IDs to album info, including IDs of tracks on
+// the album (which you can then look up in the TrackStore).
+
 import ActionConstants from '../actions/ActionConstants';
 import {EventEmitter} from 'events';
 import PotsDispatcher from '../dispatcher/PotsDispatcher';
