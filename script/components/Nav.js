@@ -3,7 +3,7 @@
 import Icon from './Icon';
 import PlayStatusStore from '../stores/PlayStatusStore';
 import PlaybackActionCreators from '../actions/PlaybackActionCreators';
-import React from 'react/addons';
+import React from 'react';
 import Srt from './Srt';
 
 import cx from 'classnames';

@@ -3,6 +3,7 @@
 import PlayStatusStore from '../stores/PlayStatusStore';
 import PlaybackActionCreators from '../actions/PlaybackActionCreators';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import emptyTrackURI from '../utils/emptyTrackURI';
 import invariant from '../utils/invariant';
 import supportedAudioFormats from '../utils/supportedAudioFormats';
@@ -69,7 +70,7 @@ const Player = React.createClass({
       'Attempted to get audio element, but component not mounted'
     );
 
-    return React.findDOMNode(this.refs.audioEl);
+    return ReactDOM.findDOMNode(this.refs.audioEl);
   },
 
   forceStopDownloading() {

@@ -4,6 +4,7 @@ import PlayStatusStore from '../stores/PlayStatusStore';
 import PlaylistActionCreators from '../actions/PlaylistActionCreators';
 import PlaylistItem from './PlaylistItem';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import TrackStore from '../stores/TrackStore';
 import $ from '../lib/jquery.shim';
 
@@ -45,7 +46,7 @@ const Playlist = React.createClass({
   },
 
   makeSortable() {
-    const rootNode = React.findDOMNode(this.refs.itemList);
+    const rootNode = ReactDOM.findDOMNode(this.refs.itemList);
     $(rootNode).disableSelection().sortable({
       distance: 10,
       stop: (event, ui) => {
@@ -66,7 +67,7 @@ const Playlist = React.createClass({
   },
 
   teardownSortable() {
-    const rootNode = React.findDOMNode(this.refs.itemList);
+    const rootNode = ReactDOM.findDOMNode(this.refs.itemList);
     $(rootNode).sortable('destroy');
   },
 

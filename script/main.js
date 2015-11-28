@@ -2,6 +2,7 @@
 
 import App from './components/App';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import $ from './lib/jquery.shim';
 import auth from './auth';
 
@@ -22,8 +23,8 @@ $(function() {
     window.logout = () => { auth.logOut(); };
   }
 
-  React.render(
-    React.createElement(App),
+  ReactDOM.render(
+    <App />,
     document.getElementById('app-container')
   );
 });

@@ -12,7 +12,8 @@
     "es6-promise": "^2.0.1",
     "jquery": "1.8.3",
     "keymirror": "^0.1.1",
-    "react": "~0.13.3",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
     "react-spinner": "^0.2.2",
     "underscore": "1.4.4"
   },

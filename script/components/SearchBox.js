@@ -2,6 +2,7 @@
 
 import AlbumStore from '../stores/AlbumStore';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import SearchActionCreators from '../actions/SearchActionCreators';
 import SearchResultsDropdown from './SearchResultsDropdown';
 import SearchStore from '../stores/SearchStore';
@@ -88,10 +89,11 @@ const SearchBox = React.createClass({
         return;
       }
       if (
-        document.activeElement !== React.findDOMNode(this.refs.input) &&
+        document.activeElement !== ReactDOM.findDOMNode(this.refs.input) &&
         (
           !this.isDropdownPresent() ||
-          !React.findDOMNode(this.refs.dropdown).contains(document.activeElement)
+          !ReactDOM.findDOMNode(this.refs.dropdown)
+            .contains(document.activeElement)
         )
       ) {
         this.handleBlur(e);
@@ -108,7 +110,7 @@ const SearchBox = React.createClass({
   },
 
   focus() {
-    let node = React.findDOMNode(this.refs.input);
+    let node = ReactDOM.findDOMNode(this.refs.input);
     node.focus();
     node.select();
   },

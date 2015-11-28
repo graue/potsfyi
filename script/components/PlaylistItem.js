@@ -3,7 +3,7 @@
 import Icon from './Icon';
 import PlaybackActionCreators from '../actions/PlaybackActionCreators';
 import PlaylistActionCreators from '../actions/PlaylistActionCreators';
-import React from 'react/addons';
+import React from 'react';
 
 import cx from 'classnames';
 
