@@ -1,6 +1,6 @@
 "use strict";
 
-import keyMirror from 'react/lib/keyMirror';
+import keyMirror from 'keymirror';
 
 let ActionConstants = keyMirror({
   CHANGE_SEARCH_QUERY: null,

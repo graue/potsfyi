@@ -2,7 +2,7 @@
 
 import React, {PropTypes} from 'react';
 import Srt from './Srt';
-import keyMirror from 'react/lib/keyMirror';
+import keyMirror from 'keymirror';
 
 // Webfont-based icons that are intended to be reasonably accessible to
 // screen reader users, inspired by the suggestions at:
