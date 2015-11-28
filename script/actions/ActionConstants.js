@@ -1,4 +1,5 @@
 "use strict";
+// @flow
 
 import keyMirror from 'keymirror';
 

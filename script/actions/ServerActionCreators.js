@@ -1,10 +1,11 @@
 "use strict";
+// @flow
 
 import ActionConstants from './ActionConstants';
 import PotsDispatcher from '../dispatcher/PotsDispatcher';
 
 class ServerActionCreators {
-  static receiveSearchResults(query, responseObj) {
+  static receiveSearchResults(query: string, responseObj: Object) {
     PotsDispatcher.dispatch({
       forQuery: query,
       albums: responseObj.albums,

@@ -1,4 +1,5 @@
 "use strict";
+// @flow
 
 import Dispatcher from './Dispatcher';
 

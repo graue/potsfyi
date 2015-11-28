@@ -1,10 +1,11 @@
 "use strict";
+// @flow
 
 import ActionConstants from './ActionConstants';
 import PotsDispatcher from '../dispatcher/PotsDispatcher';
 
 class PlaybackActionCreators {
-  static playTrack(indexOrNull) {
+  static playTrack(indexOrNull: ?number) {
     PotsDispatcher.dispatch({
       type: ActionConstants.PLAY_TRACK,
       index: indexOrNull,

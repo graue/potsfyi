@@ -1,3 +1,4 @@
+// @flow
 // Implements a Flux dispatcher.
 // See https://github.com/facebook/flux.
 //
@@ -9,7 +10,18 @@
 
 "use strict";
 
+type Listener = {
+  callback: (payload: Object) => void,
+  handled: boolean,
+  pending: boolean,
+};
+
 class Dispatcher {
+  _dispatching: boolean;
+  _lastID: number;
+  _listeners: Map<number, Listener>;
+  _pendingPayload: ?Object;
+
   constructor() {
     this._listeners = new Map();
     this._lastID = -1;
@@ -18,7 +30,7 @@ class Dispatcher {
     this._dispatching = false;
   }
 
-  register(cb) {
+  register(cb: (payload: Object) => void): number {
     let id = ++this._lastID;
 
     // A listener is an object with a callback field plus bookkeeping fields
@@ -32,7 +44,7 @@ class Dispatcher {
     return id;
   }
 
-  unregister(id) {
+  unregister(id: number) {
     if (!this._listeners.has(id)) {
       throw new Error('Not an active listener: ' + id);
     }
@@ -41,7 +53,7 @@ class Dispatcher {
     this._listeners.delete(id);
   }
 
-  dispatch(payload) {
+  dispatch(payload: Object) {
     if (this._dispatching) {
       throw new Error('Cannot dispatch from within a dispatch');
     }
@@ -58,16 +70,16 @@ class Dispatcher {
     }
   }
 
-  waitFor(ids) {
+  waitFor(ids: Array<number>) {
     if (!this._dispatching) {
       throw new Error('waitFor can only be called within a dispatch');
     }
 
     ids.forEach((id) => {
-      if (!this._listeners.has(id)) {
+      const listener = this._listeners.get(id);
+      if (!listener) {
         throw new Error('Not an active listener: ' + id);
       }
-      const listener = this._listeners.get(id);
 
       if (!listener.pending) {
         this._invoke(listener);
@@ -79,13 +91,14 @@ class Dispatcher {
     });
   }
 
-  _invoke(listener) {
+  _invoke(listener: Listener) {
     listener.pending = true;
+    // $FlowFixMe: _pendingPayload should never be null during dispatch
     listener.callback(this._pendingPayload);
     listener.handled = true;
   }
 
-  _startDispatch(payload) {
+  _startDispatch(payload: Object) {
     this._pendingPayload = payload;
     this._dispatching = true;
 
