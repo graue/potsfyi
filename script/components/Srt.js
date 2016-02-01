@@ -12,14 +12,11 @@ import React, {PropTypes} from 'react';
 // text for screen readers when used in a standalone way, but without putting
 // spaces in between, you'd end up with "Previous TrackPauseNext Track".
 
-const Srt = React.createClass({
-  propTypes: {
-    text: PropTypes.string.isRequired,
-  },
-
-  render: function() {
-    return <span className="screen-reader-text">{this.props.text}</span>;
-  },
-});
+const Srt = ({text}) => (
+  <span className="screen-reader-text">{text}</span>
+);
+Srt.propTypes = {
+  text: PropTypes.string.isRequired,
+};
 
 export default Srt;
