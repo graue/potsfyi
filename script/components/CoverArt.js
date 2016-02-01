@@ -20,26 +20,27 @@ function getStateFromStores() {
   return {art};
 }
 
-const CoverArt = React.createClass({
-  getInitialState() {
-    return getStateFromStores();
-  },
+class CoverArt extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = getStateFromStores();
+  }
 
   componentDidMount() {
     AlbumStore.addChangeListener(this.handleChange);
     PlayStatusStore.addChangeListener(this.handleChange);
     TrackStore.addChangeListener(this.handleChange);
-  },
+  }
 
   componentWillUnmount() {
     AlbumStore.removeChangeListener(this.handleChange);
     PlayStatusStore.removeChangeListener(this.handleChange);
     TrackStore.removeChangeListener(this.handleChange);
-  },
+  }
 
-  handleChange() {
+  handleChange = () => {
     this.setState(getStateFromStores());
-  },
+  };
 
   render() {
     const styles = {
@@ -51,7 +52,7 @@ const CoverArt = React.createClass({
     return (
       <div className="CoverArt" style={styles} />
     );
-  },
-});
+  }
+}
 
 export default CoverArt;

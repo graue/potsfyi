@@ -4,7 +4,7 @@ import CoverArt from './CoverArt';
 import PlaylistArea from './PlaylistArea';
 import React from 'react';
 
-const MainContentContainer = React.createClass({
+class MainContentContainer extends React.Component {
   render() {
     return (
       <div className="MainContentContainer">
@@ -12,7 +12,7 @@ const MainContentContainer = React.createClass({
         <PlaylistArea {...this.props} />
       </div>
     );
-  },
-});
+  }
+}
 
 export default MainContentContainer;

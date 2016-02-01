@@ -3,7 +3,7 @@
 import Icon from './Icon';
 import React from 'react';
 
-const DropdownMenu = React.createClass({
+class DropdownMenu extends React.Component {
   render() {
     // TODO: Make it actually bring down a menu when clicked
     return (
@@ -11,7 +11,7 @@ const DropdownMenu = React.createClass({
         <Icon name={Icon.NAMES.LIST} alt="Dropdown menu" />
       </div>
     );
-  },
-});
+  }
+}
 
 export default DropdownMenu;

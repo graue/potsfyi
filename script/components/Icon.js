@@ -25,14 +25,15 @@ const NAME_TO_CHARCODE = {
 
 const ICON_NAMES = keyMirror(NAME_TO_CHARCODE);
 
-let Icon = React.createClass({
-  propTypes: {
+class Icon extends React.Component {
+  static NAMES = ICON_NAMES;
+  static propTypes = {
     alt: PropTypes.string,  // Alt text for a11y. Should be present if
                             // icon is used standalone.
     className: PropTypes.string,
     name: PropTypes.oneOf(Object.keys(ICON_NAMES)).isRequired,
     onClick: PropTypes.func,
-  },
+  };
 
   render() {
     const character = String.fromCharCode(NAME_TO_CHARCODE[this.props.name]);
@@ -52,9 +53,7 @@ let Icon = React.createClass({
         {possibleAltText}
       </span>
     );
-  },
-});
-
-Icon.NAMES = ICON_NAMES;
+  }
+}
 
 export default Icon;
