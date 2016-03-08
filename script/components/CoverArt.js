@@ -1,11 +1,15 @@
 "use strict";
+// @flow
 
 import AlbumStore from '../stores/AlbumStore';
 import PlayStatusStore from '../stores/PlayStatusStore';
 import React from 'react';
 import TrackStore from '../stores/TrackStore';
 
-function getStateFromStores() {
+type Props = {};
+type State = {art: ?string};
+
+function getStateFromStores(): State {
   let art = null;
   const trackId = PlayStatusStore.getPlayingTrack();
   if (trackId != null) {
@@ -21,7 +25,10 @@ function getStateFromStores() {
 }
 
 class CoverArt extends React.Component {
-  constructor(props) {
+  props: Props;
+  state: State;
+
+  constructor(props: Props) {
     super(props);
     this.state = getStateFromStores();
   }
@@ -38,11 +45,11 @@ class CoverArt extends React.Component {
     TrackStore.removeChangeListener(this.handleChange);
   }
 
-  handleChange = () => {
+  handleChange: () => void = () => {
     this.setState(getStateFromStores());
   };
 
-  render() {
+  render(): React.Element {
     const styles = {
       backgroundImage: this.state.art
         ? 'url(' + encodeURI(this.state.art) + ')'
