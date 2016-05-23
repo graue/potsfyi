@@ -4,7 +4,7 @@
 import Dispatcher from './Dispatcher';
 import {unstable_batchedUpdates as batchedUpdates} from 'react-dom';
 
-class PotsDispatcher extends Dispatcher {
+class PotsDispatcherClass extends Dispatcher {
   _dispatch: (payload: Object) => void;
 
   constructor() {
@@ -16,4 +16,8 @@ class PotsDispatcher extends Dispatcher {
   }
 }
 
-export default new PotsDispatcher();
+const PotsDispatcher = new PotsDispatcherClass();
+
+PotsDispatcher.register(action => console.info(action.type, action));
+
+export default PotsDispatcher;
