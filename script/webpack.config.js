@@ -9,7 +9,15 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader?stage=1&optional[]=runtime',
+        loader: 'babel',
+        query: {
+          presets: ['react', 'es2015'],
+          plugins: [
+            'transform-runtime',
+            'transform-object-rest-spread',
+            'transform-class-properties',
+          ],
+        },
       },
       {
         test: /\.css$/,
