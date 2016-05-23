@@ -3,7 +3,6 @@
 import PlayStatusStore from '../stores/PlayStatusStore';
 import PlaybackActionCreators from '../actions/PlaybackActionCreators';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import emptyTrackURI from '../utils/emptyTrackURI';
 import invariant from '../utils/invariant';
 import supportedAudioFormats from '../utils/supportedAudioFormats';
@@ -21,10 +20,13 @@ function getStateFromStores() {
   // on the fly).
   const filename = '/track/' + trackId + '/' + supportedAudioFormats();
 
+  const initialTrackTime = PlayStatusStore.getInitialTrackTime();
+
   return {
     haveTrack: true,
     filename,
     paused: PlayStatusStore.getTrackPlayStatus().paused,
+    initialTrackTime,
   };
 }
 
@@ -43,9 +45,7 @@ const Player = React.createClass({
     this.getAudioElement().addEventListener('ended', this.handleEnded);
 
     if (this.state.haveTrack) {
-      if (!this.state.paused) {
-        this.getAudioElement().play();
-      }
+      this._startNewTrack();
     }
   },
 
@@ -54,6 +54,15 @@ const Player = React.createClass({
     // in app...
     PlayStatusStore.removeChangeListener(this.handleChange);
     this.forceStopDownloading();
+  },
+
+  _startNewTrack(time, paused) {
+    if (time != null) {
+      this.getAudioElement().currentTime = time;
+    }
+    if (!paused) {
+      this.getAudioElement().play();
+    }
   },
 
   handleChange() {
@@ -70,7 +79,7 @@ const Player = React.createClass({
       'Attempted to get audio element, but component not mounted'
     );
 
-    return ReactDOM.findDOMNode(this.refs.audioEl);
+    return this.refs.audioEl;
   },
 
   forceStopDownloading() {
@@ -104,9 +113,7 @@ const Player = React.createClass({
     if (this.state.haveTrack) {
       if (!prevState.haveTrack || this.state.filename !== prevState.filename) {
         // new track
-        if (!this.state.paused) {
-          this.getAudioElement().play();
-        }
+        this._startNewTrack(this.state.initialTrackTime, this.state.paused);
       } else if (this.state.paused && !prevState.paused) {
         this.getAudioElement().pause();
       } else if (!this.state.paused && prevState.paused) {

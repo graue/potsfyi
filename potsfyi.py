@@ -92,6 +92,35 @@ transcoder = Transcoder(
 )
 
 
+@app.route('/hydrate')
+@login_required
+def hydrate():
+    """ Given a comma-separated list of track IDs, return info about each
+    track and its album if any. """
+    track_ids_string = request.args.get('tracks', '')
+    track_ids = set([int(id) for id in track_ids_string.split(',')])
+
+    tracks = [
+        Track.query.filter(Track.id == id).one()
+        for id in track_ids
+    ]
+
+    album_ids = set([t.album_id for t in tracks])
+    album_ids.discard(None)  # Whoops, some tracks aren't on an album.
+
+    albums = [
+        Album.query.filter(Album.id == id).one()
+        for id in album_ids
+    ]
+
+    response = {
+        'albums': [a.serialize for a in albums],
+        'tracks': [t.serialize for t in tracks],
+    }
+
+    return jsonify(response)
+
+
 @app.route('/search')
 @login_required
 def search_results():

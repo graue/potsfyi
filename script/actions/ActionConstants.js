@@ -14,6 +14,9 @@ let ActionConstants = keyMirror({
   ADD_TO_PLAYLIST: null,
   REMOVE_FROM_PLAYLIST: null,
   REORDER_PLAYLIST: null,
+
+  LOAD_WITH_SAVED_PLAYLIST: null,
+  HYDRATE_SAVED_PLAYLIST: null,
 });
 
 export default ActionConstants;

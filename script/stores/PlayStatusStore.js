@@ -1,8 +1,11 @@
 "use strict";
 
 import ActionConstants from '../actions/ActionConstants';
+import * as Adler32 from 'adler-32';
+import AlbumStore from './AlbumStore';
 import {EventEmitter} from 'events';
 import PotsDispatcher from '../dispatcher/PotsDispatcher';
+import TrackStore from './TrackStore';
 import invariant from '../utils/invariant';
 
 const NO_PLAYING_INDEX = -1;
@@ -17,9 +20,9 @@ function createNonce() {
 
 let playlist = [];  // Tuples of [track ID, nonce].
 let playingIndex = NO_PLAYING_INDEX;
+let initialTrackTime = null;  // When hydrating a saved playlist.
 let trackPlayStatus = {
   paused: false,
-  // TODO: Add time offset in track, to enable seeking.
 };
 
 class PlayStatusStoreClass extends EventEmitter {
@@ -37,6 +40,10 @@ class PlayStatusStoreClass extends EventEmitter {
 
   getTracksWithKeys() {
     return playlist;
+  }
+
+  getInitialTrackTime() {
+    return initialTrackTime;
   }
 
   getPlayingIndex() {
@@ -125,6 +132,7 @@ PlayStatusStore.dispatchToken = PotsDispatcher.register(function(action) {
       break;
 
     case ActionConstants.REMOVE_FROM_PLAYLIST:
+      initialTrackTime = null;
       playlist.splice(action.index, 1);
       if (playingIndex !== NO_PLAYING_INDEX && playingIndex > action.index) {
         // We deleted a track before the currently playing track.
@@ -143,6 +151,7 @@ PlayStatusStore.dispatchToken = PotsDispatcher.register(function(action) {
         'Out of range track play'
       );
       if (trackPlayStatus.paused || action.index !== playingIndex) {
+        initialTrackTime = null;
         trackPlayStatus.paused = false;
         playingIndex = action.index;
         // TODO: If index has changed, set time to 0 seconds (once time in
@@ -153,6 +162,7 @@ PlayStatusStore.dispatchToken = PotsDispatcher.register(function(action) {
 
     case ActionConstants.PAUSE_TRACK:
       if (!trackPlayStatus.paused) {
+        initialTrackTime = null;
         trackPlayStatus.paused = true;
         PlayStatusStore._emitChange();
       }
@@ -163,12 +173,73 @@ PlayStatusStore.dispatchToken = PotsDispatcher.register(function(action) {
         !trackPlayStatus.paused && playingIndex !== NO_PLAYING_INDEX,
         'Track ended action received while paused or stopped'
       );
+      initialTrackTime = null;
       if (++playingIndex === playlist.length) {
         playingIndex = NO_PLAYING_INDEX;
       }
       PlayStatusStore._emitChange();
       break;
+
+    case ActionConstants.HYDRATE_SAVED_PLAYLIST:
+      hydrate(action);
+      PlayStatusStore._emitChange();
+      break;
   }
 });
+
+function hydrate(action) {
+  const {
+    savedPlaylistItems,
+    savedIndex,
+    wasPaused,
+    trackTime,
+    tracks,
+  } = action;
+
+  const tracksAsMap = tracks.reduce((obj, track) => {
+    obj[track.id] = track;
+    return obj;
+  }, {});
+
+  let filteredIndex = savedIndex;
+
+  // Filter out any items not found or not matching
+  const filteredTrackIds = savedPlaylistItems.filter((item, index) => {
+    if (
+      tracksAsMap[item.id]
+      && Adler32.str(
+        tracksAsMap[item.id].artist
+        + tracksAsMap[item.id].title
+      ) === item.checksum
+    ) {
+      return true;
+    }
+    // Update play head to account for removed track
+    if (index === savedIndex) {
+      filteredIndex = -1;
+    } else if (index < savedIndex) {
+      filteredIndex--;
+    }
+    return false;
+  }).map(item => item.id);
+
+  if (filteredTrackIds.length === 0) {
+    return;
+  }
+
+  const startingPlaylistLength = playlist.length;
+  playlist = playlist.concat(
+    filteredTrackIds.map((trackId) => [trackId, createNonce()])
+  );
+  if (filteredIndex !== -1) {
+    playingIndex = filteredIndex + startingPlaylistLength;
+    trackPlayStatus.paused = wasPaused;
+    // Only seek to the previous track time if we're going to start playing
+    // immediately.
+    if (!wasPaused) {
+      initialTrackTime = trackTime;
+    }
+  }
+}
 
 export default PlayStatusStore;

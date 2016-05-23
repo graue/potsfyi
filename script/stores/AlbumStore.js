@@ -45,6 +45,7 @@ AlbumStore.dispatchToken = PotsDispatcher.register(function(action) {
 
   switch (action.type) {
     case ActionConstants.RECEIVE_SEARCH_RESULTS:
+    case ActionConstants.HYDRATE_SAVED_PLAYLIST:
       action.albums.forEach((rawAlbum) => {
         _addAlbumFromSerializedObject(rawAlbum);
         dataChanged = true;
