@@ -1,6 +1,14 @@
 "use strict";
+// @flow
 
-function ajaxPost(url, data, success, error) {
+import $ from './lib/jquery.shim';
+
+function ajaxPost(
+  url: string,
+  data: string | {[key: string]: string},
+  success: Function,
+  error: Function
+) {
   $.ajax({
     type: 'POST',
     url: url,
@@ -10,7 +18,7 @@ function ajaxPost(url, data, success, error) {
   });
 }
 
-function gotAssertion(assertion) {
+function gotAssertion(assertion: string) {
   if (!assertion) {
     return;
   }
@@ -43,10 +51,12 @@ function logoutCallback() {
 export function attachLoginButtonHandler() {
   $('#browserid-login').on('click', function(event) {
     event.preventDefault();
+    // $FlowFixMe added via monkey-patching by Persona script
     navigator.id.get(gotAssertion);
   });
 }
 
 export function logOut() {
+  // $FlowFixMe added via monkey-patching by Persona script
   navigator.id.logout(logoutCallback);
 }

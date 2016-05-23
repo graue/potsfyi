@@ -1,4 +1,5 @@
 "use strict";
+// @flow
 
 import App from './components/App';
 import React from 'react';
