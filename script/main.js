@@ -4,7 +4,7 @@ import App from './components/App';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from './lib/jquery.shim';
-import auth from './auth';
+import * as auth from './auth';
 
 $(function() {
   if (window.loginEnabled) {
