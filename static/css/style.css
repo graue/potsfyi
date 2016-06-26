@@ -44,6 +44,7 @@ a {
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
+  padding: 0 12px;
 }
 
 .MainContentContainer {
@@ -108,17 +109,11 @@ a {
 
 .Nav {
   font-size: 20px;
-  margin-left: 100px; /* FIXME: get rid of this hardcoding, bad on phone */
 }
 
 .SearchBox {
   margin-left: 10px;
   position: relative; /* Need this so dropdown can position itself. */
-}
-
-.DropdownMenuTrigger {
-  font-size: 24px;
-  margin-right: 10px;
 }
 
 .SearchBoxInput {
