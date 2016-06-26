@@ -15,10 +15,12 @@ body {
 }
 
 #app-container {
+  background-color: #ccc;
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   flex-grow: 1;
   height: 100%;
+  justify-content: space-around;
 }
 
 #app {
@@ -26,7 +28,7 @@ body {
   flex-flow: column nowrap;
   align-items: stretch;
   height: 100%;
-  flex-grow: 1;
+  flex: 0 1 1200px;
 }
 
 a {
@@ -36,7 +38,7 @@ a {
 
 .UIBar {
   height: 36px;
-  background: #2d2d2d;
+  background: #383c48;
   color: #eeefee;
   display: flex;
   flex-flow: row nowrap;
@@ -45,7 +47,6 @@ a {
 }
 
 .MainContentContainer {
-  background-color: #cccccc;
   display: flex;
   flex-flow: row nowrap;
   align-items: stretch;
