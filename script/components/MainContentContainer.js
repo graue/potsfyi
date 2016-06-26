@@ -4,6 +4,8 @@ import CoverArt from './CoverArt';
 import PlaylistArea from './PlaylistArea';
 import React from 'react';
 
+import './MainContentContainer.css';
+
 class MainContentContainer extends React.Component {
   render() {
     return (

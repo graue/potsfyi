@@ -8,6 +8,8 @@ import Srt from './Srt';
 
 import cx from 'classnames';
 
+import './Nav.css';
+
 function getStateFromStores() {
   return {
     index: PlayStatusStore.getPlayingIndex(),
@@ -61,8 +63,8 @@ const Nav = React.createClass({
       <div className="Nav">
         <Icon
           className={cx({
-            NavButton: true,
-            NavButtonDisabled: !canPrev,
+            Nav_Button: true,
+            Nav_ButtonDisabled: !canPrev,
           })}
           name={Icon.NAMES.PREVIOUS}
           alt="Previous Track"
@@ -71,8 +73,8 @@ const Nav = React.createClass({
         <Srt text=" " />
         <Icon
           className={cx({
-            NavButton: true,
-            NavButtonDisabled: !(canPlay || canPause),
+            Nav_Button: true,
+            Nav_ButtonDisabled: !(canPlay || canPause),
           })}
           name={canPause ? Icon.NAMES.PAUSE : Icon.NAMES.PLAY}
           alt={canPause ? 'Pause' : 'Play'}
@@ -81,8 +83,8 @@ const Nav = React.createClass({
         <Srt text=" " />
         <Icon
           className={cx({
-            NavButton: true,
-            NavButtonDisabled: !canNext,
+            Nav_Button: true,
+            Nav_ButtonDisabled: !canNext,
           })}
           name={Icon.NAMES.NEXT}
           alt="Next Track"

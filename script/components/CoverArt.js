@@ -6,6 +6,8 @@ import PlayStatusStore from '../stores/PlayStatusStore';
 import React from 'react';
 import TrackStore from '../stores/TrackStore';
 
+import './CoverArt.css';
+
 type Props = {};
 type State = {art: ?string};
 

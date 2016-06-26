@@ -5,6 +5,8 @@ import PlayStatusStore from '../stores/PlayStatusStore';
 import Playlist from './Playlist';
 import React from 'react';
 
+import './PlaylistArea.css';
+
 function getStateFromStores() {
   return {
     Component: PlayStatusStore.isPlaylistEmpty() ? ArtistList : Playlist,

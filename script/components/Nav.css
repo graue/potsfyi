@@ -1,0 +1,11 @@
+.Nav {
+  font-size: 20px;
+}
+
+.Nav_Button {
+  margin-right: 15px;
+}
+
+.Nav_ButtonDisabled {
+  color: #aaa;
+}

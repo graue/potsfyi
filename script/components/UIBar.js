@@ -4,6 +4,8 @@ import Nav from './Nav';
 import React from 'react';
 import SearchArea from './SearchArea';
 
+import './UIBar.css';
+
 const UIBar = React.createClass({
   render() {
     return (

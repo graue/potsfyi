@@ -1,0 +1,11 @@
+.SearchResultItem_Link {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.SearchResultItem_Spinner {
+  float: right;
+  width: 16px;
+  height: 16px;
+}
+

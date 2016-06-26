@@ -8,6 +8,8 @@ import SearchResultsDropdown from './SearchResultsDropdown';
 import SearchStore from '../stores/SearchStore';
 import TrackStore from '../stores/TrackStore';
 
+import './SearchBox.css';
+
 // Don't fire off a query until you stop typing in the search box for this
 // many milliseconds.
 const SEARCH_DEBOUNCE_TIME = 200;
@@ -162,7 +164,7 @@ const SearchBox = React.createClass({
     return (
       <span className="SearchBox">
         <input
-          className="SearchBoxInput"
+          className="SearchBox_Input"
           onBlur={this.handlePossibleBlur}
           onChange={this.handleInput}
           onFocus={this.handleFocus}

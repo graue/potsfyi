@@ -4,6 +4,8 @@ import PlaylistActionCreators from '../actions/PlaylistActionCreators';
 import React, {PropTypes} from 'react';
 import Spinner from './Spinner';
 
+import './SearchResultItem.css';
+
 const SearchResultItem = React.createClass({
   propTypes: {
     isAlbum: PropTypes.bool.isRequired,
@@ -41,7 +43,7 @@ const SearchResultItem = React.createClass({
       <li className="SearchResultItem">
         {this.maybeRenderSpinner()}
         <a
-          className="SearchResultItemLink"
+          className="SearchResultItem_Link"
           href="#"
           onBlur={this.props.onBlur}
           onClick={this.handleClick}>

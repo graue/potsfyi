@@ -8,6 +8,8 @@ import ReactDOM from 'react-dom';
 import TrackStore from '../stores/TrackStore';
 import $ from '../lib/jquery.shim';
 
+import './Playlist.css';
+
 function getStateFromStores() {
   return {
     playingIndex: PlayStatusStore.getPlayingIndex(),
@@ -88,7 +90,7 @@ const Playlist = React.createClass({
 
     return (
       <div className="Playlist">
-        <ul className="PlaylistItems" ref="itemList">
+        <ul className="Playlist_Items" ref="itemList">
           {items}
         </ul>
       </div>

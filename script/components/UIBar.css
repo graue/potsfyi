@@ -1,0 +1,10 @@
+.UIBar {
+  height: 36px;
+  background: #383c48;
+  color: #eeefee;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}

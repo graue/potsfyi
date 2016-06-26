@@ -1,0 +1,20 @@
+.PlaylistItem {
+  font-size: 13px;
+  padding-right: 15px;  /* Leaves room for PlaylistItemRemoveLink */
+}
+
+.PlaylistItem_PlayingIndicator {
+  position: absolute;
+  left: 0;
+}
+
+.PlaylistItem_RemoveLink {
+  position: absolute;
+  right: 3px;  /* Playlist's right padding provides room for this */
+  color: #222;
+  visibility: hidden;
+}
+
+.PlaylistItem:hover .PlaylistItem_RemoveLink {
+  visibility: visible;
+}

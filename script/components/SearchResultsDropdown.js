@@ -4,6 +4,8 @@ import React, {PropTypes} from 'react';
 import SearchResultItem from './SearchResultItem';
 import Spinner from './Spinner';
 
+import './SearchResultsDropdown.css';
+
 class SearchResultsDropdown extends React.Component {
   render() {
     let {isLoading, items, onBlur} = this.props;

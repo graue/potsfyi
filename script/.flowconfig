@@ -9,3 +9,4 @@
 [options]
 suppress_comment= \\(.\\|\n\\)*\\$FlowFixMe
 esproposal.class_instance_fields=enable
+module.name_mapper='^.*\.css$' -> '<PROJECT_ROOT>/lib/CSSModule.js.flow'

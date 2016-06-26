@@ -1,0 +1,8 @@
+.SearchBox {
+  margin-left: 10px;
+  position: relative; /* Need this so dropdown can position itself. */
+}
+
+.SearchBox_Input {
+  width: 250px;
+}

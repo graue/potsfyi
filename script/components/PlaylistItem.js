@@ -7,6 +7,8 @@ import React from 'react';
 
 import cx from 'classnames';
 
+import './PlaylistItem.css';
+
 const PlaylistItem = React.createClass({
   handleClick() {
     // FIXME: sortIndex is the wrong name for the prop, since here we're using
@@ -23,7 +25,7 @@ const PlaylistItem = React.createClass({
 
     const classes = cx({
       PlaylistItem: true,
-      PlaylistItemPlaying: this.props.isPlaying
+      PlaylistItem_Playing: this.props.isPlaying,
     });
 
     let playingIndicator = '';
@@ -33,7 +35,7 @@ const PlaylistItem = React.createClass({
       // (Little confusing otherwise to see the same symbol here that's used
       // for the play button.)
       playingIndicator = (
-        <span className="PlaylistItemPlayingIndicator">
+        <span className="PlaylistItem_PlayingIndicator">
           <Icon name={Icon.NAMES.PLAY} alt="Current playing: " />
         </span>
       );
@@ -45,17 +47,17 @@ const PlaylistItem = React.createClass({
         data-idx={this.props.sortIndex}>
         <span onClick={this.handleClick}>
           {playingIndicator}
-          <span className="PlaylistItemArtist">
+          <span className="PlaylistItem_Artist">
             {track.artist}
           </span>
           {' — '}
-          <span className="PlaylistItemTitle">
+          <span className="PlaylistItem_Title">
             {track.title}
           </span>
         </span>
         <Icon
           alt="Remove"
-          className="PlaylistItemRemoveLink"
+          className="PlaylistItem_RemoveLink"
           name={Icon.NAMES.X}
           onClick={this.handleRemoveClick}
           />
