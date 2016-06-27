@@ -11,7 +11,7 @@ const UIBar = React.createClass({
     return (
       <div className="UIBar">
         <Nav />
-        <SearchArea {...this.props} />
+        <SearchArea />
       </div>
     );
   },

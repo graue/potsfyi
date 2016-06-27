@@ -10,8 +10,8 @@ class MainContentContainer extends React.Component {
   render() {
     return (
       <div className="MainContentContainer">
-        <CoverArt {...this.props} />
-        <PlaylistArea {...this.props} />
+        <CoverArt />
+        <PlaylistArea />
       </div>
     );
   }
