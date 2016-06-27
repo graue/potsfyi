@@ -3,13 +3,22 @@
 import Icon from './Icon';
 import PlaybackActionCreators from '../actions/PlaybackActionCreators';
 import PlaylistActionCreators from '../actions/PlaylistActionCreators';
-import React from 'react';
+import React, {PropTypes} from 'react';
 
 import cx from 'classnames';
 
 import './PlaylistItem.css';
 
 const PlaylistItem = React.createClass({
+  propTypes: {
+    sortIndex: PropTypes.number.isRequired,
+    isPlaying: PropTypes.bool.isRequired,
+    track: PropTypes.shape({
+      artist: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
+    }).isRequired,
+  },
+
   handleClick() {
     // FIXME: sortIndex is the wrong name for the prop, since here we're using
     // it for something that clearly isn't sorting.
