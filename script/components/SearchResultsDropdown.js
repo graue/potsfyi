@@ -7,6 +7,14 @@ import Spinner from './Spinner';
 import './SearchResultsDropdown.css';
 
 class SearchResultsDropdown extends React.Component {
+  static propTypes = {
+    isLoading: PropTypes.bool.isRequired,
+    items: PropTypes.arrayOf(PropTypes.shape({
+      isAlbum: PropTypes.bool.isRequired,
+    })).isRequired,
+    onBlur: PropTypes.func.isRequired,
+  };
+
   render() {
     let {isLoading, items, onBlur} = this.props;
 
@@ -42,12 +50,5 @@ class SearchResultsDropdown extends React.Component {
     );
   }
 }
-SearchResultsDropdown.propTypes = {
-  isLoading: PropTypes.bool,
-  items: PropTypes.arrayOf(PropTypes.shape({
-    isAlbum: PropTypes.bool,
-  })),
-  onBlur: PropTypes.func.isRequired,
-};
 
 export default SearchResultsDropdown;
