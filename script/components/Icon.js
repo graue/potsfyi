@@ -1,4 +1,5 @@
 "use strict";
+// @flow
 
 import React, {PropTypes} from 'react';
 import Srt from './Srt';
@@ -12,7 +13,7 @@ import keyMirror from 'keymirror';
 // the names in here.
 //
 // In the meantime, just a few icons we plan to use are here.
-const NAME_TO_CHARCODE = {
+const NAME_TO_CHARCODE: {[key: string]: number} = {
   LIST: 0xf169,
   X: 0xf217,
   PLUS: 0xf199,
@@ -35,7 +36,14 @@ class Icon extends React.Component {
     onClick: PropTypes.func,
   };
 
-  render() {
+  props: {
+    alt?: string,
+    className?: string,
+    name: string,
+    onClick?: (e: SyntheticMouseEvent) => mixed,
+  };
+
+  render(): React.Element {
     const character = String.fromCharCode(NAME_TO_CHARCODE[this.props.name]);
     const iconSpan = <span aria-hidden="true" data-icon={character} />;
     let classes = this.props.className || '';
