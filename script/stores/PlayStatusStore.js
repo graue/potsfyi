@@ -181,6 +181,10 @@ PlayStatusStore.dispatchToken = PotsDispatcher.register(function(action) {
       break;
 
     case ActionConstants.HYDRATE_SAVED_PLAYLIST:
+      PotsDispatcher.waitFor([
+        AlbumStore.dispatchToken,
+        TrackStore.dispatchToken,
+      ]);
       hydrate(action);
       PlayStatusStore._emitChange();
       break;
