@@ -1,0 +1,2 @@
+Already converted: App, CoverArt, Nav
+Still to go: Player, Playlist, PlaylistArea, SearchBox

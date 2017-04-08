@@ -37,10 +37,10 @@ class Icon extends React.Component {
   };
 
   props: {
-    alt?: string,
-    className?: string,
+    alt: ?string,
+    className: ?string,
     name: string,
-    onClick?: (e: SyntheticMouseEvent) => mixed,
+    onClick: ?(e: SyntheticMouseEvent) => mixed,
   };
 
   render(): React.Element {

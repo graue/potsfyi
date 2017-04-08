@@ -1,63 +1,106 @@
 "use strict";
+// @flow
 
-import Icon from './Icon';
-import PlayStatusStore from '../stores/PlayStatusStore';
-import PlaybackActionCreators from '../actions/PlaybackActionCreators';
-import React from 'react';
-import Srt from './Srt';
-
+import {
+  playTrack,
+  pauseTrack,
+} from '../actions/ActionCreators';
+import type {Action} from '../actions/ActionCreators';
 import cx from 'classnames';
+import Icon from './Icon';
+import invariant from 'invariant';
+import React from 'react';
+import {connect} from 'react-redux';
+import {
+  canNext,
+  canPause,
+  canPlay,
+  canPrev,
+} from '../selectors/selectors';
+import Srt from './Srt';
 
 import './Nav.css';
 
-function getStateFromStores() {
+type ReduxState = any;
+
+type NavStateProps = {
+  index: ?number,
+  paused: boolean,
+  canPrev: boolean,
+  canNext: boolean,
+  canPlay: boolean,
+  canPause: boolean,
+};
+
+function mapStateToProps(state: ReduxState): NavStateProps {
   return {
-    index: PlayStatusStore.getPlayingIndex(),
-    paused: PlayStatusStore.getTrackPlayStatus().paused,
-    canPrev: PlayStatusStore.canPrev(),
-    canNext: PlayStatusStore.canNext(),
-    canPlay: PlayStatusStore.canPlay(),
-    canPause: PlayStatusStore.canPause(),
+    index: state.playStatus.playingIndex,
+    paused: state.playStatus.paused,
+    canPrev: canPrev(state),
+    canNext: canNext(state),
+    canPlay: canPlay(state),
+    canPause: canPause(state),
   };
 }
 
-const Nav = React.createClass({
-  getInitialState() {
-    return getStateFromStores();
-  },
+type NavCallbacks = {
+  onPlay: (track: number) => void,
+  onPause: () => void,
+};
 
-  componentDidMount() {
-    PlayStatusStore.addChangeListener(this.handleChange);
-  },
+function mapDispatchToProps(
+  dispatch: (action: Action) => Action
+): NavCallbacks {
+  return {
+    onPause: () => {
+      dispatch(pauseTrack());
+    },
+    onPlay: (track: number) => {
+      dispatch(playTrack(track));
+    },
+  };
+}
 
-  componentWillMount() {
-    PlayStatusStore.removeChangeListener(this.handleChange);
-  },
+type NavProps = {
+  index: ?number,
+  paused: boolean,
+  canPrev: boolean,
+  canNext: boolean,
+  canPlay: boolean,
+  canPause: boolean,
+  onPlay: (track: number) => void,
+  onPause: () => void,
+};
 
-  handleChange() {
-    this.setState(getStateFromStores());
-  },
+class Nav extends React.Component {
+  props: NavProps;
 
-  handlePrevClick() {
-    PlaybackActionCreators.playTrack(this.state.index - 1);
-  },
+  constructor(props: NavProps) {
+    super(props);
+  }
 
-  handleNextClick() {
-    PlaybackActionCreators.playTrack(this.state.index + 1);
-  },
+  _handlePrevClick: () => void = () => {
+    invariant(this.props.index != null, 'cannot prev when no track active');
+    this.props.onPlay(this.props.index - 1);
+  };
 
-  handlePlayPauseClick() {
-    if (this.state.index === PlayStatusStore.NO_PLAYING_INDEX) {
-      PlaybackActionCreators.playTrack(0);
-    } else if (this.state.paused) {
-      PlaybackActionCreators.playTrack(this.state.index);
+  _handleNextClick: () => void = () => {
+    invariant(this.props.index != null, 'cannot next when no track active');
+    this.props.onPlay(this.props.index + 1);
+  };
+
+  _handlePlayPauseClick: () => void = () => {
+    if (this.props.index == null) {
+      this.props.onPlay(0);
+    } else if (this.props.paused) {
+      this.props.onPlay(this.props.index);
     } else {
-      PlaybackActionCreators.pauseTrack();
+      this.props.onPause();
     }
-  },
+  };
 
-  render() {
-    const {canPrev, canNext, canPlay, canPause} = this.state;
+  render(): React.Element {
+    const {canPrev, canNext, canPlay, canPause} = this.props;
 
     return (
       <div className="Nav">
@@ -68,7 +111,7 @@ const Nav = React.createClass({
           })}
           name={Icon.NAMES.PREVIOUS}
           alt="Previous Track"
-          onClick={canPrev ? this.handlePrevClick : null}
+          onClick={canPrev ? this._handlePrevClick : null}
         />
         <Srt text=" " />
         <Icon
@@ -78,7 +121,7 @@ const Nav = React.createClass({
           })}
           name={canPause ? Icon.NAMES.PAUSE : Icon.NAMES.PLAY}
           alt={canPause ? 'Pause' : 'Play'}
-          onClick={canPlay || canPause ? this.handlePlayPauseClick : null}
+          onClick={canPlay || canPause ? this._handlePlayPauseClick : null}
         />
         <Srt text=" " />
         <Icon
@@ -88,11 +131,11 @@ const Nav = React.createClass({
           })}
           name={Icon.NAMES.NEXT}
           alt="Next Track"
-          onClick={canNext ? this.handleNextClick : null}
+          onClick={canNext ? this._handleNextClick : null}
         />
       </div>
     );
-  },
-});
+  }
+}
 
 export default Nav;

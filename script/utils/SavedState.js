@@ -49,7 +49,7 @@ export function read() {
       typeof item.id === 'string'
       && typeof item.checksum === 'number'
     ))
-    && typeof savedData.index === 'number'
+    && (savedData.index == null || typeof savedData.index === 'number')
     && typeof savedData.paused === 'boolean'
     && typeof savedData.trackTime === 'number'
   ) {

@@ -1,23 +1,24 @@
 "use strict";
 // @flow
 
-import AlbumStore from '../stores/AlbumStore';
-import PlayStatusStore from '../stores/PlayStatusStore';
-import React from 'react';
-import TrackStore from '../stores/TrackStore';
+import React, {PropTypes} from 'react';
+import {connect} from 'react-redux';
 
 import './CoverArt.css';
 
-type Props = {};
-type State = {art: ?string};
+type CoverArtProps = {
+  art: ?string,
+};
 
-function getStateFromStores(): State {
+type ReduxState = any;
+
+function mapStateToProps(state: ReduxState): CoverArtProps {
   let art = null;
-  const trackId = PlayStatusStore.getPlayingTrack();
+  const trackId = state.playStatus.playingIndex;
   if (trackId != null) {
-    const track = TrackStore.getTrack(trackId);
+    const track = state.trackCache.cache[trackId];
     if (track.albumId != null) {
-      const album = AlbumStore.getAlbum(track.albumId);
+      const album = state.albumCache.cache[track.albumId];
       if (album.coverArt) {
         art = album.coverArt;
       }
@@ -27,34 +28,19 @@ function getStateFromStores(): State {
 }
 
 class CoverArt extends React.Component {
-  props: Props;
-  state: State;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = getStateFromStores();
-  }
-
-  componentDidMount() {
-    AlbumStore.addChangeListener(this.handleChange);
-    PlayStatusStore.addChangeListener(this.handleChange);
-    TrackStore.addChangeListener(this.handleChange);
-  }
-
-  componentWillUnmount() {
-    AlbumStore.removeChangeListener(this.handleChange);
-    PlayStatusStore.removeChangeListener(this.handleChange);
-    TrackStore.removeChangeListener(this.handleChange);
-  }
-
-  handleChange: () => void = () => {
-    this.setState(getStateFromStores());
+  static propTypes = {
+    art: PropTypes.string,
   };
+  props: CoverArtProps;
+
+  constructor(props: CoverArtProps) {
+    super(props);
+  }
 
   render(): React.Element {
     const styles = {
-      backgroundImage: this.state.art
-        ? 'url(' + encodeURI(this.state.art) + ')'
+      backgroundImage: this.props.art
+        ? 'url(' + encodeURI(this.props.art) + ')'
         : '',
     };
 
@@ -64,4 +50,4 @@ class CoverArt extends React.Component {
   }
 }
 
-export default CoverArt;
+export default connect(mapStateToProps)(CoverArt);

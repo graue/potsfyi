@@ -18,6 +18,8 @@
     "react-redux": "^4.4.5",
     "react-spinner": "^0.2.2",
     "redux": "^3.5.2",
+    "redux-thunk": "^2.1.0",
+    "reselect": "^2.5.1",
     "underscore": "1.4.4"
   },
   "devDependencies": {
