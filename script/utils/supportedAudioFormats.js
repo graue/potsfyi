@@ -1,4 +1,5 @@
 "use strict";
+// @flow
 
 function _detectFormats() {
   // Returns a comma-separated list of supported formats by
@@ -15,9 +16,9 @@ function _detectFormats() {
   ).join(',');
 }
 
-let _formats;
+let _formats: ?string;
 
-function supportedAudioFormats() {
+function supportedAudioFormats(): string {
   if (!_formats) {
     _formats = _detectFormats();
   }

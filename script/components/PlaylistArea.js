@@ -1,4 +1,5 @@
 "use strict";
+// @flow
 
 import ArtistList from './ArtistList';
 import PlayStatusStore from '../stores/PlayStatusStore';
@@ -7,33 +8,41 @@ import React from 'react';
 
 import './PlaylistArea.css';
 
+type PlaylistAreaProps = {};
+type PlaylistAreaState = {
+  isPlaylistEmpty: boolean,
+};
+
 function getStateFromStores() {
   return {
-    Component: PlayStatusStore.isPlaylistEmpty() ? ArtistList : Playlist,
+    isPlaylistEmpty: PlayStatusStore.isPlaylistEmpty(),
   };
 }
 
 class PlaylistArea extends React.Component {
-  constructor() {
-    super();
+  props: PlaylistAreaProps;
+  state: PlaylistAreaState;
+
+  constructor(props: PlaylistAreaProps) {
+    super(props);
     this.state = getStateFromStores();
-    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
-    PlayStatusStore.addChangeListener(this.handleChange);
+    PlayStatusStore.addChangeListener(this._handleChange);
   }
 
   componentWillUnmount() {
-    PlayStatusStore.removeChangeListener(this.handleChange);
+    PlayStatusStore.removeChangeListener(this._handleChange);
   }
 
-  handleChange() {
+  // $FlowFixMe
+  _handleChange = () => {
     this.setState(getStateFromStores());
-  }
+  };
 
-  render() {
-    const {Component} = this.state;
+  render(): React.Element<any> {
+    const Component = this.state.isPlaylistEmpty ? ArtistList : Playlist;
     return (
       <div className="PlaylistArea">
         <Component {...this.props} />

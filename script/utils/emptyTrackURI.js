@@ -1,4 +1,5 @@
 "use strict";
+// @flow
 
 // One second of silence as an ogg file,
 // since <audio src=""> tries to interpret the page HTML as an audio track.
