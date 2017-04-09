@@ -1,4 +1,5 @@
 "use strict";
+// @flow
 
 import React, {PropTypes} from 'react';
 
@@ -12,7 +13,8 @@ import React, {PropTypes} from 'react';
 // text for screen readers when used in a standalone way, but without putting
 // spaces in between, you'd end up with "Previous TrackPauseNext Track".
 
-const Srt = ({text}) => (
+type SrtProps = {text: string};
+const Srt = ({text}: SrtProps) => (
   <span className="screen-reader-text">{text}</span>
 );
 Srt.propTypes = {
