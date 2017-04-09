@@ -1,28 +1,38 @@
 "use strict";
+// @flow
 
 import Icon from './Icon';
-import React from 'react';
+import React, {Component} from 'react';
 import SearchBox from './SearchBox';
 
 // Search box and magnifying glass next to it (which focuses).
 
-const SearchArea = React.createClass({
-  handleClick() {
-    this.refs['box'].focus();
-  },
+class SearchArea extends Component {
+  _box: ?SearchBox;
 
-  render() {
+  // $FlowFixMe: I think upgrading Flow will make this OK
+  _handleClick = (e: SyntheticMouseEvent) => {
+    if (this._box) {
+      this._box.focus();
+    }
+  };
+
+  render(): React.Element<any> {
     return (
       <div className="SearchArea">
         <Icon
+          alt=""
           name={Icon.NAMES.MAGNIFYING_GLASS}
-          onClick={this.handleClick}
+          onClick={this._handleClick}
           className="SearchAreaGlass"
         />
-        <SearchBox ref="box" {...this.props} />
+        <SearchBox
+          {...this.props}
+          ref={c => this._box = c}
+        />
       </div>
     );
-  },
-});
+  }
+}
 
 export default SearchArea;

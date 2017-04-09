@@ -14,7 +14,7 @@ class PlaylistActionCreators {
       to: toIndex,
     });
   }
-  static addToPlaylist(trackIds: Array<number>) {
+  static addToPlaylist(trackIds: Array<string>) {
     PotsDispatcher.dispatch({
       type: ActionConstants.ADD_TO_PLAYLIST,
       trackIds,

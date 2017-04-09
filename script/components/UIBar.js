@@ -1,12 +1,13 @@
 "use strict";
+// @flow
 
 import Nav from './Nav';
-import React from 'react';
+import React, {Component} from 'react';
 import SearchArea from './SearchArea';
 
 import './UIBar.css';
 
-const UIBar = React.createClass({
+class UIBar extends Component {
   render() {
     return (
       <div className="UIBar">
@@ -14,7 +15,7 @@ const UIBar = React.createClass({
         <SearchArea />
       </div>
     );
-  },
-});
+  }
+}
 
 export default UIBar;

@@ -1,13 +1,31 @@
 "use strict";
+// @flow
 
 import PlaylistActionCreators from '../actions/PlaylistActionCreators';
-import React, {PropTypes} from 'react';
+import React, {
+  Component,
+  PropTypes,
+} from 'react';
 import Spinner from './Spinner';
+import invariant from 'invariant';
 
 import './SearchResultItem.css';
 
-const SearchResultItem = React.createClass({
-  propTypes: {
+type SearchResultItemProps = {
+  isAlbum: boolean,
+  artist: string,
+  hasSpinner?: boolean,
+  title: string,
+  id: string,
+  tracks?: Array<string>,
+  coverArt?: string,
+  onBlur?: (e: SyntheticFocusEvent) => mixed,
+};
+
+class SearchResultItem extends Component {
+  props: SearchResultItemProps;
+
+  static propTypes = {
     isAlbum: PropTypes.bool.isRequired,
     artist: PropTypes.string.isRequired,
     hasSpinner: PropTypes.bool,
@@ -15,15 +33,17 @@ const SearchResultItem = React.createClass({
     id: PropTypes.string.isRequired,
     tracks: PropTypes.arrayOf(PropTypes.string),
     coverArt: PropTypes.string,
-  },
+  };
 
-  handleClick() {
+  // $FlowFixMe: need upgrade
+  _handleClick = (e: SyntheticMouseEvent) => {
     const tracksToAdd = this.props.isAlbum ?
       this.props.tracks : [this.props.id];
+    invariant(tracksToAdd, 'if isAlbum, should have tracks defined');
     PlaylistActionCreators.addToPlaylist(tracksToAdd);
-  },
+  };
 
-  maybeRenderSpinner() {
+  _maybeRenderSpinner(): ?React.Element<any> {
     if (this.props.hasSpinner) {
       return (
         <div className="SearchResultItem_Spinner">
@@ -33,27 +53,27 @@ const SearchResultItem = React.createClass({
     } else {
       return null;
     }
-  },
+  }
 
-  render() {
+  render(): React.Element<any> {
     // TODO: Render the cover art if present.
     // TODO: Show albums differently from tracks (even if they don't have
     // cover art).
     return (
       <li className="SearchResultItem">
-        {this.maybeRenderSpinner()}
+        {this._maybeRenderSpinner()}
         <a
           className="SearchResultItem_Link"
           href="#"
           onBlur={this.props.onBlur}
-          onClick={this.handleClick}>
+          onClick={this._handleClick}>
           {this.props.artist}
           {' — '}
           {this.props.title}
         </a>
       </li>
     );
-  },
-});
+  }
+}
 
 export default SearchResultItem;
