@@ -1,35 +1,50 @@
 "use strict";
+// @flow
 
 import Icon from './Icon';
 import PlaybackActionCreators from '../actions/PlaybackActionCreators';
 import PlaylistActionCreators from '../actions/PlaylistActionCreators';
-import React, {PropTypes} from 'react';
-
+import React, {
+  Component,
+  PropTypes,
+} from 'react';
 import cx from 'classnames';
 
 import './PlaylistItem.css';
 
-const PlaylistItem = React.createClass({
-  propTypes: {
+type PlaylistItemProps = {
+  sortIndex: number,
+  isPlaying: boolean,
+  track: {
+    artist: string,
+    title: string,
+  },
+};
+
+class PlaylistItem extends Component {
+  props: PlaylistItemProps;
+  static propTypes = {
     sortIndex: PropTypes.number.isRequired,
     isPlaying: PropTypes.bool.isRequired,
     track: PropTypes.shape({
       artist: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
     }).isRequired,
-  },
+  };
 
-  handleClick() {
+  // $FlowFixMe
+  _handleClick = (e: SyntheticMouseEvent) => {
     // FIXME: sortIndex is the wrong name for the prop, since here we're using
     // it for something that clearly isn't sorting.
     PlaybackActionCreators.playTrack(this.props.sortIndex);
-  },
+  };
 
-  handleRemoveClick() {
+  // $FlowFixMe
+  _handleRemoveClick = (e: SyntheticMouseEvent) => {
     PlaylistActionCreators.removeFromPlaylist(this.props.sortIndex);
-  },
+  };
 
-  render() {
+  render(): React.Element<any> {
     const track = this.props.track;
 
     const classes = cx({
@@ -54,7 +69,7 @@ const PlaylistItem = React.createClass({
       <li
         className={classes}
         data-idx={this.props.sortIndex}>
-        <span onClick={this.handleClick}>
+        <span onClick={this._handleClick}>
           {playingIndicator}
           <span className="PlaylistItem_Artist">
             {track.artist}
@@ -68,11 +83,11 @@ const PlaylistItem = React.createClass({
           alt="Remove"
           className="PlaylistItem_RemoveLink"
           name={Icon.NAMES.X}
-          onClick={this.handleRemoveClick}
+          onClick={this._handleRemoveClick}
           />
       </li>
     );
   }
-});
+}
 
 export default PlaylistItem;
