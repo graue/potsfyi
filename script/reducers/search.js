@@ -20,7 +20,7 @@ type SearchState = {
 
 function normalizeResult(raw: ServerSearchResult): Result {
   return {
-    id: raw[1],
+    id: String(raw[1]),
     isAlbum: raw[0] === 'album',
   };
 }

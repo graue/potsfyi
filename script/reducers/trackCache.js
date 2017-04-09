@@ -13,10 +13,10 @@ export type Track = {
 
 function normalize(rawTrack: ServerTrack): Track {
   return {
-    albumId: rawTrack.album_id,
+    albumId: rawTrack.album_id == null ? null : String(rawTrack.album_id),
     artist: rawTrack.artist,
     title: rawTrack.title,
-    trackNumber: rawTrack.track_number,
+    trackNumber: rawTrack.track,
   };
 }
 
