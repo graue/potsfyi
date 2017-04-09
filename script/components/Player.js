@@ -1,13 +1,23 @@
 "use strict";
+// @flow
 
 import PlayStatusStore from '../stores/PlayStatusStore';
 import PlaybackActionCreators from '../actions/PlaybackActionCreators';
-import React from 'react';
+import React, {Component} from 'react';
 import emptyTrackURI from '../utils/emptyTrackURI';
 import invariant from '../utils/invariant';
 import supportedAudioFormats from '../utils/supportedAudioFormats';
 
-function getStateFromStores() {
+type PlayerProps = {};
+
+type PlayerState = {
+  haveTrack: boolean,
+  filename?: string,
+  paused?: boolean,
+  initialTrackTime?: number,
+};
+
+function getStateFromStores(): PlayerState {
   const trackId = PlayStatusStore.getPlayingTrack();
 
   if (trackId == null) {
@@ -30,57 +40,67 @@ function getStateFromStores() {
   };
 }
 
-const Player = React.createClass({
-  getInitialState() {
-    return getStateFromStores();
-  },
+class Player extends Component {
+  props: PlayerProps;
+  state: PlayerState;
+  _audioEl: ?HTMLAudioElement;
+
+  constructor(props: PlayerProps) {
+    super(props);
+    this.state = getStateFromStores();
+  }
 
   componentDidMount() {
-    PlayStatusStore.addChangeListener(this.handleChange);
+    PlayStatusStore.addChangeListener(this._handleChange);
 
     // Attach event handlers. Sadly React doesn't support media element events.
     // Which sucks... I feel like I'm writing a Backbone view again. Alas.
     // Also when I had put a canplay event here it was never getting fired,
     // what's up with that? ended works though.
-    this.getAudioElement().addEventListener('ended', this.handleEnded);
+    this.getAudioElement().addEventListener('ended', this._handleEnded);
 
     if (this.state.haveTrack) {
       this._startNewTrack();
     }
-  },
+  }
 
   componentWillUnmount() {
     // FIXME: Does this ever get called tho? <Player /> always rendered
     // in app...
-    PlayStatusStore.removeChangeListener(this.handleChange);
+    PlayStatusStore.removeChangeListener(this._handleChange);
     this.forceStopDownloading();
-  },
+  }
 
-  _startNewTrack(time, paused) {
+  _startNewTrack(
+    time: ?number,
+    paused: ?boolean
+  ) {
     if (time != null) {
       this.getAudioElement().currentTime = time;
     }
     if (!paused) {
       this.getAudioElement().play();
     }
-  },
+  }
 
-  handleChange() {
+  // $FlowFixMe
+  _handleChange = () => {
     this.setState(getStateFromStores());
-  },
+  };
 
-  handleEnded() {
+  // $FlowFixMe
+  _handleEnded = () => {
     PlaybackActionCreators.trackEnded();
-  },
+  };
 
-  getAudioElement() {
+  getAudioElement(): HTMLAudioElement {
     invariant(
-      this.isMounted(),
-      'Attempted to get audio element, but component not mounted'
+      this._audioEl,
+      'Attempted to get audio element, but it is not mounted'
     );
 
-    return this.refs.audioEl;
-  },
+    return this._audioEl;
+  }
 
   forceStopDownloading() {
     // Force the browser to stop downloading the current track, if it's
@@ -92,9 +112,12 @@ const Player = React.createClass({
     // the DOM. I might be misremembering and this is unnecessary...
     this.getAudioElement().pause();
     this.getAudioElement().src = emptyTrackURI;
-  },
+  }
 
-  componentWillUpdate(nextProps, nextState) {
+  componentWillUpdate(
+    nextProps: PlayerProps,
+    nextState: PlayerState
+  ) {
     // If the track is changing or there's no new track, stop downloading
     // the current one.
     if (
@@ -105,9 +128,12 @@ const Player = React.createClass({
     ) {
       this.forceStopDownloading();
     }
-  },
+  }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(
+    prevProps: PlayerProps,
+    prevState: PlayerState
+  ) {
     // Handle pausing, unpausing, and loading new tracks. Ugly imperative mess.
 
     if (this.state.haveTrack) {
@@ -120,18 +146,18 @@ const Player = React.createClass({
         this.getAudioElement().play();
       }
     }
-  },
+  }
 
-  render() {
+  render(): React.Element<any> {
     return (
       <div>
         <audio
-          ref="audioEl"
+          ref={node => this._audioEl = node}
           src={this.state.haveTrack ? this.state.filename : emptyTrackURI}
         />
       </div>
     );
-  },
-});
+  }
+}
 
 export default Player;
