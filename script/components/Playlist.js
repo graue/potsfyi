@@ -1,16 +1,26 @@
 "use strict";
+// @flow weak
 
 import PlayStatusStore from '../stores/PlayStatusStore';
 import PlaylistActionCreators from '../actions/PlaylistActionCreators';
 import PlaylistItem from './PlaylistItem';
-import React from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import TrackStore from '../stores/TrackStore';
 import $ from '../lib/jquery.shim';
 
 import './Playlist.css';
 
-function getStateFromStores() {
+type PlaylistState = {
+  playingIndex: number,
+  tracks: Array<{
+    id: string,
+    key: string,
+    // TODO add other track fields
+  }>,
+};
+
+function getStateFromStores(): PlaylistState {
   return {
     playingIndex: PlayStatusStore.getPlayingIndex(),
     tracks: PlayStatusStore.getTracksWithKeys().map(([trackId, key]) => {
@@ -23,31 +33,34 @@ function getStateFromStores() {
   };
 }
 
-const Playlist = React.createClass({
-  getInitialState() {
-    return getStateFromStores();
-  },
+class Playlist extends Component {
+  state: PlaylistState;
+
+  constructor(props) {
+    super(props);
+    this.state = getStateFromStores();
+  }
 
   componentDidMount() {
-    PlayStatusStore.addChangeListener(this.handleChange);
-    TrackStore.addChangeListener(this.handleChange);
-    this.makeSortable();
-  },
+    PlayStatusStore.addChangeListener(this._handleChange);
+    TrackStore.addChangeListener(this._handleChange);
+    this._makeSortable();
+  }
 
   componentWillUnmount() {
-    PlayStatusStore.removeChangeListener(this.handleChange);
-    TrackStore.removeChangeListener(this.handleChange);
-    this.teardownSortable();
-  },
+    PlayStatusStore.removeChangeListener(this._handleChange);
+    TrackStore.removeChangeListener(this._handleChange);
+    this._teardownSortable();
+  }
 
   // TODO: Do we need makeSortable/teardownSortable on DidUpdate and
   // WillUpdate? Delete this comment if you determine that we don't.
 
-  handleChange() {
+  _handleChange = () => {
     this.setState(getStateFromStores());
-  },
+  };
 
-  makeSortable() {
+  _makeSortable() {
     const rootNode = ReactDOM.findDOMNode(this.refs.itemList);
     $(rootNode).disableSelection().sortable({
       distance: 10,
@@ -66,14 +79,14 @@ const Playlist = React.createClass({
         PlaylistActionCreators.reorderPlaylist(fromIndex, toIndex);
       },
     });
-  },
+  }
 
-  teardownSortable() {
+  _teardownSortable() {
     const rootNode = ReactDOM.findDOMNode(this.refs.itemList);
     $(rootNode).sortable('destroy');
-  },
+  }
 
-  render() {
+  render(): React.Element<any> {
     const tracks = this.state.tracks;
 
     const items = tracks.map((track, index) => {
@@ -95,7 +108,7 @@ const Playlist = React.createClass({
         </ul>
       </div>
     );
-  },
-});
+  }
+}
 
 export default Playlist;
