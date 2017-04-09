@@ -1,7 +1,7 @@
 "use strict";
 
 import AlbumStore from '../stores/AlbumStore';
-import React from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import SearchActionCreators from '../actions/SearchActionCreators';
 import SearchResultsDropdown from './SearchResultsDropdown';
@@ -39,38 +39,39 @@ function getStateFromStores() {
   return state;
 }
 
-const SearchBox = React.createClass({
-  getInitialState() {
-    let state = getStateFromStores();
+class SearchBox extends React.Component {
+  constructor(props) {
+    super(props);
+    const initialState = getStateFromStores();
 
     // Transient query: whatever's actually in the textbox right now. The
     // 'query' value we put in an action and pull from the store is a
     // debounced version of this, so that as you're typing, you see the effect
     // of each keystroke immediately, but we limit actual AJAX requests.
-    state.transientQuery = state.query || '';
+    initialState.transientQuery = initialState.query || '';
 
-    state.dropdownHidden = false;
-    return state;
-  },
+    initialState.dropdownHidden = false;
+    this.state = initialState;
+  }
 
   componentDidMount() {
-    SearchStore.addChangeListener(this.handleChange);
+    SearchStore.addChangeListener(this._handleChange);
+    this._blurTimeoutId = null;
     this._searchTimeoutId = null;
-  },
+  }
 
   componentWillUnmount() {
-    SearchStore.removeChangeListener(this.handleChange);
-    if (this._searchTimeoutId !== null) {
-      clearTimeout(this._searchTimeoutId);
-    }
-  },
+    SearchStore.removeChangeListener(this._handleChange);
+    clearTimeout(this._searchTimeoutId);
+    clearTimeout(this._blurTimeoutId);
+  }
 
-  handleBlur() {
+  _handleBlur = () => {
     this.setState({dropdownHidden: true});
-  },
+  };
 
-  handlePossibleBlur(e) {
-    // Filter blur events so that handleBlur is not called if some *part*
+  _handlePossibleBlur = (e) => {
+    // Filter blur events so that _handleBlur is not called if some *part*
     // of the search box (either the input, or a link in the dropdown) still
     // has focus.
     //
@@ -86,38 +87,36 @@ const SearchBox = React.createClass({
     // document.activeElement is momentarily equal to the body element
     // apparently.
 
-    setTimeout(() => {
-      if (!this.isMounted()) {
-        return;
-      }
+    clearTimeout(this._blurTimeoutId);
+    this._blurTimeoutId = setTimeout(() => {
       if (
         document.activeElement !== ReactDOM.findDOMNode(this.refs.input) &&
         (
-          !this.isDropdownPresent() ||
+          !this._isDropdownPresent() ||
           !ReactDOM.findDOMNode(this.refs.dropdown)
             .contains(document.activeElement)
         )
       ) {
-        this.handleBlur(e);
+        this._handleBlur(e);
       }
     }, 0);
-  },
+  };
 
-  handleFocus() {
+  _handleFocus = () => {
     this.setState({dropdownHidden: false});
-  },
+  };
 
-  handleChange() {
+  _handleChange = () => {
     this.setState(getStateFromStores());
-  },
+  };
 
   focus() {
     let node = ReactDOM.findDOMNode(this.refs.input);
     node.focus();
     node.select();
-  },
+  }
 
-  handleInput(event) {
+  _handleInput = (event) => {
     const query = event.target.value;
     this.setState({transientQuery: query});
 
@@ -136,27 +135,27 @@ const SearchBox = React.createClass({
         SearchActionCreators.changeQuery(query);
       }, SEARCH_DEBOUNCE_TIME);
     }
-  },
+  };
 
-  isDropdownPresent() {
+  _isDropdownPresent() {
     const {dropdownHidden, query, transientQuery} = this.state;
     return (
       !dropdownHidden
       && transientQuery !== ''
       && query !== ''
     );
-  },
+  }
 
   render() {
     const {transientQuery, results, isLoading} = this.state;
-    const shouldRenderDropdown = this.isDropdownPresent();
+    const shouldRenderDropdown = this._isDropdownPresent();
 
     // TODO: Maybe show in some way if the results are stale? Spinner?
     const maybeDropdown = shouldRenderDropdown ?
       <SearchResultsDropdown
         isLoading={isLoading}
         items={results ? results.items : []}
-        onBlur={this.handlePossibleBlur}
+        onBlur={this._handlePossibleBlur}
         ref="dropdown"
       /> :
       null;
@@ -165,16 +164,16 @@ const SearchBox = React.createClass({
       <span className="SearchBox">
         <input
           className="SearchBox_Input"
-          onBlur={this.handlePossibleBlur}
-          onChange={this.handleInput}
-          onFocus={this.handleFocus}
+          onBlur={this._handlePossibleBlur}
+          onChange={this._handleInput}
+          onFocus={this._handleFocus}
           ref="input"
           value={transientQuery}
         />
         {maybeDropdown}
       </span>
     );
-  },
-});
+  }
+}
 
 export default SearchBox;
