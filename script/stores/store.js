@@ -17,6 +17,7 @@ import type {TrackCacheState} from '../reducers/trackCache';
 
 const logger = store => next => action => {
   console.info(action.type, action);
+  next(action);
 };
 
 // TODO: Add full typing to this after upgrading Redux.
