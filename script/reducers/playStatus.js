@@ -104,6 +104,11 @@ export default function playStatus(
         initialTrackTime: null,
       };
     }
+  } else if (action.type === 'pauseTrack') {
+    state = {
+      ...state,
+      paused: true,
+    };
   } else if (action.type === 'trackEnded') {
     invariant(
       !state.paused && state.playingIndex != null,
