@@ -11,10 +11,15 @@ from flask import (
     redirect,
     render_template,
     request,
-    url_for
+    url_for,
 )
-from flask.ext.login import (LoginManager, UserMixin, current_user,
-                             login_required, login_user)
+from flask.ext.login import (
+    LoginManager,
+    UserMixin,
+    current_user,
+    login_required,
+    login_user,
+)
 from flask.ext.browserid import BrowserID
 from models import Track, Album, db
 from transcode import Transcoder
