@@ -1,6 +1,7 @@
 "use strict";
 // @flow
 
+import {hydrateSavedPlaylistAsync} from '../actions/ActionCreators';
 import * as Adler32 from 'adler-32';
 import MainContentContainer from './MainContentContainer';
 import Player from './Player';
@@ -16,7 +17,15 @@ class App extends React.Component {
   _interval: number;
 
   componentWillMount() {
-    SavedState.read();
+    const savedState = SavedState.read();
+    if (savedState) {
+      store.dispatch(hydrateSavedPlaylistAsync(
+        savedState.items,
+        savedState.index,
+        savedState.paused,
+        savedState.trackTime
+      ));
+    }
   }
 
   componentDidMount() {
@@ -41,12 +50,14 @@ class App extends React.Component {
         ),
       }))
     );
-    SavedState.update(
+    SavedState.update({
       items,
-      state.playStatus.playingIndex,
-      state.playStatus.paused,
-      this._player.getWrappedInstance().getAudioElement().currentTime
-    );
+      index: state.playStatus.playingIndex,
+      paused: state.playStatus.paused,
+      trackTime: (
+        this._player.getWrappedInstance().getAudioElement().currentTime
+      ),
+    });
   }
 
   render(): React.Element {

@@ -1,27 +1,22 @@
 "use strict";
 // @flow
 
-import PlaylistActionCreators from '../actions/PlaylistActionCreators';
-
 export type SavedPlaylistItem = {
   id: string,
   checksum: number,  // adler32.str(artist + title)
 };
 
-export function update(
+export type SavedState = {
   items: Array<SavedPlaylistItem>,
   index: number,
   paused: boolean,
-  trackTime: number
-) {
+  trackTime: number,
+};
+
+export function update(stateToSave: SavedState) {
   localStorage.setItem(
     'potsfyi-playlist',
-    JSON.stringify({
-      items,
-      index,
-      paused,
-      trackTime,
-    })
+    JSON.stringify(stateToSave)
   );
 }
 
@@ -29,10 +24,10 @@ export function clear() {
   localStorage.removeItem('potsfyi-playlist');
 }
 
-export function read() {
+export function read(): ?SavedState {
   const savedJson = localStorage.getItem('potsfyi-playlist');
   if (!savedJson) {
-    return;
+    return null;
   }
 
   let savedData;
@@ -40,7 +35,7 @@ export function read() {
     savedData = JSON.parse(savedJson);
   } catch(e) {
     console.error('invalid saved playlist info');
-    return;
+    return null;
   }
 
   if (
@@ -53,13 +48,9 @@ export function read() {
     && typeof savedData.paused === 'boolean'
     && typeof savedData.trackTime === 'number'
   ) {
-    PlaylistActionCreators.loadWithPlaylistData(
-      savedData.items,
-      savedData.index,
-      savedData.paused,
-      savedData.trackTime
-    );
+    return savedData;
   } else {
     console.error('bad saved playlist data', savedData);
+    return null;
   }
 }
