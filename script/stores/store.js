@@ -1,6 +1,7 @@
 "use strict";
 // @flow
 
+import ReduxThunk from 'redux-thunk';
 import albumCache from '../reducers/albumCache';
 import type {AlbumCacheState} from '../reducers/albumCache';
 import playStatus from '../reducers/playStatus';
@@ -37,7 +38,7 @@ const store = createStore(
     search,
     trackCache,
   }),
-  applyMiddleware(logger)
+  applyMiddleware(ReduxThunk, logger)
 );
 
 export default store;
