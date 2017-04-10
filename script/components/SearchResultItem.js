@@ -1,7 +1,6 @@
 "use strict";
 // @flow
 
-import PlaylistActionCreators from '../actions/PlaylistActionCreators';
 import React, {
   Component,
   PropTypes,
@@ -12,35 +11,28 @@ import invariant from 'invariant';
 import './SearchResultItem.css';
 
 type SearchResultItemProps = {
-  isAlbum: boolean,
   artist: string,
   hasSpinner?: boolean,
   title: string,
   id: string,
   tracks?: Array<string>,
-  coverArt?: string,
+  coverArt?: ?string,
   onBlur?: (e: SyntheticFocusEvent) => mixed,
+  onClick: (e: SyntheticMouseEvent) => mixed,
 };
 
 class SearchResultItem extends Component {
   props: SearchResultItemProps;
 
   static propTypes = {
-    isAlbum: PropTypes.bool.isRequired,
     artist: PropTypes.string.isRequired,
     hasSpinner: PropTypes.bool,
     title: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     tracks: PropTypes.arrayOf(PropTypes.string),
     coverArt: PropTypes.string,
-  };
-
-  // $FlowFixMe: need upgrade
-  _handleClick = (e: SyntheticMouseEvent) => {
-    const tracksToAdd = this.props.isAlbum ?
-      this.props.tracks : [this.props.id];
-    invariant(tracksToAdd, 'if isAlbum, should have tracks defined');
-    PlaylistActionCreators.addToPlaylist(tracksToAdd);
+    onBlur: PropTypes.func,
+    onClick: PropTypes.func.isRequired,
   };
 
   _maybeRenderSpinner(): ?React.Element<any> {
@@ -66,7 +58,7 @@ class SearchResultItem extends Component {
           className="SearchResultItem_Link"
           href="#"
           onBlur={this.props.onBlur}
-          onClick={this._handleClick}>
+          onClick={this.props.onClick}>
           {this.props.artist}
           {' — '}
           {this.props.title}

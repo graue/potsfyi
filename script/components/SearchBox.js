@@ -1,12 +1,17 @@
 "use strict";
+// @flow
 
-import AlbumStore from '../stores/AlbumStore';
+import {
+  addToPlaylist,
+  searchAsync,
+} from '../actions/ActionCreators';
+import type {Action} from '../actions/ActionCreators';
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import SearchActionCreators from '../actions/SearchActionCreators';
+import {connect} from 'react-redux';
 import SearchResultsDropdown from './SearchResultsDropdown';
-import SearchStore from '../stores/SearchStore';
-import TrackStore from '../stores/TrackStore';
+import type {Result} from '../reducers/search';
+import type {ReduxState} from '../stores/store';
 
 import './SearchBox.css';
 
@@ -14,54 +19,119 @@ import './SearchBox.css';
 // many milliseconds.
 const SEARCH_DEBOUNCE_TIME = 200;
 
+// TODO: Make this better with Flow object-spread types - avoid having to
+// repeat the fields from Album, Track
+export type HydratedSearchResult = (
+  {
+    isAlbum: true,
+    id: string,
+    artist: string,
+    coverArt: ?string,
+    date: ?string,
+    title: string,
+    tracks: Array<string>,
+  } |
+  {
+    isAlbum: false,
+    id: string,
+    albumId: ?string,
+    artist: string,
+    title: string,
+    trackNumber: ?number,
+  }
+);
+
 // Fetch metadata for a search result (album or track).
 // Example:
 // Input: {id: 32, isAlbum: false}
 // Output: {id: 32, isAlbum: false, title: 'Get Lucky', artist: 'Daft Punk'}
-function hydrate(item) {
-  const fetcher = item.isAlbum ? AlbumStore.getAlbum : TrackStore.getTrack;
-  return {...item, ...fetcher(item.id)};
-}
-
-function getStateFromStores() {
-  let state = {
-    isLoading: SearchStore.isLoading(),
-    query: SearchStore.getQuery(),
-    results: SearchStore.getResults(),
-  };
-
-  // Fetch metadata for each item (track or album), so the dropdown can be
-  // dumb and still display this.
-  if (state.results && state.results.items) {
-    state.results.items = state.results.items.map(hydrate);
+function hydrate(
+  state: ReduxState,
+  item: Result
+): HydratedSearchResult {
+  if (item.isAlbum) {
+    return {
+      isAlbum: true,
+      id: item.id,
+      ...state.albumCache.cache[item.id],
+    };
+  } else {
+    return {
+      isAlbum: false,
+      id: item.id,
+      ...state.trackCache.cache[item.id],
+    };
   }
-
-  return state;
 }
+
+function mapStateToProps(state: ReduxState) {
+  return {
+    isLoading: state.search.isLoading,
+    query: state.search.query,
+    resultItems: state.search.results.items.map(
+      item => hydrate(state, item)
+    ),
+  };
+}
+
+function mapDispatchToProps(
+  dispatch: (action: Action) => Action
+) {
+  return {
+    onDebouncedQueryChange(query: string) {
+      // $FlowFixMe: need better dispatch type
+      dispatch(searchAsync(query));
+    },
+    onTrackAdd(tracksToAdd: Array<string>) {
+      dispatch(addToPlaylist(tracksToAdd));
+    },
+  };
+}
+
+type SearchBoxProps = {
+  isLoading: boolean,
+  onDebouncedQueryChange: (query: string) => mixed,
+  onTrackAdd: (tracksToAdd: Array<string>) => mixed,
+  query: string,
+  resultItems: Array<HydratedSearchResult>,
+};
+
+type SearchBoxState = {
+  // Was the dropdown explicitly hidden? (It will also be hidden if there's
+  // an empty search string and no results.)
+  dropdownHidden: boolean,
+  // Transient query: whatever's actually in the textbox right now. The
+  // 'query' value we put in an action and pull from the store is a
+  // debounced version of this, so that as you're typing, you see the effect
+  // of each keystroke immediately, but we limit actual AJAX requests.
+  transientQuery: string,
+};
 
 class SearchBox extends React.Component {
-  constructor(props) {
+  props: SearchBoxProps;
+  state: SearchBoxState;
+  _blurTimeoutId: ?number;
+  _searchTimeoutId: ?number;
+
+  constructor(props: SearchBoxProps) {
     super(props);
-    const initialState = getStateFromStores();
 
     // Transient query: whatever's actually in the textbox right now. The
     // 'query' value we put in an action and pull from the store is a
     // debounced version of this, so that as you're typing, you see the effect
     // of each keystroke immediately, but we limit actual AJAX requests.
-    initialState.transientQuery = initialState.query || '';
-
-    initialState.dropdownHidden = false;
-    this.state = initialState;
+    this.state = {
+      transientQuery: props.query || '',
+      dropdownHidden: false,
+    };
   }
 
   componentDidMount() {
-    SearchStore.addChangeListener(this._handleChange);
     this._blurTimeoutId = null;
     this._searchTimeoutId = null;
   }
 
   componentWillUnmount() {
-    SearchStore.removeChangeListener(this._handleChange);
     clearTimeout(this._searchTimeoutId);
     clearTimeout(this._blurTimeoutId);
   }
@@ -70,7 +140,7 @@ class SearchBox extends React.Component {
     this.setState({dropdownHidden: true});
   };
 
-  _handlePossibleBlur = (e) => {
+  _handlePossibleBlur = (e: SyntheticFocusEvent) => {
     // Filter blur events so that _handleBlur is not called if some *part*
     // of the search box (either the input, or a link in the dropdown) still
     // has focus.
@@ -102,12 +172,17 @@ class SearchBox extends React.Component {
     }, 0);
   };
 
-  _handleFocus = () => {
-    this.setState({dropdownHidden: false});
+  _handleResultClick = (
+    index: number,
+    e: SyntheticMouseEvent
+  ) => {
+    const item = this.props.resultItems[index];
+    const tracksToAdd = item.isAlbum ? item.tracks : [item.id];
+    this.props.onTrackAdd(tracksToAdd);
   };
 
-  _handleChange = () => {
-    this.setState(getStateFromStores());
+  _handleFocus = (e: SyntheticFocusEvent) => {
+    this.setState({dropdownHidden: false});
   };
 
   focus() {
@@ -116,15 +191,15 @@ class SearchBox extends React.Component {
     node.select();
   }
 
-  _handleInput = (event) => {
+  _handleInput = (event: SyntheticInputEvent) => {
+    // $FlowFixMe: need to parameterize the event I guess
     const query = event.target.value;
     this.setState({transientQuery: query});
 
-    // TODO: Debounce this (except if query is '').
     if (query === '') {
       // This doesn't result in an actual request, so hide the results
       // immediately.
-      SearchActionCreators.changeQuery(query);
+      this.props.onDebouncedQueryChange(query);
     } else {
       // Debounce to prevent sending too many requests while you're still
       // typing.
@@ -132,13 +207,14 @@ class SearchBox extends React.Component {
         clearTimeout(this._searchTimeoutId);
       }
       this._searchTimeoutId = setTimeout(() => {
-        SearchActionCreators.changeQuery(query);
+        this.props.onDebouncedQueryChange(query);
       }, SEARCH_DEBOUNCE_TIME);
     }
   };
 
-  _isDropdownPresent() {
-    const {dropdownHidden, query, transientQuery} = this.state;
+  _isDropdownPresent(): boolean {
+    const {dropdownHidden, transientQuery} = this.state;
+    const {query} = this.props;
     return (
       !dropdownHidden
       && transientQuery !== ''
@@ -146,16 +222,18 @@ class SearchBox extends React.Component {
     );
   }
 
-  render() {
-    const {transientQuery, results, isLoading} = this.state;
+  render(): React.Element<any> {
+    const {resultItems, isLoading} = this.props;
+    const {transientQuery} = this.state;
     const shouldRenderDropdown = this._isDropdownPresent();
 
     // TODO: Maybe show in some way if the results are stale? Spinner?
     const maybeDropdown = shouldRenderDropdown ?
       <SearchResultsDropdown
         isLoading={isLoading}
-        items={results ? results.items : []}
+        items={resultItems}
         onBlur={this._handlePossibleBlur}
+        onItemClick={this._handleResultClick}
         ref="dropdown"
       /> :
       null;
@@ -176,4 +254,7 @@ class SearchBox extends React.Component {
   }
 }
 
-export default SearchBox;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SearchBox);
