@@ -3,8 +3,8 @@
   flex-shrink: 1;
   flex-basis: 300px;
   margin: 0 50px 0 0;
-  background-position: right center;
-  background-size: auto 100%;
+  background-position: center top;
+  background-size: contain;
   background-repeat: no-repeat;
   background-attachment: scroll;
   /* Script will set background-image. */
