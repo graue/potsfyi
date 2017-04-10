@@ -1,64 +1,122 @@
 "use strict";
-// @flow weak
+// @flow
 
-import PlayStatusStore from '../stores/PlayStatusStore';
-import PlaylistActionCreators from '../actions/PlaylistActionCreators';
+import {
+  playTrack,
+  removeFromPlaylist,
+  reorderPlaylist,
+} from '../actions/ActionCreators';
 import PlaylistItem from './PlaylistItem';
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import TrackStore from '../stores/TrackStore';
+import {connect} from 'react-redux';
+import type {ReduxState} from '../stores/store';
 import $ from '../lib/jquery.shim';
 
 import './Playlist.css';
 
-type PlaylistState = {
+type PlaylistProps = {
+  onReorderTrack: (
+    fromIndex: number,
+    toIndex: number
+  ) => mixed,
+  onTrackPlay: (index: number) => mixed,
+  onTrackRemove: (index: number) => mixed,
   playingIndex: number,
   tracks: Array<{
     id: string,
     key: string,
-    // TODO add other track fields
+    // TODO convert to object spread type after updating
+    // ...Track,
+    albumId: ?string,
+    artist: string,
+    title: string,
+    trackNumber: ?number,
   }>,
 };
+type PlaylistState = void;
 
-function getStateFromStores(): PlaylistState {
+function mapStateToProps(state: ReduxState) {
   return {
-    playingIndex: PlayStatusStore.getPlayingIndex(),
-    tracks: PlayStatusStore.getTracksWithKeys().map(([trackId, key]) => {
+    playingIndex: state.playStatus.playingIndex,
+    tracks: state.playStatus.playlist.map(([trackId, nonce]) => {
+      const track = state.trackCache.cache[trackId];
       return {
         id: trackId,
-        key,
-        ...TrackStore.getTrack(trackId)
+        key: nonce,
+        ...track,
       };
     }),
   };
 }
 
-class Playlist extends Component {
-  state: PlaylistState;
+function mapDispatchToProps(
+  dispatch: Function  // FIXME
+) {
+  return {
+    onReorderTrack(
+      fromIndex: number,
+      toIndex: number
+    ) {
+      dispatch(reorderPlaylist(fromIndex, toIndex));
+    },
+    onTrackPlay(index: number) {
+      dispatch(playTrack(index));
+    },
+    onTrackRemove(index: number) {
+      dispatch(removeFromPlaylist(index));
+    },
+  };
+}
 
-  constructor(props) {
+class Playlist extends Component {
+  props: PlaylistProps;
+  state: PlaylistState;
+  _boundOnClicks: Array<(e: SyntheticMouseEvent) => mixed>;
+  _boundOnRemoveClicks: Array<(e: SyntheticMouseEvent) => mixed>;
+
+  constructor(props: PlaylistProps) {
     super(props);
-    this.state = getStateFromStores();
+    this._bindHandlers(props);
   }
 
   componentDidMount() {
-    PlayStatusStore.addChangeListener(this._handleChange);
-    TrackStore.addChangeListener(this._handleChange);
     this._makeSortable();
   }
 
+  componentWillReceiveProps(nextProps: PlaylistProps) {
+    this._bindHandlers(nextProps);
+  }
+
   componentWillUnmount() {
-    PlayStatusStore.removeChangeListener(this._handleChange);
-    TrackStore.removeChangeListener(this._handleChange);
     this._teardownSortable();
   }
 
+  _bindHandlers(props: PlaylistProps) {
+    this._boundOnClicks = props.tracks.map(
+      (track, index) => this._handleTrackClick.bind(this, index)
+    );
+    this._boundOnRemoveClicks = props.tracks.map(
+      (track, index) => this._handleTrackRemoveClick.bind(this, index)
+    );
+  }
+
+  _handleTrackClick = (
+    index: number,
+    e: SyntheticMouseEvent
+  ) => {
+    this.props.onTrackPlay(index);
+  };
+
+  _handleTrackRemoveClick = (
+    index: number,
+    e: SyntheticMouseEvent
+  ) => {
+    this.props.onTrackRemove(index);
+  };
+
   // TODO: Do we need makeSortable/teardownSortable on DidUpdate and
   // WillUpdate? Delete this comment if you determine that we don't.
-
-  _handleChange = () => {
-    this.setState(getStateFromStores());
-  };
 
   _makeSortable() {
     const rootNode = ReactDOM.findDOMNode(this.refs.itemList);
@@ -75,8 +133,8 @@ class Playlist extends Component {
         // which would confuse React.
         $(rootNode).sortable('cancel');
 
-        // Instead, fire an action and we'll eventually end up rerendering.
-        PlaylistActionCreators.reorderPlaylist(fromIndex, toIndex);
+        // Instead, call a callback and we'll eventually end up rerendering.
+        this.props.onReorderTrack(fromIndex, toIndex);
       },
     });
   }
@@ -87,16 +145,18 @@ class Playlist extends Component {
   }
 
   render(): React.Element<any> {
-    const tracks = this.state.tracks;
+    const tracks = this.props.tracks;
 
     const items = tracks.map((track, index) => {
-      const isPlaying = index === this.state.playingIndex;
+      const isPlaying = index === this.props.playingIndex;
       return (
         <PlaylistItem
-          track={track}
-          key={track.key}
           isPlaying={isPlaying}
+          key={track.key}
+          onClick={this._boundOnClicks[index]}
+          onRemoveClick={this._boundOnRemoveClicks[index]}
           sortIndex={index}
+          track={track}
         />
       );
     });
@@ -111,4 +171,7 @@ class Playlist extends Component {
   }
 }
 
-export default Playlist;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Playlist);

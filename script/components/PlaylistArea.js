@@ -2,53 +2,39 @@
 // @flow
 
 import ArtistList from './ArtistList';
-import PlayStatusStore from '../stores/PlayStatusStore';
 import Playlist from './Playlist';
 import React from 'react';
+import {connect} from 'react-redux';
+import {isPlaylistEmpty} from '../selectors/selectors';
+import type {ReduxState} from '../stores/store';
 
 import './PlaylistArea.css';
 
-type PlaylistAreaProps = {};
-type PlaylistAreaState = {
+type PlaylistAreaProps = {
   isPlaylistEmpty: boolean,
 };
 
-function getStateFromStores() {
+function mapStateToProps(state: ReduxState) {
   return {
-    isPlaylistEmpty: PlayStatusStore.isPlaylistEmpty(),
+    isPlaylistEmpty: isPlaylistEmpty(state),
   };
 }
 
 class PlaylistArea extends React.Component {
   props: PlaylistAreaProps;
-  state: PlaylistAreaState;
 
   constructor(props: PlaylistAreaProps) {
     super(props);
-    this.state = getStateFromStores();
   }
-
-  componentDidMount() {
-    PlayStatusStore.addChangeListener(this._handleChange);
-  }
-
-  componentWillUnmount() {
-    PlayStatusStore.removeChangeListener(this._handleChange);
-  }
-
-  // $FlowFixMe
-  _handleChange = () => {
-    this.setState(getStateFromStores());
-  };
 
   render(): React.Element<any> {
-    const Component = this.state.isPlaylistEmpty ? ArtistList : Playlist;
+    const content = this.props.isPlaylistEmpty ? <ArtistList /> : <Playlist />;
     return (
       <div className="PlaylistArea">
-        <Component {...this.props} />
+        {content}
       </div>
     );
   }
 }
 
-export default PlaylistArea;
+export default connect(mapStateToProps)(PlaylistArea);

@@ -2,8 +2,6 @@
 // @flow
 
 import Icon from './Icon';
-import PlaybackActionCreators from '../actions/PlaybackActionCreators';
-import PlaylistActionCreators from '../actions/PlaylistActionCreators';
 import React, {
   Component,
   PropTypes,
@@ -13,8 +11,10 @@ import cx from 'classnames';
 import './PlaylistItem.css';
 
 type PlaylistItemProps = {
-  sortIndex: number,
   isPlaying: boolean,
+  onClick: (e: SyntheticMouseEvent) => mixed,
+  onRemoveClick: (e: SyntheticMouseEvent) => mixed,
+  sortIndex: number,
   track: {
     artist: string,
     title: string,
@@ -24,24 +24,14 @@ type PlaylistItemProps = {
 class PlaylistItem extends Component {
   props: PlaylistItemProps;
   static propTypes = {
-    sortIndex: PropTypes.number.isRequired,
     isPlaying: PropTypes.bool.isRequired,
+    onClick: PropTypes.func.isRequired,
+    onRemoveClick: PropTypes.func.isRequired,
+    sortIndex: PropTypes.number.isRequired,
     track: PropTypes.shape({
       artist: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
     }).isRequired,
-  };
-
-  // $FlowFixMe
-  _handleClick = (e: SyntheticMouseEvent) => {
-    // FIXME: sortIndex is the wrong name for the prop, since here we're using
-    // it for something that clearly isn't sorting.
-    PlaybackActionCreators.playTrack(this.props.sortIndex);
-  };
-
-  // $FlowFixMe
-  _handleRemoveClick = (e: SyntheticMouseEvent) => {
-    PlaylistActionCreators.removeFromPlaylist(this.props.sortIndex);
   };
 
   render(): React.Element<any> {
@@ -69,7 +59,7 @@ class PlaylistItem extends Component {
       <li
         className={classes}
         data-idx={this.props.sortIndex}>
-        <span onClick={this._handleClick}>
+        <span onClick={this.props.onClick}>
           {playingIndicator}
           <span className="PlaylistItem_Artist">
             {track.artist}
@@ -83,7 +73,7 @@ class PlaylistItem extends Component {
           alt="Remove"
           className="PlaylistItem_RemoveLink"
           name={Icon.NAMES.X}
-          onClick={this._handleRemoveClick}
+          onClick={this.props.onRemoveClick}
           />
       </li>
     );
