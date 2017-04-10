@@ -54,6 +54,8 @@ function mapDispatchToProps(
   };
 }
 
+const MEDIA_READY_STATE_HAVE_METADATA = 1;
+
 class Player extends Component {
   props: PlayerProps;
   state: PlayerState;
@@ -68,30 +70,37 @@ class Player extends Component {
     // Which sucks... I feel like I'm writing a Backbone view again. Alas.
     // Also when I had put a canplay event here it was never getting fired,
     // what's up with that? ended works though.
-    this.getAudioElement().addEventListener('ended', this.props.onEnded);
-
-    if (this.props.haveTrack) {
-      this._startNewTrack();
-    }
+    // TODO When you upgrade React, use the built-in support for these events
+    const audioEl = this.getAudioElement();
+    audioEl.addEventListener('ended', this.props.onEnded);
+    audioEl.addEventListener('loadedmetadata', this._handleLoadedMetadata);
   }
 
   componentWillUnmount() {
     // FIXME: Does this ever get called tho? <Player /> always rendered
     // in app...
     this.forceStopDownloading();
+    const audioEl = this._audioEl;
+    if (audioEl) {
+      audioEl.removeEventListener('ended', this.props.onEnded);
+      audioEl.removeEventListener('loadedmetadata', this._handleLoadedMetadata);
+    }
   }
 
-  _startNewTrack(
-    time: ?number,
-    paused: ?boolean
-  ) {
-    if (time != null) {
-      this.getAudioElement().currentTime = time;
+  _handleLoadedMetadata = () => {
+    if (!this.props.haveTrack) {
+      return;  // Ignore load of dummy audio
+    }
+
+    const {paused, initialTrackTime} = this.props;
+    const audioEl = this.getAudioElement();
+    if (initialTrackTime != null) {
+      audioEl.currentTime = initialTrackTime;
     }
     if (!paused) {
-      this.getAudioElement().play();
+      audioEl.play();
     }
-  }
+  };
 
   getAudioElement(): HTMLAudioElement {
     invariant(
@@ -139,7 +148,14 @@ class Player extends Component {
     if (this.props.haveTrack) {
       if (!prevProps.haveTrack || this.props.filename !== prevProps.filename) {
         // new track
-        this._startNewTrack(this.props.initialTrackTime, this.props.paused);
+        if (
+          this.getAudioElement().readyState < MEDIA_READY_STATE_HAVE_METADATA
+        ) {
+          // Do nothing, we can't seek or play yet.
+          // The loaded-metadata handler will seek.
+        } else {
+          this._handleLoadedMetadata();
+        }
       } else if (this.props.paused && !prevProps.paused) {
         this.getAudioElement().pause();
       } else if (!this.props.paused && prevProps.paused) {
