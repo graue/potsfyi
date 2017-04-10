@@ -256,5 +256,11 @@ class SearchBox extends React.Component {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
+  (stateProps, dispatchProps, ownProps) => ({
+    ...ownProps,
+    ...dispatchProps,
+    ...stateProps,
+  }),
+  {withRef: true}
 )(SearchBox);
