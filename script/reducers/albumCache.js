@@ -22,7 +22,7 @@ function normalize(rawAlbum: ServerAlbum): Album {
   };
 }
 
-type AlbumCacheState = {
+export type AlbumCacheState = {
   cache: {[key: string]: Album},
 };
 

@@ -20,7 +20,7 @@ function normalize(rawTrack: ServerTrack): Track {
   };
 }
 
-type TrackCacheState = {
+export type TrackCacheState = {
   cache: {[key: string]: Track},
 };
 

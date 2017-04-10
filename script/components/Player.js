@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import emptyTrackURI from '../utils/emptyTrackURI';
 import invariant from '../utils/invariant';
 import {getPlayingTrack} from '../selectors/selectors';
+import type {ReduxState} from '../stores/store';
 import supportedAudioFormats from '../utils/supportedAudioFormats';
 
 type PlayerProps = {
@@ -19,8 +20,6 @@ type PlayerProps = {
 };
 
 type PlayerState = void;
-
-type ReduxState = any;  // FIXME
 
 function mapStateToProps(state: ReduxState) {
   const trackId = getPlayingTrack(state);

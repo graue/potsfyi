@@ -3,6 +3,8 @@
 
 import React, {PropTypes} from 'react';
 import {connect} from 'react-redux';
+import {getPlayingTrack} from '../selectors/selectors';
+import type {ReduxState} from '../stores/store';
 
 import './CoverArt.css';
 
@@ -10,11 +12,9 @@ type CoverArtProps = {
   art: ?string,
 };
 
-type ReduxState = any;
-
 function mapStateToProps(state: ReduxState): CoverArtProps {
   let art = null;
-  const trackId = state.playStatus.playingIndex;
+  const trackId = getPlayingTrack(state);
   if (trackId != null) {
     const track = state.trackCache.cache[trackId];
     if (track.albumId != null) {

@@ -17,14 +17,14 @@ function createNonce(): Nonce {
   return _insertionCount++;
 }
 
-type PlayStatus = {
+export type PlayStatusState = {
   playlist: Array<[string, Nonce]>,  // [track ID, nonce] tuples
   playingIndex: ?number,
   initialTrackTime: ?number,  // Used when hydrating a saved playlist.
   paused: boolean,
 };
 
-const initialState: PlayStatus = {
+const initialState: PlayStatusState = {
   playlist: [],
   playingIndex: null,
   initialTrackTime: null,
@@ -32,9 +32,9 @@ const initialState: PlayStatus = {
 };
 
 export default function playStatus(
-  state: PlayStatus = initialState,
+  state: PlayStatusState = initialState,
   action: Action
-): PlayStatus {
+): PlayStatusState {
   if (action.type === 'reorderPlaylist') {
     invariant(
       action.from != null && action.from >= 0
@@ -125,9 +125,9 @@ export default function playStatus(
 }
 
 function hydrate(
-  state: PlayStatus,
+  state: PlayStatusState,
   action: ActionHydrateSavedPlaylistSuccess
-): PlayStatus {
+): PlayStatusState {
   const {
     savedPlaylistItems,
     savedIndex,

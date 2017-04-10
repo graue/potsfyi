@@ -11,6 +11,7 @@ import Icon from './Icon';
 import invariant from 'invariant';
 import React from 'react';
 import {connect} from 'react-redux';
+import type {ReduxState} from '../stores/store';
 import {
   canNext,
   canPause,
@@ -20,8 +21,6 @@ import {
 import Srt from './Srt';
 
 import './Nav.css';
-
-type ReduxState = any;
 
 type NavStateProps = {
   index: ?number,

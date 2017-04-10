@@ -9,7 +9,7 @@ export type Result = {
   isAlbum: boolean,
 };
 
-type SearchState = {
+export type SearchState = {
   query: string,
   isLoading: boolean,
   results: {
