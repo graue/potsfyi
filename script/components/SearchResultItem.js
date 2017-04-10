@@ -35,6 +35,12 @@ class SearchResultItem extends Component {
     onClick: PropTypes.func.isRequired,
   };
 
+  // $FlowFixMe need to upgrade
+  _handleClick = (e: SyntheticMouseEvent) => {
+    e.preventDefault();
+    this.props.onClick(e);
+  };
+
   _maybeRenderSpinner(): ?React.Element<any> {
     if (this.props.hasSpinner) {
       return (
@@ -58,7 +64,7 @@ class SearchResultItem extends Component {
           className="SearchResultItem_Link"
           href="#"
           onBlur={this.props.onBlur}
-          onClick={this.props.onClick}>
+          onClick={this._handleClick}>
           {this.props.artist}
           {' — '}
           {this.props.title}
