@@ -75,7 +75,8 @@ export default function playStatus(
       ],
     };
   } else if (action.type === 'removeFromPlaylist') {
-    const playlist = state.playlist.slice().splice(action.index, 1);
+    const playlist = state.playlist.slice();
+    playlist.splice(action.index, 1);
     let {playingIndex} = state;
     if (playingIndex != null && playingIndex > action.index) {
       // We deleted a track before the currently playing track.
