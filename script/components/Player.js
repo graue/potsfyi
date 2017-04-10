@@ -1,24 +1,29 @@
 "use strict";
 // @flow
 
-import PlayStatusStore from '../stores/PlayStatusStore';
-import PlaybackActionCreators from '../actions/PlaybackActionCreators';
+import {trackEnded} from '../actions/ActionCreators';
+import type {Action} from '../actions/ActionCreators';
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import emptyTrackURI from '../utils/emptyTrackURI';
 import invariant from '../utils/invariant';
+import {getPlayingTrack} from '../selectors/selectors';
 import supportedAudioFormats from '../utils/supportedAudioFormats';
 
-type PlayerProps = {};
-
-type PlayerState = {
+type PlayerProps = {
   haveTrack: boolean,
   filename?: string,
   paused?: boolean,
-  initialTrackTime?: number,
+  initialTrackTime?: ?number,
+  onEnded: () => mixed,
 };
 
-function getStateFromStores(): PlayerState {
-  const trackId = PlayStatusStore.getPlayingTrack();
+type PlayerState = void;
+
+type ReduxState = any;  // FIXME
+
+function mapStateToProps(state: ReduxState) {
+  const trackId = getPlayingTrack(state);
 
   if (trackId == null) {
     return {haveTrack: false};
@@ -30,13 +35,23 @@ function getStateFromStores(): PlayerState {
   // on the fly).
   const filename = '/track/' + trackId + '/' + supportedAudioFormats();
 
-  const initialTrackTime = PlayStatusStore.getInitialTrackTime();
+  const initialTrackTime = state.playStatus.initialTrackTime;
 
   return {
     haveTrack: true,
     filename,
-    paused: PlayStatusStore.getTrackPlayStatus().paused,
+    paused: state.playStatus.paused,
     initialTrackTime,
+  };
+}
+
+function mapDispatchToProps(
+  dispatch: (action: Action) => Action
+) {
+  return {
+    onEnded() {
+      dispatch(trackEnded());
+    },
   };
 }
 
@@ -47,19 +62,16 @@ class Player extends Component {
 
   constructor(props: PlayerProps) {
     super(props);
-    this.state = getStateFromStores();
   }
 
   componentDidMount() {
-    PlayStatusStore.addChangeListener(this._handleChange);
-
     // Attach event handlers. Sadly React doesn't support media element events.
     // Which sucks... I feel like I'm writing a Backbone view again. Alas.
     // Also when I had put a canplay event here it was never getting fired,
     // what's up with that? ended works though.
-    this.getAudioElement().addEventListener('ended', this._handleEnded);
+    this.getAudioElement().addEventListener('ended', this.props.onEnded);
 
-    if (this.state.haveTrack) {
+    if (this.props.haveTrack) {
       this._startNewTrack();
     }
   }
@@ -67,7 +79,6 @@ class Player extends Component {
   componentWillUnmount() {
     // FIXME: Does this ever get called tho? <Player /> always rendered
     // in app...
-    PlayStatusStore.removeChangeListener(this._handleChange);
     this.forceStopDownloading();
   }
 
@@ -82,16 +93,6 @@ class Player extends Component {
       this.getAudioElement().play();
     }
   }
-
-  // $FlowFixMe
-  _handleChange = () => {
-    this.setState(getStateFromStores());
-  };
-
-  // $FlowFixMe
-  _handleEnded = () => {
-    PlaybackActionCreators.trackEnded();
-  };
 
   getAudioElement(): HTMLAudioElement {
     invariant(
@@ -121,9 +122,9 @@ class Player extends Component {
     // If the track is changing or there's no new track, stop downloading
     // the current one.
     if (
-      this.state.haveTrack && (
-        !nextState.haveTrack ||
-        nextState.filename !== this.state.filename
+      this.props.haveTrack && (
+        !nextProps.haveTrack ||
+        nextProps.filename !== this.props.filename
       )
     ) {
       this.forceStopDownloading();
@@ -136,13 +137,13 @@ class Player extends Component {
   ) {
     // Handle pausing, unpausing, and loading new tracks. Ugly imperative mess.
 
-    if (this.state.haveTrack) {
-      if (!prevState.haveTrack || this.state.filename !== prevState.filename) {
+    if (this.props.haveTrack) {
+      if (!prevProps.haveTrack || this.props.filename !== prevProps.filename) {
         // new track
-        this._startNewTrack(this.state.initialTrackTime, this.state.paused);
-      } else if (this.state.paused && !prevState.paused) {
+        this._startNewTrack(this.props.initialTrackTime, this.props.paused);
+      } else if (this.props.paused && !prevProps.paused) {
         this.getAudioElement().pause();
-      } else if (!this.state.paused && prevState.paused) {
+      } else if (!this.props.paused && prevProps.paused) {
         this.getAudioElement().play();
       }
     }
@@ -153,11 +154,21 @@ class Player extends Component {
       <div>
         <audio
           ref={node => this._audioEl = node}
-          src={this.state.haveTrack ? this.state.filename : emptyTrackURI}
+          src={this.props.haveTrack ? this.props.filename : emptyTrackURI}
         />
       </div>
     );
   }
 }
 
-export default Player;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  (stateProps, dispatchProps, ownProps) => Object.assign(
+    {},
+    ownProps,
+    stateProps,
+    dispatchProps
+  ),
+  {withRef: true}
+)(Player);
