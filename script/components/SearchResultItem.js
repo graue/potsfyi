@@ -36,7 +36,7 @@ class SearchResultItem extends React.Component {
   _handleClick = (e: SyntheticMouseEvent) => {
     e.preventDefault();
     this.props.onClick(e);
-  };
+  }
 
   _maybeRenderSpinner(): ?React.Element<any> {
     if (this.props.hasSpinner) {

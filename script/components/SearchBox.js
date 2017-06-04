@@ -139,7 +139,7 @@ class SearchBox extends React.Component {
 
   _handleBlur = (e: SyntheticFocusEvent) => {
     this.setState({dropdownHidden: true});
-  };
+  }
 
   _handlePossibleBlur = (e: SyntheticFocusEvent) => {
     // Filter blur events so that _handleBlur is not called if some *part*
@@ -172,7 +172,7 @@ class SearchBox extends React.Component {
         this._handleBlur(e);
       }
     }, 0);
-  };
+  }
 
   _handleResultClick = (
     index: number,
@@ -181,11 +181,11 @@ class SearchBox extends React.Component {
     const item = this.props.resultItems[index];
     const tracksToAdd = item.isAlbum ? item.tracks : [item.id];
     this.props.onTrackAdd(tracksToAdd);
-  };
+  }
 
   _handleFocus = (e: SyntheticFocusEvent) => {
     this.setState({dropdownHidden: false});
-  };
+  }
 
   focus() {
     const node = this._inputNode;
@@ -213,7 +213,7 @@ class SearchBox extends React.Component {
         this.props.onDebouncedQueryChange(query);
       }, SEARCH_DEBOUNCE_TIME);
     }
-  };
+  }
 
   _isDropdownPresent(): boolean {
     const {dropdownHidden, transientQuery} = this.state;

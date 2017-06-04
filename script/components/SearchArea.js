@@ -14,7 +14,7 @@ class SearchArea extends Component {
     if (this._box) {
       this._box.getWrappedInstance().focus();
     }
-  };
+  }
 
   render() {
     return (

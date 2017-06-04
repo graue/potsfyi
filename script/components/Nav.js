@@ -78,17 +78,17 @@ class Nav extends React.Component {
     super(props);
   }
 
-  _handlePrevClick: () => void = () => {
+  _handlePrevClick = () => {
     invariant(this.props.index != null, 'cannot prev when no track active');
     this.props.onPlay(this.props.index - 1);
-  };
+  }
 
-  _handleNextClick: () => void = () => {
+  _handleNextClick = () => {
     invariant(this.props.index != null, 'cannot next when no track active');
     this.props.onPlay(this.props.index + 1);
-  };
+  }
 
-  _handlePlayPauseClick: () => void = () => {
+  _handlePlayPauseClick = () => {
     if (this.props.index == null) {
       this.props.onPlay(0);
     } else if (this.props.paused) {
@@ -96,7 +96,7 @@ class Nav extends React.Component {
     } else {
       this.props.onPause();
     }
-  };
+  }
 
   render() {
     const {canPrev, canNext, canPlay, canPause} = this.props;

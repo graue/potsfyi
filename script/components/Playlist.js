@@ -106,14 +106,14 @@ class Playlist extends Component {
     e: SyntheticMouseEvent
   ) => {
     this.props.onTrackPlay(index);
-  };
+  }
 
   _handleTrackRemoveClick = (
     index: number,
     e: SyntheticMouseEvent
   ) => {
     this.props.onTrackRemove(index);
-  };
+  }
 
   // TODO: Do we need makeSortable/teardownSortable on DidUpdate and
   // WillUpdate? Delete this comment if you determine that we don't.

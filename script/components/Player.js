@@ -100,7 +100,7 @@ class Player extends Component {
     if (!paused) {
       audioEl.play();
     }
-  };
+  }
 
   getAudioElement(): HTMLAudioElement {
     invariant(
