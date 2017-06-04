@@ -35,7 +35,6 @@ class SearchResultItem extends Component {
     onClick: PropTypes.func.isRequired,
   };
 
-  // $FlowFixMe need to upgrade
   _handleClick = (e: SyntheticMouseEvent) => {
     e.preventDefault();
     this.props.onClick(e);

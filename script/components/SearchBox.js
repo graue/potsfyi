@@ -196,7 +196,6 @@ class SearchBox extends React.Component {
   }
 
   _handleInput = (event: SyntheticInputEvent) => {
-    // $FlowFixMe: need to parameterize the event I guess
     const query = event.target.value;
     this.setState({transientQuery: query});
 

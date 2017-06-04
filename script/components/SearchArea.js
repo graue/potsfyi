@@ -10,7 +10,6 @@ import SearchBox from './SearchBox';
 class SearchArea extends Component {
   _box: ?SearchBox;  // FIXME: It's really a React-Redux wrapped version
 
-  // $FlowFixMe: I think upgrading Flow will make this OK
   _handleClick = (e: SyntheticMouseEvent) => {
     if (this._box) {
       this._box.getWrappedInstance().focus();
