@@ -1,7 +1,8 @@
 "use strict";
 // @flow
 
-import React, {PropTypes} from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Srt from './Srt';
 import keyMirror from 'keymirror';
 

@@ -1,10 +1,8 @@
 "use strict";
 // @flow
 
-import React, {
-  Component,
-  PropTypes,
-} from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import Spinner from './Spinner';
 import invariant from 'invariant';
 
@@ -21,7 +19,7 @@ type SearchResultItemProps = {
   onClick: (e: SyntheticMouseEvent) => mixed,
 };
 
-class SearchResultItem extends Component {
+class SearchResultItem extends React.Component {
   props: SearchResultItemProps;
 
   static propTypes = {

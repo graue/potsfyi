@@ -1,7 +1,8 @@
 "use strict";
 // @flow
 
-import React, {PropTypes} from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import {connect} from 'react-redux';
 import {getPlayingTrack} from '../selectors/selectors';
 import type {ReduxState} from '../stores/store';

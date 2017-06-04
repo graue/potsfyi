@@ -1,7 +1,8 @@
 "use strict";
 // @flow
 
-import React, {PropTypes} from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import type {HydratedSearchResult} from './SearchBox';
 import SearchResultItem from './SearchResultItem';
 import Spinner from './Spinner';

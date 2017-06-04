@@ -2,10 +2,8 @@
 // @flow
 
 import Icon from './Icon';
-import React, {
-  Component,
-  PropTypes,
-} from 'react';
+import PropTypes from 'prop-types';
+import React from 'react';
 import cx from 'classnames';
 
 import './PlaylistItem.css';
@@ -21,7 +19,7 @@ type PlaylistItemProps = {
   },
 };
 
-class PlaylistItem extends Component {
+class PlaylistItem extends React.Component {
   props: PlaylistItemProps;
   static propTypes = {
     isPlaying: PropTypes.bool.isRequired,
