@@ -60,7 +60,7 @@ class App extends React.Component {
     });
   }
 
-  render(): React.Element {
+  render() {
     return (
       <Provider store={store}>
         <div id="app">

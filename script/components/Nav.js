@@ -98,7 +98,7 @@ class Nav extends React.Component {
     }
   };
 
-  render(): React.Element {
+  render() {
     const {canPrev, canNext, canPlay, canPause} = this.props;
 
     return (

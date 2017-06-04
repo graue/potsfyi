@@ -27,7 +27,7 @@ class PlaylistArea extends React.Component {
     super(props);
   }
 
-  render(): React.Element<any> {
+  render() {
     const content = this.props.isPlaylistEmpty ? <ArtistList /> : <Playlist />;
     return (
       <div className="PlaylistArea">

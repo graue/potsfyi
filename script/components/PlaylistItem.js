@@ -34,7 +34,7 @@ class PlaylistItem extends Component {
     }).isRequired,
   };
 
-  render(): React.Element<any> {
+  render() {
     const track = this.props.track;
 
     const classes = cx({

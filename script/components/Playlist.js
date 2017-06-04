@@ -144,7 +144,7 @@ class Playlist extends Component {
     $(rootNode).sortable('destroy');
   }
 
-  render(): React.Element<any> {
+  render() {
     const tracks = this.props.tracks;
 
     const items = tracks.map((track, index) => {

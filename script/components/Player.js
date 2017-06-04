@@ -164,7 +164,7 @@ class Player extends Component {
     }
   }
 
-  render(): React.Element<any> {
+  render() {
     return (
       <div>
         <audio

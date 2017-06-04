@@ -222,7 +222,7 @@ class SearchBox extends React.Component {
     );
   }
 
-  render(): React.Element<any> {
+  render() {
     const {resultItems, isLoading} = this.props;
     const {transientQuery} = this.state;
     const shouldRenderDropdown = this._isDropdownPresent();

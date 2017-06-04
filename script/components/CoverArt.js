@@ -37,7 +37,7 @@ class CoverArt extends React.Component {
     super(props);
   }
 
-  render(): React.Element {
+  render() {
     const styles = {
       backgroundImage: this.props.art
         ? 'url(' + encodeURI(this.props.art) + ')'

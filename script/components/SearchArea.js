@@ -17,7 +17,7 @@ class SearchArea extends Component {
     }
   };
 
-  render(): React.Element<any> {
+  render() {
     return (
       <div className="SearchArea">
         <Icon

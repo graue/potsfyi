@@ -43,7 +43,7 @@ class SearchResultsDropdown extends React.Component {
     );
   }
 
-  render(): React.Element<any> {
+  render() {
     let {isLoading, items, onBlur} = this.props;
 
     let rows;

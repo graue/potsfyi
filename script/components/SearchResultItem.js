@@ -53,7 +53,7 @@ class SearchResultItem extends Component {
     }
   }
 
-  render(): React.Element<any> {
+  render() {
     // TODO: Render the cover art if present.
     // TODO: Show albums differently from tracks (even if they don't have
     // cover art).

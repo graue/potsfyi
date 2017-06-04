@@ -43,7 +43,7 @@ class Icon extends React.Component {
     onClick?: ?(e: SyntheticMouseEvent) => mixed,
   };
 
-  render(): React.Element {
+  render() {
     const character = String.fromCharCode(NAME_TO_CHARCODE[this.props.name]);
     const iconSpan = <span aria-hidden="true" data-icon={character} />;
     let classes = this.props.className || '';
