@@ -110,6 +110,7 @@ type SearchBoxState = {
 class SearchBox extends React.Component {
   props: SearchBoxProps;
   state: SearchBoxState;
+  _inputNode: ?HTMLInputElement;
   _blurTimeoutId: ?number;
   _searchTimeoutId: ?number;
 
@@ -136,7 +137,7 @@ class SearchBox extends React.Component {
     clearTimeout(this._blurTimeoutId);
   }
 
-  _handleBlur = () => {
+  _handleBlur = (e: SyntheticFocusEvent) => {
     this.setState({dropdownHidden: true});
   };
 
@@ -159,12 +160,13 @@ class SearchBox extends React.Component {
 
     clearTimeout(this._blurTimeoutId);
     this._blurTimeoutId = setTimeout(() => {
+      const dropdownNode = ReactDOM.findDOMNode(this.refs.dropdown);
       if (
-        document.activeElement !== ReactDOM.findDOMNode(this.refs.input) &&
+        document.activeElement !== this._inputNode &&
         (
           !this._isDropdownPresent() ||
-          !ReactDOM.findDOMNode(this.refs.dropdown)
-            .contains(document.activeElement)
+          !dropdownNode ||
+          !dropdownNode.contains(document.activeElement)
         )
       ) {
         this._handleBlur(e);
@@ -186,9 +188,11 @@ class SearchBox extends React.Component {
   };
 
   focus() {
-    let node = ReactDOM.findDOMNode(this.refs.input);
-    node.focus();
-    node.select();
+    const node = this._inputNode;
+    if (node) {
+      node.focus();
+      node.select();
+    }
   }
 
   _handleInput = (event: SyntheticInputEvent) => {
@@ -245,7 +249,7 @@ class SearchBox extends React.Component {
           onBlur={this._handlePossibleBlur}
           onChange={this._handleInput}
           onFocus={this._handleFocus}
-          ref="input"
+          ref={c => this._inputNode = c}
           value={transientQuery}
         />
         {maybeDropdown}
