@@ -3,6 +3,14 @@
   padding-right: 15px;  /* Leaves room for PlaylistItemRemoveLink */
 }
 
+.PlaylistItem_DragTarget {
+  cursor: grab;
+}
+
+.PlaylistItem_DragTarget-dragging {
+  cursor: grabbing;
+}
+
 .PlaylistItem_PlayingIndicator {
   position: absolute;
   left: 0;

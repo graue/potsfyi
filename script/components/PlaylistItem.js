@@ -12,7 +12,6 @@ type PlaylistItemProps = {
   isPlaying: boolean,
   onClick: (e: SyntheticMouseEvent) => mixed,
   onRemoveClick: (e: SyntheticMouseEvent) => mixed,
-  sortIndex: number,
   track: {
     artist: string,
     title: string,
@@ -22,10 +21,10 @@ type PlaylistItemProps = {
 class PlaylistItem extends React.Component {
   props: PlaylistItemProps;
   static propTypes = {
+    isDragging: PropTypes.bool.isRequired,
     isPlaying: PropTypes.bool.isRequired,
     onClick: PropTypes.func.isRequired,
     onRemoveClick: PropTypes.func.isRequired,
-    sortIndex: PropTypes.number.isRequired,
     track: PropTypes.shape({
       artist: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
@@ -34,11 +33,6 @@ class PlaylistItem extends React.Component {
 
   render() {
     const track = this.props.track;
-
-    const classes = cx({
-      PlaylistItem: true,
-      PlaylistItem_Playing: this.props.isPlaying,
-    });
 
     let playingIndicator = '';
     if (this.props.isPlaying) {
@@ -55,9 +49,18 @@ class PlaylistItem extends React.Component {
 
     return (
       <li
-        className={classes}
-        data-idx={this.props.sortIndex}>
-        <span onClick={this.props.onClick}>
+        className={cx({
+          PlaylistItem: true,
+          PlaylistItem_Playing: this.props.isPlaying,
+        })}
+      >
+        <span
+          className={cx({
+            PlaylistItem_DragTarget: true,
+            "PlaylistItem_DragTarget-dragging": this.props.isDragging,
+          })}
+          onClick={this.props.onClick}
+        >
           {playingIndicator}
           <span className="PlaylistItem_Artist">
             {track.artist}

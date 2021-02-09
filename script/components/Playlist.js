@@ -77,6 +77,7 @@ class Playlist extends Component {
 
   constructor(props: PlaylistProps) {
     super(props);
+    this.state = {draggingIndex: null};
     this._bindHandlers(props);
   }
 
@@ -122,18 +123,18 @@ class Playlist extends Component {
     const rootNode = ReactDOM.findDOMNode(this.refs.itemList);
     $(rootNode).disableSelection().sortable({
       distance: 10,
+      start: (event, ui) => {
+        this.setState({draggingIndex: ui.item.index()});
+      },
       stop: (event, ui) => {
-        // jQuery UI doesn't give us the old (pre-drag) index,
-        // so use the data-idx attribute (which was set via the
-        // PlaylistItemView's sortIndex prop).
-        const fromIndex = ui.item.attr('data-idx') | 0;
+        const fromIndex = this.state.draggingIndex;
         const toIndex = ui.item.index();
 
         // Prevent jQuery UI from actually moving the element,
         // which would confuse React.
         $(rootNode).sortable('cancel');
 
-        // Instead, call a callback and we'll eventually end up rerendering.
+        this.setState({draggingIndex: null});
         this.props.onReorderTrack(fromIndex, toIndex);
       },
     });
@@ -151,11 +152,11 @@ class Playlist extends Component {
       const isPlaying = index === this.props.playingIndex;
       return (
         <PlaylistItem
+          isDragging={this.state.draggingIndex === index}
           isPlaying={isPlaying}
           key={track.key}
           onClick={this._boundOnClicks[index]}
           onRemoveClick={this._boundOnRemoveClicks[index]}
-          sortIndex={index}
           track={track}
         />
       );
