@@ -123,12 +123,14 @@ class Player extends Component {
     this.getAudioElement().src = emptyTrackURI;
   }
 
-  componentWillUpdate(
+  UNSAFE_componentWillUpdate(
     nextProps: PlayerProps,
     nextState: PlayerState
   ) {
     // If the track is changing or there's no new track, stop downloading
     // the current one.
+    // FIXME: This is tricky to write without WillUpdate. After the update, the src
+    // will point to the new track so it's too late to do this.
     if (
       this.props.haveTrack && (
         !nextProps.haveTrack ||

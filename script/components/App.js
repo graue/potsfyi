@@ -16,7 +16,8 @@ class App extends React.Component {
   _player: Player;
   _interval: number;
 
-  componentWillMount() {
+  constructor(props) {
+    super(props);
     const savedState = SavedState.read();
     if (savedState) {
       store.dispatch(hydrateSavedPlaylistAsync(

@@ -16,9 +16,8 @@ type SearchResultsDropdownProps = {
   onItemClick: (index: number, e: SyntheticMouseEvent) => mixed,
 };
 
-class SearchResultsDropdown extends React.Component {
+class SearchResultsDropdown extends React.PureComponent {
   props: SearchResultsDropdownProps;
-  _boundClickHandlers: Array<(e: SyntheticMouseEvent) => mixed>;
 
   static propTypes = {
     isLoading: PropTypes.bool.isRequired,
@@ -31,17 +30,6 @@ class SearchResultsDropdown extends React.Component {
 
   constructor(props: SearchResultsDropdownProps) {
     super(props);
-    this._bindClickHandlers(props);
-  }
-
-  componentWillReceiveProps(nextProps: SearchResultsDropdownProps) {
-    this._bindClickHandlers(nextProps);
-  }
-
-  _bindClickHandlers(props: SearchResultsDropdownProps) {
-    this._boundClickHandlers = props.items.map(
-      (item, index) => props.onItemClick.bind(null, index)
-    );
   }
 
   render() {
@@ -66,7 +54,7 @@ class SearchResultsDropdown extends React.Component {
             hasSpinner={isLoading && index === 0}
             key={key}
             onBlur={onBlur}
-            onClick={this._boundClickHandlers[index]}
+            onClick={this.props.onItemClick.bind(null, index)}
             artist={item.artist}
             title={item.title}
             id={item.id}

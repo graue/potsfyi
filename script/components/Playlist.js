@@ -72,34 +72,18 @@ function mapDispatchToProps(
 class Playlist extends Component {
   props: PlaylistProps;
   state: PlaylistState;
-  _boundOnClicks: Array<(e: SyntheticMouseEvent) => mixed>;
-  _boundOnRemoveClicks: Array<(e: SyntheticMouseEvent) => mixed>;
 
   constructor(props: PlaylistProps) {
     super(props);
     this.state = {draggingIndex: null};
-    this._bindHandlers(props);
   }
 
   componentDidMount() {
     this._makeSortable();
   }
 
-  componentWillReceiveProps(nextProps: PlaylistProps) {
-    this._bindHandlers(nextProps);
-  }
-
   componentWillUnmount() {
     this._teardownSortable();
-  }
-
-  _bindHandlers(props: PlaylistProps) {
-    this._boundOnClicks = props.tracks.map(
-      (track, index) => this._handleTrackClick.bind(this, index)
-    );
-    this._boundOnRemoveClicks = props.tracks.map(
-      (track, index) => this._handleTrackRemoveClick.bind(this, index)
-    );
   }
 
   _handleTrackClick = (
@@ -115,9 +99,6 @@ class Playlist extends Component {
   ) => {
     this.props.onTrackRemove(index);
   }
-
-  // TODO: Do we need makeSortable/teardownSortable on DidUpdate and
-  // WillUpdate? Delete this comment if you determine that we don't.
 
   _makeSortable() {
     const rootNode = ReactDOM.findDOMNode(this.refs.itemList);
@@ -155,8 +136,8 @@ class Playlist extends Component {
           isDragging={this.state.draggingIndex === index}
           isPlaying={isPlaying}
           key={track.key}
-          onClick={this._boundOnClicks[index]}
-          onRemoveClick={this._boundOnRemoveClicks[index]}
+          onClick={this._handleTrackClick.bind(this, index)}
+          onRemoveClick={this._handleTrackRemoveClick.bind(this, index)}
           track={track}
         />
       );
