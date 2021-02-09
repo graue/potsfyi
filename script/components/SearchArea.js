@@ -12,7 +12,7 @@ class SearchArea extends Component {
 
   _handleClick = (e: SyntheticMouseEvent) => {
     if (this._box) {
-      this._box.getWrappedInstance().focus();
+      this._box.focus();
     }
   }
 

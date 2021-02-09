@@ -55,7 +55,7 @@ class App extends React.Component {
       index: state.playStatus.playingIndex,
       paused: state.playStatus.paused,
       trackTime: (
-        this._player.getWrappedInstance().getAudioElement().currentTime
+        this._player.getAudioElement().currentTime
       ),
     });
   }

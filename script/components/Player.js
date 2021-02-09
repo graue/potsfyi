@@ -185,5 +185,5 @@ export default connect(
     stateProps,
     dispatchProps
   ),
-  {withRef: true}
+  {forwardRef: true}
 )(Player);

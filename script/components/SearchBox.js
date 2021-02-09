@@ -265,5 +265,5 @@ export default connect(
     ...dispatchProps,
     ...stateProps,
   }),
-  {withRef: true}
+  {forwardRef: true}
 )(SearchBox);
