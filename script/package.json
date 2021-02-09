@@ -11,8 +11,6 @@
     "adler-32": "^1.0.0",
     "babel-runtime": "^6.23.0",
     "classnames": "^2.2.5",
-    "es6-promise": "^4.1.0",
-    "keymirror": "^0.1.1",
     "prop-types": "^15.5.10",
     "react": "^15.5.3",
     "react-dom": "^15.5.3",

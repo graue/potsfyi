@@ -4,7 +4,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import Srt from './Srt';
-import keyMirror from 'keymirror';
 
 // Webfont-based icons that are intended to be reasonably accessible to
 // screen reader users, inspired by the suggestions at:
@@ -25,7 +24,7 @@ const NAME_TO_CHARCODE: {[key: string]: number} = {
   MAGNIFYING_GLASS: 0xf16c,
 };
 
-const ICON_NAMES = keyMirror(NAME_TO_CHARCODE);
+const ICON_NAMES = Object.fromEntries(Object.keys(NAME_TO_CHARCODE).map(name => [name, name]));
 
 class Icon extends React.Component {
   static NAMES = ICON_NAMES;
