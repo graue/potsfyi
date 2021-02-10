@@ -1,27 +1,38 @@
+const path = require('path');
+
 module.exports = {
   cache: true,
+  mode: 'development',
   entry: './main',
+  stats: {
+    colors: true,
+  },
   output: {
-    filename: '../static/bundle.js'
+    path: path.resolve(__dirname, '../static'),
+    filename: 'bundle.js'
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel',
-        query: {
-          presets: ['react', 'es2015'],
+        loader: 'babel-loader',
+        options: {
+          presets: [
+            '@babel/preset-react',
+            '@babel/preset-flow',
+            '@babel/preset-env',
+          ],
           plugins: [
-            'transform-runtime',
-            'transform-object-rest-spread',
-            'transform-class-properties',
+            '@babel/plugin-transform-runtime',
+            '@babel/plugin-proposal-object-rest-spread',
+            '@babel/plugin-proposal-class-properties',
           ],
         },
       },
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader',
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },
