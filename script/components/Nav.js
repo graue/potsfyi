@@ -6,7 +6,7 @@ import {
 } from '../actions/ActionCreators';
 import cx from 'classnames';
 import Icon from './Icon';
-import invariant from 'invariant';
+import invariant from '../utils/invariant';
 import React from 'react';
 import {connect} from 'react-redux';
 import {

@@ -3,7 +3,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import Spinner from './Spinner';
-import invariant from 'invariant';
+import invariant from '../utils/invariant';
 
 import './SearchResultItem.css';
 
