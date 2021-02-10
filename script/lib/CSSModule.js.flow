@@ -1,5 +1,0 @@
-// @flow
-
-// This project's CSS modules don't export anything
-// (Note: We are not using this implementation of CSS modules
-//  https://github.com/css-modules/css-modules)

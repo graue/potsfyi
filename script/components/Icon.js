@@ -1,5 +1,4 @@
 "use strict";
-// @flow
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -13,7 +12,7 @@ import Srt from './Srt';
 // the names in here.
 //
 // In the meantime, just a few icons we plan to use are here.
-const NAME_TO_CHARCODE: {[key: string]: number} = {
+const NAME_TO_CHARCODE = {
   LIST: 0xf169,
   X: 0xf217,
   PLUS: 0xf199,
@@ -34,13 +33,6 @@ class Icon extends React.Component {
     className: PropTypes.string,
     name: PropTypes.oneOf(Object.keys(ICON_NAMES)).isRequired,
     onClick: PropTypes.func,
-  };
-
-  props: {
-    alt?: ?string,
-    className?: ?string,
-    name: string,
-    onClick?: ?(e: SyntheticMouseEvent) => mixed,
   };
 
   render() {

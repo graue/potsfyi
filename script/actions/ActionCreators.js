@@ -1,56 +1,32 @@
 "use strict";
-// @flow
 
-import type {SavedPlaylistItem} from '../utils/SavedState';
-import type {
-  ServerSearchResult,
-  ServerTrack,
-  ServerAlbum,
-} from '../types/server';
 import $ from '../lib/jquery.shim';
 
-export type ActionPlayTrack = {
-  type: 'playTrack',
-  index: ?number,
-};
-export function playTrack(indexOrNull: ?number): ActionPlayTrack {
+export function playTrack(indexOrNull) {
   return {
     type: 'playTrack',
     index: indexOrNull,
   };
 }
 
-export type ActionPauseTrack = {type: 'pauseTrack'};
-export function pauseTrack(): ActionPauseTrack {
+export function pauseTrack() {
   return {type: 'pauseTrack'};
 }
 
-export type ActionTrackEnded = {type: 'trackEnded'};
-export function trackEnded(): ActionTrackEnded {
+export function trackEnded() {
   return {type: 'trackEnded'};
 }
 
-export type ActionSearchAttempt = {
-  type: 'searchAttempt',
-  query: string,
-};
-export function searchAttempt(query: string) {
+export function searchAttempt(query) {
   return {
     type: 'searchAttempt',
     query,
   };
 }
 
-export type ActionSearchSuccess = {
-  type: 'searchSuccess',
-  forQuery: string,
-  albums: Array<ServerAlbum>,
-  tracks: Array<ServerTrack>,
-  results: Array<ServerSearchResult>,
-};
 export function searchSuccess(
-  query: string,
-  responseObj: Object
+  query,
+  responseObj
 ) {
   return {
     type: 'searchSuccess',
@@ -61,11 +37,11 @@ export function searchSuccess(
   };
 }
 
-let _pendingSearchRequest: ?XMLHttpRequest = null;
+let _pendingSearchRequest = null;
 export function searchAsync(
-  query: string
-): (dispatch: (action: Action) => Action) => void {
-  return (dispatch: (action: Action) => Action) => {
+  query
+) {
+  return (dispatch) => {
     dispatch(searchAttempt(query));
 
     // Cancel any request currently being sent, to avoid wasting bandwidth or
@@ -106,12 +82,7 @@ export function searchAsync(
   };
 }
 
-export type ActionReorderPlaylist = {
-  type: 'reorderPlaylist',
-  from: number,
-  to: number,
-};
-export function reorderPlaylist(from: number, to: number) {
+export function reorderPlaylist(from, to) {
   return {
     type: 'reorderPlaylist',
     from,
@@ -119,40 +90,25 @@ export function reorderPlaylist(from: number, to: number) {
   };
 }
 
-export type ActionAddToPlaylist = {
-  type: 'addToPlaylist',
-  trackIds: Array<string>,
-};
-export function addToPlaylist(trackIds: Array<string>) {
+export function addToPlaylist(trackIds) {
   return {
     type: 'addToPlaylist',
     trackIds,
   };
 }
 
-export type ActionRemoveFromPlaylist = {
-  type: 'removeFromPlaylist',
-  index: number,
-};
-export function removeFromPlaylist(index: number) {
+export function removeFromPlaylist(index) {
   return {
     type: 'removeFromPlaylist',
     index,
   };
 }
 
-export type ActionHydrateSavedPlaylistAttempt = {
-  type: 'hydrateSavedPlaylistAttempt',
-  savedPlaylistItems: Array<SavedPlaylistItem>,
-  savedIndex: ?number,
-  wasPaused: boolean,
-  trackTime: number,
-};
 export function hydrateSavedPlaylistAttempt(
-  savedPlaylistItems: Array<SavedPlaylistItem>,
-  savedIndex: ?number,
-  wasPaused: boolean,
-  trackTime: number
+  savedPlaylistItems,
+  savedIndex,
+  wasPaused,
+  trackTime
 ) {
   return {
     type: 'hydrateSavedPlaylistAttempt',
@@ -163,22 +119,13 @@ export function hydrateSavedPlaylistAttempt(
   };
 }
 
-export type ActionHydrateSavedPlaylistSuccess = {
-  type: 'hydrateSavedPlaylistSuccess',
-  savedPlaylistItems: Array<SavedPlaylistItem>,
-  savedIndex: ?number,
-  wasPaused: boolean,
-  trackTime: number,
-  tracks: Array<ServerTrack>,
-  albums: Array<ServerAlbum>,
-};
 export function hydrateSavedPlaylistSuccess(
-  savedPlaylistItems: Array<SavedPlaylistItem>,
-  savedIndex: ?number,
-  wasPaused: boolean,
-  trackTime: number,
-  tracks: Array<ServerTrack>,
-  albums: Array<ServerAlbum>
+  savedPlaylistItems,
+  savedIndex,
+  wasPaused,
+  trackTime,
+  tracks,
+  albums
 ) {
   return {
     type: 'hydrateSavedPlaylistSuccess',
@@ -192,12 +139,12 @@ export function hydrateSavedPlaylistSuccess(
 }
 
 export function hydrateSavedPlaylistAsync(
-  savedPlaylistItems: Array<SavedPlaylistItem>,
-  savedIndex: ?number,
-  wasPaused: boolean,
-  trackTime: number
-): (dispatch: (action: Action) => Action) => void {
-  return (dispatch: (action: Action) => Action) => {
+  savedPlaylistItems,
+  savedIndex,
+  wasPaused,
+  trackTime
+) {
+  return (dispatch) => {
     dispatch(hydrateSavedPlaylistAttempt(
       savedPlaylistItems,
       savedIndex,
@@ -228,16 +175,3 @@ export function hydrateSavedPlaylistAsync(
     );
   };
 }
-
-export type Action = (
-  ActionAddToPlaylist
-  | ActionHydrateSavedPlaylistAttempt
-  | ActionHydrateSavedPlaylistSuccess
-  | ActionPauseTrack
-  | ActionPlayTrack
-  | ActionRemoveFromPlaylist
-  | ActionReorderPlaylist
-  | ActionSearchAttempt
-  | ActionSearchSuccess
-  | ActionTrackEnded
-);

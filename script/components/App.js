@@ -1,5 +1,4 @@
 "use strict";
-// @flow
 
 import {hydrateSavedPlaylistAsync} from '../actions/ActionCreators';
 import * as Adler32 from 'adler-32';
@@ -8,14 +7,10 @@ import Player from './Player';
 import React from 'react';
 import {Provider} from 'react-redux';
 import * as SavedState from '../utils/SavedState';
-import type {SavedPlaylistItem} from '../utils/SavedState';
 import store from '../stores/store';
 import UIBar from './UIBar';
 
 class App extends React.Component {
-  _player: Player;
-  _interval: number;
-
   constructor(props) {
     super(props);
     const savedState = SavedState.read();
@@ -42,7 +37,7 @@ class App extends React.Component {
 
   _saveStateToLocalStorage() {
     const state = store.getState();
-    const items: Array<SavedPlaylistItem> = (
+    const items = (
       state.playStatus.playlist.map(([trackId, nonce]) => ({
         id: trackId,
         checksum: Adler32.str(

@@ -1,5 +1,4 @@
 "use strict";
-// @flow
 
 import Icon from './Icon';
 import PropTypes from 'prop-types';
@@ -8,18 +7,7 @@ import cx from 'classnames';
 
 import './PlaylistItem.css';
 
-type PlaylistItemProps = {
-  isPlaying: boolean,
-  onClick: (e: SyntheticMouseEvent) => mixed,
-  onRemoveClick: (e: SyntheticMouseEvent) => mixed,
-  track: {
-    artist: string,
-    title: string,
-  },
-};
-
 class PlaylistItem extends React.Component {
-  props: PlaylistItemProps;
   static propTypes = {
     isDragging: PropTypes.bool.isRequired,
     isPlaying: PropTypes.bool.isRequired,

@@ -1,13 +1,12 @@
 "use strict";
-// @flow
 
 import $ from './lib/jquery.shim';
 
 function ajaxPost(
-  url: string,
-  data: string | {[key: string]: string},
-  success: Function,
-  error: Function
+  url,
+  data,
+  success,
+  error,
 ) {
   $.ajax({
     type: 'POST',
@@ -18,7 +17,7 @@ function ajaxPost(
   });
 }
 
-function gotAssertion(assertion: string) {
+function gotAssertion(assertion) {
   if (!assertion) {
     return;
   }

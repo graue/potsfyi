@@ -1,27 +1,14 @@
 "use strict";
-// @flow
 
 import {trackEnded} from '../actions/ActionCreators';
-import type {Action} from '../actions/ActionCreators';
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import emptyTrackURI from '../utils/emptyTrackURI';
 import invariant from '../utils/invariant';
 import {getPlayingTrack} from '../selectors/selectors';
-import type {ReduxState} from '../stores/store';
 import supportedAudioFormats from '../utils/supportedAudioFormats';
 
-type PlayerProps = {
-  haveTrack: boolean,
-  filename?: string,
-  paused?: boolean,
-  initialTrackTime?: ?number,
-  onEnded: () => mixed,
-};
-
-type PlayerState = void;
-
-function mapStateToProps(state: ReduxState) {
+function mapStateToProps(state) {
   const trackId = getPlayingTrack(state);
 
   if (trackId == null) {
@@ -44,9 +31,7 @@ function mapStateToProps(state: ReduxState) {
   };
 }
 
-function mapDispatchToProps(
-  dispatch: (action: Action) => Action
-) {
+function mapDispatchToProps(dispatch) {
   return {
     onEnded() {
       dispatch(trackEnded());
@@ -57,14 +42,6 @@ function mapDispatchToProps(
 const MEDIA_READY_STATE_HAVE_METADATA = 1;
 
 class Player extends Component {
-  props: PlayerProps;
-  state: PlayerState;
-  _audioEl: ?HTMLAudioElement;
-
-  constructor(props: PlayerProps) {
-    super(props);
-  }
-
   componentDidMount() {
     // Attach event handlers. Sadly React doesn't support media element events.
     // Which sucks... I feel like I'm writing a Backbone view again. Alas.
@@ -102,7 +79,7 @@ class Player extends Component {
     }
   }
 
-  getAudioElement(): HTMLAudioElement {
+  getAudioElement() {
     invariant(
       this._audioEl,
       'Attempted to get audio element, but it is not mounted'
@@ -123,10 +100,7 @@ class Player extends Component {
     this.getAudioElement().src = emptyTrackURI;
   }
 
-  UNSAFE_componentWillUpdate(
-    nextProps: PlayerProps,
-    nextState: PlayerState
-  ) {
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
     // If the track is changing or there's no new track, stop downloading
     // the current one.
     // FIXME: This is tricky to write without WillUpdate. After the update, the src
@@ -141,10 +115,7 @@ class Player extends Component {
     }
   }
 
-  componentDidUpdate(
-    prevProps: PlayerProps,
-    prevState: PlayerState
-  ) {
+  componentDidUpdate(prevProps, prevState) {
     // Handle pausing, unpausing, and loading new tracks. Ugly imperative mess.
 
     if (this.props.haveTrack) {

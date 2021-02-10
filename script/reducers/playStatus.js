@@ -1,40 +1,27 @@
 "use strict";
-// @flow
 
-import type {
-  Action,
-  ActionHydrateSavedPlaylistSuccess,
-} from '../actions/ActionCreators';
 import * as Adler32 from 'adler-32';
 import invariant from '../utils/invariant';
 
 // Every track in the playlist needs a unique ID associated with it, and
 // we can't use track IDs because you can add a track to the playlist twice.
 // Hence, we use nonces.
-type Nonce = number;
 let _insertionCount = Date.now();
-function createNonce(): Nonce {
+function createNonce() {
   return _insertionCount++;
 }
 
-export type PlayStatusState = {
-  playlist: Array<[string, Nonce]>,  // [track ID, nonce] tuples
-  playingIndex: ?number,
-  initialTrackTime: ?number,  // Used when hydrating a saved playlist.
-  paused: boolean,
-};
-
-const initialState: PlayStatusState = {
-  playlist: [],
+const initialState = {
+  playlist: [],  // [track ID string, nonce] tuples
   playingIndex: null,
-  initialTrackTime: null,
+  initialTrackTime: null,  // Used when hydrating a saved playlist.
   paused: false,
 };
 
 export default function playStatus(
-  state: PlayStatusState = initialState,
-  action: Action
-): PlayStatusState {
+  state = initialState,
+  action
+) {
   if (action.type === 'reorderPlaylist') {
     invariant(
       action.from != null && action.from >= 0
@@ -130,10 +117,7 @@ export default function playStatus(
   return state;
 }
 
-function hydrate(
-  state: PlayStatusState,
-  action: ActionHydrateSavedPlaylistSuccess
-): PlayStatusState {
+function hydrate(state, action) {
   const {
     savedPlaylistItems,
     savedIndex,

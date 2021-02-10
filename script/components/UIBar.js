@@ -1,5 +1,4 @@
 "use strict";
-// @flow
 
 import Nav from './Nav';
 import React, {Component} from 'react';

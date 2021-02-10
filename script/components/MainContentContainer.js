@@ -1,5 +1,4 @@
 "use strict";
-// @flow
 
 import CoverArt from './CoverArt';
 import PlaylistArea from './PlaylistArea';

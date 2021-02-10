@@ -1,31 +1,13 @@
 "use strict";
-// @flow
 
-import type {Action} from '../actions/ActionCreators';
-import type {ServerSearchResult} from '../types/server';
-
-export type Result = {
-  id: string,
-  isAlbum: boolean,
-};
-
-export type SearchState = {
-  query: string,
-  isLoading: boolean,
-  results: {
-    forQuery: string,
-    items: Array<Result>,
-  },
-};
-
-function normalizeResult(raw: ServerSearchResult): Result {
+function normalizeResult(rawResult) {
   return {
-    id: String(raw[1]),
-    isAlbum: raw[0] === 'album',
+    id: String(rawResult[1]),
+    isAlbum: rawResult[0] === 'album',
   };
 }
 
-const initialState: SearchState = {
+const initialState = {
   query: '',
   isLoading: false,
   results: {
@@ -34,10 +16,7 @@ const initialState: SearchState = {
   },
 };
 
-export default function search(
-  state: SearchState = initialState,
-  action: Action
-): SearchState {
+export default function search(state = initialState, action) {
   if (action.type === 'searchSuccess') {
     state = {
       ...state,

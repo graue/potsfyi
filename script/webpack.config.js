@@ -20,7 +20,6 @@ module.exports = {
         options: {
           presets: [
             '@babel/preset-react',
-            '@babel/preset-flow',
             '@babel/preset-env',
           ],
           plugins: [

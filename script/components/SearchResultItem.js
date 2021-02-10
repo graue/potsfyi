@@ -1,5 +1,4 @@
 "use strict";
-// @flow
 
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -8,20 +7,7 @@ import invariant from 'invariant';
 
 import './SearchResultItem.css';
 
-type SearchResultItemProps = {
-  artist: string,
-  hasSpinner?: boolean,
-  title: string,
-  id: string,
-  tracks?: Array<string>,
-  coverArt?: ?string,
-  onBlur?: (e: SyntheticFocusEvent) => mixed,
-  onClick: (e: SyntheticMouseEvent) => mixed,
-};
-
 class SearchResultItem extends React.Component {
-  props: SearchResultItemProps;
-
   static propTypes = {
     artist: PropTypes.string.isRequired,
     hasSpinner: PropTypes.bool,
@@ -33,12 +19,12 @@ class SearchResultItem extends React.Component {
     onClick: PropTypes.func.isRequired,
   };
 
-  _handleClick = (e: SyntheticMouseEvent) => {
+  _handleClick = (e) => {
     e.preventDefault();
     this.props.onClick(e);
   }
 
-  _maybeRenderSpinner(): ?React.Element<any> {
+  _maybeRenderSpinner() {
     if (this.props.hasSpinner) {
       return (
         <div className="SearchResultItem_Spinner">

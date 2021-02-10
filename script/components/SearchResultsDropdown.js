@@ -1,24 +1,13 @@
 "use strict";
-// @flow
 
 import PropTypes from 'prop-types';
 import React from 'react';
-import type {HydratedSearchResult} from './SearchBox';
 import SearchResultItem from './SearchResultItem';
 import Spinner from './Spinner';
 
 import './SearchResultsDropdown.css';
 
-type SearchResultsDropdownProps = {
-  isLoading: boolean,
-  items: Array<HydratedSearchResult>,
-  onBlur: (e: SyntheticFocusEvent) => mixed,
-  onItemClick: (index: number, e: SyntheticMouseEvent) => mixed,
-};
-
 class SearchResultsDropdown extends React.PureComponent {
-  props: SearchResultsDropdownProps;
-
   static propTypes = {
     isLoading: PropTypes.bool.isRequired,
     items: PropTypes.arrayOf(PropTypes.shape({
@@ -27,10 +16,6 @@ class SearchResultsDropdown extends React.PureComponent {
     onBlur: PropTypes.func.isRequired,
     onItemClick: PropTypes.func.isRequired,
   };
-
-  constructor(props: SearchResultsDropdownProps) {
-    super(props);
-  }
 
   render() {
     let {isLoading, items, onBlur} = this.props;

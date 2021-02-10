@@ -1,18 +1,6 @@
 "use strict";
-// @flow
 
-import type {Action} from '../actions/ActionCreators';
-import type {ServerAlbum} from '../types/server';
-
-export type Album = {
-  artist: string,
-  coverArt: ?string,
-  date: ?string,
-  title: string,
-  tracks: Array<string>,
-};
-
-function normalize(rawAlbum: ServerAlbum): Album {
+function normalize(rawAlbum) {
   return {
     artist: rawAlbum.artist,
     coverArt: rawAlbum.cover_art,
@@ -22,16 +10,12 @@ function normalize(rawAlbum: ServerAlbum): Album {
   };
 }
 
-export type AlbumCacheState = {
-  cache: {[key: string]: Album},
-};
-
-const initialState: AlbumCacheState = {cache: {}};
+const initialState = {cache: {}};
 
 export default function albumCache(
-  state: AlbumCacheState = initialState,
-  action: Action
-): AlbumCacheState {
+  state = initialState,
+  action
+) {
   if (
     action.type === 'searchSuccess'
     || action.type === 'hydrateSavedPlaylistSuccess'

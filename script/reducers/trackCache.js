@@ -1,17 +1,6 @@
 "use strict";
-// @flow
 
-import type {Action} from '../actions/ActionCreators';
-import type {ServerTrack} from '../types/server';
-
-export type Track = {
-  albumId: ?string,
-  artist: string,
-  title: string,
-  trackNumber: ?number,
-};
-
-function normalize(rawTrack: ServerTrack): Track {
+function normalize(rawTrack) {
   return {
     albumId: rawTrack.album_id == null ? null : String(rawTrack.album_id),
     artist: rawTrack.artist,
@@ -20,16 +9,9 @@ function normalize(rawTrack: ServerTrack): Track {
   };
 }
 
-export type TrackCacheState = {
-  cache: {[key: string]: Track},
-};
+const initialState = {cache: {}};
 
-const initialState: TrackCacheState = {cache: {}};
-
-export default function trackCache(
-  state: TrackCacheState = initialState,
-  action: Action
-): TrackCacheState {
+export default function trackCache(state = initialState, action) {
   if (
     action.type === 'searchSuccess'
     || action.type === 'hydrateSavedPlaylistSuccess'

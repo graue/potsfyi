@@ -1,5 +1,4 @@
 "use strict";
-// @flow
 
 import {
   playTrack,
@@ -10,33 +9,11 @@ import PlaylistItem from './PlaylistItem';
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
-import type {ReduxState} from '../stores/store';
 import $ from '../lib/jquery.shim';
 
 import './Playlist.css';
 
-type PlaylistProps = {
-  onReorderTrack: (
-    fromIndex: number,
-    toIndex: number
-  ) => mixed,
-  onTrackPlay: (index: number) => mixed,
-  onTrackRemove: (index: number) => mixed,
-  playingIndex: number,
-  tracks: Array<{
-    id: string,
-    key: string,
-    // TODO convert to object spread type after updating
-    // ...Track,
-    albumId: ?string,
-    artist: string,
-    title: string,
-    trackNumber: ?number,
-  }>,
-};
-type PlaylistState = void;
-
-function mapStateToProps(state: ReduxState) {
+function mapStateToProps(state) {
   return {
     playingIndex: state.playStatus.playingIndex,
     tracks: state.playStatus.playlist.map(([trackId, nonce]) => {
@@ -50,30 +27,22 @@ function mapStateToProps(state: ReduxState) {
   };
 }
 
-function mapDispatchToProps(
-  dispatch: Function  // FIXME
-) {
+function mapDispatchToProps(dispatch) {
   return {
-    onReorderTrack(
-      fromIndex: number,
-      toIndex: number
-    ) {
+    onReorderTrack(fromIndex, toIndex) {
       dispatch(reorderPlaylist(fromIndex, toIndex));
     },
-    onTrackPlay(index: number) {
+    onTrackPlay(index) {
       dispatch(playTrack(index));
     },
-    onTrackRemove(index: number) {
+    onTrackRemove(index) {
       dispatch(removeFromPlaylist(index));
     },
   };
 }
 
 class Playlist extends Component {
-  props: PlaylistProps;
-  state: PlaylistState;
-
-  constructor(props: PlaylistProps) {
+  constructor(props) {
     super(props);
     this.state = {draggingIndex: null};
   }
@@ -84,20 +53,6 @@ class Playlist extends Component {
 
   componentWillUnmount() {
     this._teardownSortable();
-  }
-
-  _handleTrackClick = (
-    index: number,
-    e: SyntheticMouseEvent
-  ) => {
-    this.props.onTrackPlay(index);
-  }
-
-  _handleTrackRemoveClick = (
-    index: number,
-    e: SyntheticMouseEvent
-  ) => {
-    this.props.onTrackRemove(index);
   }
 
   _makeSortable() {
@@ -136,8 +91,8 @@ class Playlist extends Component {
           isDragging={this.state.draggingIndex === index}
           isPlaying={isPlaying}
           key={track.key}
-          onClick={this._handleTrackClick.bind(this, index)}
-          onRemoveClick={this._handleTrackRemoveClick.bind(this, index)}
+          onClick={this.props.onTrackPlay.bind(null, index)}
+          onRemoveClick={this.props.onTrackRemove.bind(null, index)}
           track={track}
         />
       );

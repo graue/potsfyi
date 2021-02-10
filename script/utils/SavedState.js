@@ -1,30 +1,13 @@
 "use strict";
-// @flow
 
-export type SavedPlaylistItem = {
-  id: string,
-  checksum: number,  // adler32.str(artist + title)
-};
-
-export type SavedState = {
-  items: Array<SavedPlaylistItem>,
-  index: number,
-  paused: boolean,
-  trackTime: number,
-};
-
-export function update(stateToSave: SavedState) {
+export function update(stateToSave) {
   localStorage.setItem(
     'potsfyi-playlist',
     JSON.stringify(stateToSave)
   );
 }
 
-export function clear() {
-  localStorage.removeItem('potsfyi-playlist');
-}
-
-export function read(): ?SavedState {
+export function read() {
   const savedJson = localStorage.getItem('potsfyi-playlist');
   if (!savedJson) {
     return null;

@@ -1,19 +1,13 @@
 "use strict";
-// @flow
 
 import PropTypes from 'prop-types';
 import React from 'react';
 import {connect} from 'react-redux';
 import {getPlayingTrack} from '../selectors/selectors';
-import type {ReduxState} from '../stores/store';
 
 import './CoverArt.css';
 
-type CoverArtProps = {
-  art: ?string,
-};
-
-function mapStateToProps(state: ReduxState): CoverArtProps {
+function mapStateToProps(state) {
   let art = null;
   const trackId = getPlayingTrack(state);
   if (trackId != null) {
@@ -32,11 +26,6 @@ class CoverArt extends React.Component {
   static propTypes = {
     art: PropTypes.string,
   };
-  props: CoverArtProps;
-
-  constructor(props: CoverArtProps) {
-    super(props);
-  }
 
   render() {
     const styles = {

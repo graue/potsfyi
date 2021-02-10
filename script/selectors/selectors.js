@@ -1,9 +1,6 @@
 "use strict";
-// @flow
 
-import type {ReduxState as State} from '../stores/store';
-
-export function getPlayingTrack(state: State): ?string {
+export function getPlayingTrack(state) {
   const {playlist, playingIndex} = state.playStatus;
   if (playingIndex == null) {
     return null;
@@ -11,19 +8,19 @@ export function getPlayingTrack(state: State): ?string {
   return playlist[playingIndex][0];
 }
 
-export function isPlaylistEmpty(state: State): boolean {
+export function isPlaylistEmpty(state) {
   return state.playStatus.playlist.length === 0;
 }
 
-export function isAnythingPlaying(state: State): boolean {
+export function isAnythingPlaying(state) {
   return state.playStatus.playingIndex != null;
 }
 
-export function canPrev(state: State): boolean {
+export function canPrev(state) {
   return isAnythingPlaying(state) && (state.playStatus.playingIndex || 0) > 0;
 }
 
-export function canNext(state: State): boolean {
+export function canNext(state) {
   const {playingIndex, playlist} = state.playStatus;
   return (
     isAnythingPlaying(state)
@@ -31,7 +28,7 @@ export function canNext(state: State): boolean {
   );
 }
 
-export function canPlay(state: State): boolean {
+export function canPlay(state) {
   return (
     !isPlaylistEmpty(state) && (
       !isAnythingPlaying(state) || state.playStatus.paused
@@ -39,7 +36,7 @@ export function canPlay(state: State): boolean {
   );
 }
 
-export function canPause(state: State): boolean {
+export function canPause(state) {
   return isAnythingPlaying(state) && !state.playStatus.paused;
 }
 

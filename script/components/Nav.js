@@ -1,17 +1,14 @@
 "use strict";
-// @flow
 
 import {
   playTrack,
   pauseTrack,
 } from '../actions/ActionCreators';
-import type {Action} from '../actions/ActionCreators';
 import cx from 'classnames';
 import Icon from './Icon';
 import invariant from 'invariant';
 import React from 'react';
 import {connect} from 'react-redux';
-import type {ReduxState} from '../stores/store';
 import {
   canNext,
   canPause,
@@ -22,16 +19,7 @@ import Srt from './Srt';
 
 import './Nav.css';
 
-type NavStateProps = {
-  index: ?number,
-  paused: boolean,
-  canPrev: boolean,
-  canNext: boolean,
-  canPlay: boolean,
-  canPause: boolean,
-};
-
-function mapStateToProps(state: ReduxState): NavStateProps {
+function mapStateToProps(state) {
   return {
     index: state.playStatus.playingIndex,
     paused: state.playStatus.paused,
@@ -42,42 +30,18 @@ function mapStateToProps(state: ReduxState): NavStateProps {
   };
 }
 
-type NavCallbacks = {
-  onPlay: (track: number) => void,
-  onPause: () => void,
-};
-
-function mapDispatchToProps(
-  dispatch: (action: Action) => Action
-): NavCallbacks {
+function mapDispatchToProps(dispatch) {
   return {
     onPause: () => {
       dispatch(pauseTrack());
     },
-    onPlay: (track: number) => {
+    onPlay: (track) => {
       dispatch(playTrack(track));
     },
   };
 }
 
-type NavProps = {
-  index: ?number,
-  paused: boolean,
-  canPrev: boolean,
-  canNext: boolean,
-  canPlay: boolean,
-  canPause: boolean,
-  onPlay: (track: number) => void,
-  onPause: () => void,
-};
-
 class Nav extends React.Component {
-  props: NavProps;
-
-  constructor(props: NavProps) {
-    super(props);
-  }
-
   _handlePrevClick = () => {
     invariant(this.props.index != null, 'cannot prev when no track active');
     this.props.onPlay(this.props.index - 1);
