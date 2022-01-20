@@ -49,7 +49,7 @@ class Transcoder(object):
         # The filename should come out of the DB and *not* be user-specified
         # (through the web interface), so it can be trusted.
         command = [
-            'avconv', '-v', 'quiet',
+            'ffmpeg', '-v', 'quiet',
             '-i', full_filename,
             '-f', 'ogg', '-acodec', 'libvorbis', '-aq', '5', '-'
         ]
