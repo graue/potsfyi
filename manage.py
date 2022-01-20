@@ -60,7 +60,7 @@ def first_defined_tag(tag_dict, tags, default=''):
                 else:  # ID3Timestamp
                     tag_str = tag_text.text
             if len(tag_str) >= 1:
-                return tag_str
+                return tag_str.strip()
 
     return default
 
