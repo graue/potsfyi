@@ -41,18 +41,26 @@ def track_num_to_int(track_num_str):
 
 def first_defined_tag(tag_dict, tags, default=''):
     """ Get first defined tag out of the list in tags.
-        Example usage: tags=['track', 'tracknumber', 'track_number']
-        To cope with Mutagen's data structures,
-        tag_dict is assumed to be a dictionary of arrays,
-        with only the first element of each array used. """
+        Example usage: tags=['track', 'tracknumber', 'track_number'] """
 
     # Allow just one tag to be passed instead of a list.
     if isinstance(tags, str):
         tags = [tags]
 
     for tag in tags:
-        if tag in tag_dict and len(tag_dict[tag]) >= 1:
-            return tag_dict[tag][0]
+        if tag in tag_dict:
+            tag_obj = tag_dict[tag]
+            tag_str = ''
+            if type(tag_obj) == list:
+                tag_str = tag_obj[0]
+            else:  # Assume ID3 object
+                tag_text = tag_obj.text[0]
+                if type(tag_text) == unicode:
+                    tag_str = tag_text
+                else:  # ID3Timestamp
+                    tag_str = tag_text.text
+            if len(tag_str) >= 1:
+                return tag_str
 
     return default
 
@@ -74,6 +82,8 @@ def get_or_create_album(artist, title, **kwargs):
     """
     instance = Album.query.filter_by(artist=artist, title=title).first()
     if instance:
+        # FIXME: This should update album characteristics. Since it doesn't, cannot fix
+        # a misspelled album title etc. without blowing away DB
         return instance
     else:
         instance = Album(artist, title, **kwargs)
@@ -89,7 +99,7 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
     mtime = os.path.getmtime(full_filename)
     relative_filename = os.path.relpath(full_filename, music_dir)
     try:
-        tag_info = mutagen.File(full_filename, easy=True)
+        tag_info = mutagen.File(full_filename)
         if tag_info is None:
             raise MetadataError(u'Mutagen could not open file')
     # Hack: Mutagen's exceptions don't inherit from a standard base class so
@@ -104,28 +114,39 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
     if tags is None:
         raise MetadataError(u'no tags!')
 
-    artist = first_defined_tag(tags, 'artist')
-    title = first_defined_tag(tags, 'title')
+    artist = first_defined_tag(tags, ['artist', 'TPE1'])
+    title = first_defined_tag(tags, ['title', 'TIT2'])
     if artist == '' or title == '':
         raise MetadataError(u'empty artist or title tag')
 
     track_num = track_num_to_int(
-        first_defined_tag(tags, ['track', 'tracknumber'], '-1')
+        first_defined_tag(tags, ['track', 'tracknumber', 'TRCK'], '-1')
     )
-    album_title = first_defined_tag(tags, 'album')
+    album_title = first_defined_tag(tags, ['album', 'TALB'])
     album_artist = first_defined_tag(
         tags,
-        ['album artist', 'album_artist', 'albumartist', 'artist']
+        ['album artist', 'album_artist', 'albumartist',
+            # FIXME: Is there an ID3 album artist tag that isn't for sorting? (presumably
+            # this removes "The" which isn't actually desired here)
+            'TSO2', 'TXXX:albumartistsort', 'TXXX:ALBUMARTISTSORT',
+            # If no album artist, fall back to track artist
+            'artist', 'TPE1']
     )
-    release_date = first_defined_tag(tags, ['date', 'year'])
+    release_date = first_defined_tag(tags, ['date', 'year', 'TDRC'])
+    track_gain = parse_rg(first_defined_tag(tags,
+        ['replaygain_track_gain', 'TXXX:REPLAYGAIN_TRACK_GAIN', 'TXXX:replaygain_track_gain']))
 
     album = None
     if album_title != '':
+        album_gain = parse_rg(first_defined_tag(tags,
+            ['replaygain_album_gain', 'TXXX:REPLAYGAIN_ALBUM_GAIN',
+                'TXXX:replaygain_album_gain']))
         album = get_or_create_album(
             album_artist,
             album_title,
             date=release_date,
-            cover_art=cover_art
+            cover_art=cover_art,
+            replay_gain=album_gain,
         )
 
     track = Track(
@@ -134,9 +155,20 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
         filename=relative_filename,
         album=album,
         track_num=track_num,
-        mtime=mtime
+        mtime=mtime,
+        replay_gain=track_gain,
     )
     return track, album
+
+
+# "-6.70 dB" => -6.7
+def parse_rg(replay_gain_string):
+    if not replay_gain_string:
+        return None
+    try:
+        return float(replay_gain_string.split()[0])
+    except ValueError, IndexError:
+        return None
 
 
 def get_cover_art(music_dir, path, file_list):
@@ -214,6 +246,10 @@ def update_db(music_dir, quiet=True):
                     sys.stderr.write(u'\r\033[KSkipping {0}: {1}\n'.format(
                         relative_filename, e))
                     continue
+
+                if _track.replay_gain is None:
+                    sys.stderr.write(u'\r\033[KMissing ReplayGain: {0}\n'.format(
+                        relative_filename))
 
                 if track is not None:
                     db.session.delete(track)

@@ -6,6 +6,7 @@ function normalize(rawTrack) {
     artist: rawTrack.artist,
     title: rawTrack.title,
     trackNumber: rawTrack.track,
+    gain: rawTrack.replay_gain,
   };
 }
 

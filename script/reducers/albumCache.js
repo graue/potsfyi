@@ -7,6 +7,7 @@ function normalize(rawAlbum) {
     date: rawAlbum.date,
     title: rawAlbum.title,
     tracks: rawAlbum.track_ids.map((id) => id.toString()),
+    gain: rawAlbum.replay_gain,
   };
 }
 

@@ -8,6 +8,10 @@ import invariant from '../utils/invariant';
 import {getPlayingTrack} from '../selectors/selectors';
 import supportedAudioFormats from '../utils/supportedAudioFormats';
 
+// If no ReplayGain info, default to amplifying by minus 6 decibels to make stuff
+// less likely to blast.
+const DEFAULT_GAIN = -6;
+
 function mapStateToProps(state) {
   const trackId = getPlayingTrack(state);
 
@@ -15,10 +19,15 @@ function mapStateToProps(state) {
     return {haveTrack: false};
   }
 
-  // In future we might depend on the TrackStore, call getTrack with the id,
-  // and look up the resulting filename. However, for now, we can generate
-  // the filename from just the ID and the server redirects us (or transcodes
-  // on the fly).
+  // get gain
+  let gain = DEFAULT_GAIN;
+  const track = state.trackCache.cache[trackId];
+  const album = track.albumId != null ? state.albumCache.cache[track.albumId] : null;
+  if (album && album.gain != null)
+    gain = album.gain;
+  else if (track.gain != null)
+    gain = track.gain;
+
   const filename = '/track/' + trackId + '/' + supportedAudioFormats();
 
   const initialTrackTime = state.playStatus.initialTrackTime;
@@ -26,6 +35,7 @@ function mapStateToProps(state) {
   return {
     haveTrack: true,
     filename,
+    gain,
     paused: state.playStatus.paused,
     initialTrackTime,
   };
@@ -74,6 +84,9 @@ class Player extends Component {
     if (initialTrackTime != null) {
       audioEl.currentTime = initialTrackTime;
     }
+    // FIXME: This plays mono tracks 3 dB too loud. It's not immediately obvious to me how
+    // to check if the audio file is mono or stereo
+    audioEl.volume = dbToRatio(this.props.gain);
     if (!paused) {
       audioEl.play();
     }
@@ -160,3 +173,7 @@ export default connect(
   ),
   {forwardRef: true}
 )(Player);
+
+function dbToRatio(db) {
+  return Math.pow(10, db / 20);
+}
