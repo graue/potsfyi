@@ -1,10 +1,18 @@
 "use strict";
 
 export function update(stateToSave) {
-  localStorage.setItem(
-    'potsfyi-playlist',
-    JSON.stringify(stateToSave)
-  );
+  try {
+    localStorage.setItem(
+      'potsfyi-playlist',
+      JSON.stringify(stateToSave)
+    );
+  } catch(e) {
+    if (e instanceof DOMException && e.code === DOMException.QUOTA_EXCEEDED_ERR) {
+      console.error('quota exceeded, cannot save playlist');
+    } else {
+      throw e;
+    }
+  }
 }
 
 export function read() {
