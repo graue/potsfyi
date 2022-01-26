@@ -48,14 +48,9 @@ function logoutCallback() {
 }
 
 export function attachLoginButtonHandler() {
-  $('#browserid-login').on('click', function(event) {
-    event.preventDefault();
-    // $FlowFixMe added via monkey-patching by Persona script
-    navigator.id.get(gotAssertion);
-  });
+  // TODO rewrite for non-BrowserID login
 }
 
 export function logOut() {
-  // $FlowFixMe added via monkey-patching by Persona script
-  navigator.id.logout(logoutCallback);
+  // TODO rewrite for non-BrowserID login
 }

@@ -20,7 +20,6 @@ from flask.ext.login import (
     login_required,
     login_user,
 )
-from flask.ext.browserid import BrowserID
 from models import Track, Album, db
 from transcode import Transcoder
 
@@ -59,28 +58,10 @@ def get_user_by_id(user_id):
     return User(user_id)
 
 
-def get_user(resp):
-    """ Return a User object based on a BrowserID response. """
-    if resp['status'] != 'okay':
-        return None  # Login failed for some reason
-
-    # If an admin email is set, and the BrowserID login doesn't match,
-    # deny access.
-    if (app.config['ADMIN_EMAIL'] and
-            app.config['ADMIN_EMAIL'] != resp['email']):
-        return None
-
-    return User(resp['email'])  # Either admin, or anyone is allowed.
-
-
 login_manager = LoginManager()
 login_manager.user_loader(get_user_by_id)
 login_manager.login_view = "login_view"
 login_manager.setup_app(app)
-
-browser_id = BrowserID()
-browser_id.user_loader(get_user)
-browser_id.init_app(app)
 
 # Create cache dir if it doesn't exist
 try:

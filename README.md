@@ -38,7 +38,6 @@ tested.
  * [Flask-SQLAlchemy](http://packages.python.org/Flask-SQLAlchemy/)
  * [Flask-Script](http://flask-script.readthedocs.org/)
  * [Flask-Login](https://pypi.python.org/pypi/Flask-Login)
- * [Flask-BrowserID](https://pypi.python.org/pypi/Flask-BrowserID)
  * [Mutagen](https://code.google.com/p/mutagen/) (for reading tags)
  * LibAV's [avconv](https://libav.org/avconv.html) (for transcoding)
 
@@ -103,6 +102,10 @@ To queue, click on a search result.
 To play, click on a song in the play queue (on the right).
 
 ### Running it for real
+
+**You can't run it for real right now. The only implemented form of
+authentication was based on a service that was discontinued. Disregard
+the following historical information.**
 
 To start a "production" server, you'll want to leave off the `DEBUG=True`
 and pass at least 2 more environment variables:
