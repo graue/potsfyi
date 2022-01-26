@@ -13,7 +13,7 @@ class PipeWrapper(object):
         self.copy_to_filename = copy_to_filename
         if copy_to_filename:
             self.partial_filename = copy_to_filename + '.part'
-            self.copy_to_file = open(self.partial_filename, 'w')
+            self.copy_to_file = open(self.partial_filename, 'wb')
         else:
             self.copy_to_file = None
 
@@ -28,7 +28,7 @@ class PipeWrapper(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         data = self.pipe.stdout.read(self.buffer_size)
         if data:
             if self.copy_to_filename:
@@ -41,10 +41,10 @@ class PipeWrapper(object):
             try:
                 os.rename(self.partial_filename, self.copy_to_filename)
             except OSError:
-                print(
-                    u"WARNING: Couldn't rename to {}".format(
+                print((
+                    "WARNING: Couldn't rename to {}".format(
                         self.copy_to_filename
                     )
-                )
+                ))
             self.copy_to_file = None
         raise StopIteration()

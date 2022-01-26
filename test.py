@@ -3,7 +3,7 @@ import os
 from time import sleep
 from mutagen.mp3 import EasyMP3 as MP3
 from flask import Flask
-from flask.ext.testing import TestCase
+from flask_testing import TestCase
 import unittest
 import time
 from models import db, Track, Album
@@ -24,12 +24,12 @@ def create_mock_tracks(tracks, src_track="test/sinewave.mp3"):
     """ Create mock tracks with the given tags.
     Tracks are created by making copies of src_track, then tagging them.
     """
-    for track in tracks.iterkeys():
+    for track in tracks.keys():
         filename = TRACK_DIR + track
         shutil.copyfile(src_track, filename)
         song_tag = MP3(filename)
-        for k, v in tracks[track].iteritems():
-            song_tag[k] = unicode(v)
+        for k, v in tracks[track].items():
+            song_tag[k] = str(v)
         song_tag.save()
 
 
@@ -176,7 +176,7 @@ class TestUpdate(TaggingTest):
         """ Updates reflect deleted tracks. """
         mock_tracks = self.mock_tracks
         # pop returns a tuple of (filename, file_info_dict)
-        removed_filename = mock_tracks.keys()[0]
+        removed_filename = list(mock_tracks.keys())[0]
         os.remove(os.path.join(TRACK_DIR, removed_filename))
         update_db(TRACK_DIR)
         assert len(Track.query.filter_by(filename=removed_filename).all()) == 0

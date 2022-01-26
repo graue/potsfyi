@@ -36,7 +36,6 @@ tested.
 
  * [Flask](http://flask.pocoo.org)
  * [Flask-SQLAlchemy](http://packages.python.org/Flask-SQLAlchemy/)
- * [Flask-Script](http://flask-script.readthedocs.org/)
  * [Flask-Login](https://pypi.python.org/pypi/Flask-Login)
  * [Mutagen](https://code.google.com/p/mutagen/) (for reading tags)
  * LibAV's [avconv](https://libav.org/avconv.html) (for transcoding)
@@ -49,16 +48,17 @@ This requires [npm](http://npmjs.org/).
 
 ### Quick start
 
-Install LibAV's avconv and Python's pip and virtualenv. On Ubuntu/Debian:
+Install FFMPEG and Python's pip and virtualenv. On Ubuntu/Debian:
 
-    sudo apt-get install libav-tools python-pip python-virtualenv
+    sudo apt-get install ffmpeg python3-pip python3-venv
 
 You will also need Node.js and npm for later. There *is* an Ubuntu package
 for Node.js, but it may not be a new enough version, so you may have to
 compile your own.
 
 On OS X you can install most of this stuff with brew, but when we
-tried it, there was no brew package for avconv. We had to compile that
+tried it, there was no brew package for the project then known as avconv
+(now folded into FFMPEG). We had to compile that
 from source and it was a little annoying. Sorry OS X users. You *can*
 do it though! [There's some instructions on installing avconv on OS X
 here](http://superuser.com/a/568465). I welcome ideas on how to make
@@ -68,11 +68,11 @@ Anyway, once you've got pip and virtualenv, run:
 
     git clone https://github.com/graue/potsfyi
     cd potsfyi
-    virtualenv venv
+    python3 -m venv venv
     . venv/bin/activate
     pip install -r requirements.pip
     ln -s /some/dir/that/has/music/in/it static/music
-    ./manage.py update
+    flask update
 
 (Replace `/some/dir/that/has/music/in/it` with an appropriate path.
 Pots, fyi will make all supported music files
@@ -93,9 +93,7 @@ it builds once.)
 
 Finally, to start a debug server on http://localhost:5000:
 
-    DEBUG=True ./potsfyi.py
-
-At the login screen you can enter any valid email that you control.
+    NO_LOGIN=True flask run
 
 To search, type in the box.
 To queue, click on a search result.

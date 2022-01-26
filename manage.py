@@ -1,19 +1,13 @@
-#!/usr/bin/env python
-
-from __future__ import print_function
 import os
 import re
 import sys
 from datetime import datetime
 import mutagen
-from flask.ext.script import Manager
+import click
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql import select
 from models import Track, Album, db
-from potsfyi import app
 
-
-manager = Manager(app)
 
 HANDLED_FILETYPES = ('.ogg', '.mp3', '.flac', '.m4a')
 
@@ -55,7 +49,7 @@ def first_defined_tag(tag_dict, tags, default=''):
                 tag_str = tag_obj[0]
             else:  # Assume ID3 object
                 tag_text = tag_obj.text[0]
-                if type(tag_text) == unicode:
+                if type(tag_text) == str:
                     tag_str = tag_text
                 else:  # ID3Timestamp
                     tag_str = tag_text.text
@@ -101,23 +95,23 @@ def aggregate_metadata(full_filename, music_dir, cover_art):
     try:
         tag_info = mutagen.File(full_filename)
         if tag_info is None:
-            raise MetadataError(u'Mutagen could not open file')
+            raise MetadataError('Mutagen could not open file')
     # Hack: Mutagen's exceptions don't inherit from a standard base class so
     # we kinda have to catch everything. But let's at least special-case
     # Ctrl-C and any code attempting to exit the program.
     except (KeyboardInterrupt, SystemExit):
         raise
     except:
-        raise MetadataError(u'error: {0}'.format(str(sys.exc_info()[0])))
+        raise MetadataError('error: {0}'.format(str(sys.exc_info()[0])))
 
     tags = tag_info.tags
     if tags is None:
-        raise MetadataError(u'no tags!')
+        raise MetadataError('no tags!')
 
     artist = first_defined_tag(tags, ['artist', 'TPE1'])
     title = first_defined_tag(tags, ['title', 'TIT2'])
     if artist == '' or title == '':
-        raise MetadataError(u'empty artist or title tag')
+        raise MetadataError('empty artist or title tag')
 
     track_num = track_num_to_int(
         first_defined_tag(tags, ['track', 'tracknumber', 'TRCK'], '-1')
@@ -167,7 +161,7 @@ def parse_rg(replay_gain_string):
         return None
     try:
         return float(replay_gain_string.split()[0])
-    except ValueError, IndexError:
+    except (ValueError, IndexError):
         return None
 
 
@@ -179,17 +173,6 @@ def get_cover_art(music_dir, path, file_list):
                      'cover.jpg', 'cover.png', 'cover.gif']:
         if testfile in file_list:
             return os.path.relpath(os.path.join(path, testfile), music_dir)
-
-
-@manager.command
-def update(quiet=False):
-    """ Updates the music database to reflect the contents of your music
-    directory (by default "static/music", overridden by the MUSIC_DIR
-    environment variable).
-
-    If you don't have a music database yet, this command creates it.
-    """
-    update_db(unicode(app.config['MUSIC_DIR']), quiet)
 
 
 def update_db(music_dir, quiet=True):
@@ -243,12 +226,12 @@ def update_db(music_dir, quiet=True):
                     # DB at the end.
                     filenames_found.remove(relative_filename)
 
-                    sys.stderr.write(u'\r\033[KSkipping {0}: {1}\n'.format(
+                    sys.stderr.write('\r\033[KSkipping {0}: {1}\n'.format(
                         relative_filename, e))
                     continue
 
-                if _track.replay_gain is None:
-                    sys.stderr.write(u'\r\033[KMissing ReplayGain: {0}\n'.format(
+                if not quiet and _track.replay_gain is None:
+                    sys.stderr.write('\r\033[KMissing ReplayGain: {0}\n'.format(
                         relative_filename))
 
                 if track is not None:
@@ -262,7 +245,7 @@ def update_db(music_dir, quiet=True):
         # When we finish a directory, provide a status indicator.
         if not quiet:
             last_path_component = path[path.rfind('/') + 1:]
-            sys.stderr.write(u'\r\033[K{0} tracks; in {1}'.format(
+            sys.stderr.write('\r\033[K{0} tracks; in {1}'.format(
                 track_count, last_path_component[:60]))
 
     # Purge the database entries that aren't in the music directory.
@@ -290,14 +273,10 @@ def update_db(music_dir, quiet=True):
     end_time = datetime.today()
     if not quiet:
         sys.stderr.write(
-            u'\r\033[KDone, {0} {1} processed in {2} sec.\n'
+            '\r\033[KDone, {0} {1} processed in {2} sec.\n'
             .format(
                 track_count,
                 'track' + ('' if track_count == 1 else 's'),
                 (end_time - start_time).total_seconds()
             )
         )
-
-
-if __name__ == "__main__":
-    manager.run()

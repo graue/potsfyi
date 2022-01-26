@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
 import errno
 import os
 import re
 import sys
+import click
 from flask import (
     Flask,
     abort,
@@ -13,13 +12,14 @@ from flask import (
     request,
     url_for,
 )
-from flask.ext.login import (
+from flask_login import (
     LoginManager,
     UserMixin,
     current_user,
     login_required,
     login_user,
 )
+from manage import update_db
 from models import Track, Album, db
 from transcode import Transcoder
 
@@ -29,7 +29,6 @@ db.init_app(app)
 app.config.update(
     DEBUG=(True if os.environ.get('DEBUG') in ['1', 'True'] else False),
     NO_LOGIN=(True if os.environ.get('NO_LOGIN') in ['1', 'True'] else False),
-    PORT=int(os.environ.get('PORT', 5000)),
     SQLALCHEMY_DATABASE_URI=(os.environ.get('DB_URI', 'sqlite:///tracks.db')),
     CACHE_DIR=(os.environ.get('CACHE_DIR', 'static/cache')),
     MUSIC_DIR=(os.environ.get('MUSIC_DIR', 'static/music')),
@@ -51,7 +50,7 @@ class User(UserMixin):
         self.admin = (self.user_id == app.config['ADMIN_EMAIL'])
 
     def get_id(self):
-        return unicode(self.user_id)
+        return str(self.user_id)
 
 
 def get_user_by_id(user_id):
@@ -66,11 +65,9 @@ login_manager.setup_app(app)
 # Create cache dir if it doesn't exist
 try:
     os.mkdir(app.config['CACHE_DIR'])
-except OSError as e:
-    # Re-raise the error unless the error is that the cache dir already
-    # exists (that's okay).
-    if e[0] != errno.EEXIST:
-        raise
+except FileExistsError as e:
+    # If the cache dir already exists, that's ok.
+    pass
 
 transcoder = Transcoder(
     music_dir = app.config['MUSIC_DIR'],
@@ -115,7 +112,7 @@ def search_results():
     search_term = request.args.get('q', '')
 
     # split search term into up to 10 tokens (anything further is ignored)
-    tokens = filter(None, re.split('\s+', search_term))[:10]
+    tokens = [_f for _f in re.split('\s+', search_term) if _f][:10]
 
     filters = [Track.title.contains(token) | Track.artist.contains(token)
                for token in tokens]
@@ -254,7 +251,7 @@ def login_view():
         # reuse the session.
         login_user(User('fake@example.com'))
 
-    if current_user.is_authenticated():
+    if current_user.is_authenticated:
         return redirect(url_for('front_page'))
     return render_template('login.html')
 
@@ -265,6 +262,13 @@ def check_secret_key():
         sys.exit(1)
 
 
-if __name__ == '__main__':
-    check_secret_key()
-    app.run(port=app.config['PORT'])
+@app.cli.command("update")
+@click.option('--quiet/--no-quiet', default=False)
+def update(quiet):
+    """ Updates the music database to reflect the contents of your music
+    directory (by default "static/music", overridden by the MUSIC_DIR
+    environment variable).
+
+    If you don't have a music database yet, this command creates it.
+    """
+    update_db(str(app.config['MUSIC_DIR']), quiet)

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Column, Float, Integer, String, ForeignKey
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()  # Imported and initialized in potsfyi.py.
 
@@ -31,7 +31,7 @@ class Track(db.Model):
         self.replay_gain = replay_gain
 
     def __repr__(self):
-        return u'<Track {0.artist} - {0.title}>'.format(self)
+        return '<Track {0.artist} - {0.title}>'.format(self)
 
     @property
     def serialize(self):
@@ -70,7 +70,7 @@ class Album(db.Model):
 
     def __repr__(self):
         return (
-            u'<Album {0.artist} - ' + u'{0.title} ({0.date})>'
+            '<Album {0.artist} - ' + '{0.title} ({0.date})>'
         ).format(self)
 
     @property
