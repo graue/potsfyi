@@ -93,7 +93,7 @@ it builds once.)
 
 Finally, to start a debug server on http://localhost:5000:
 
-    NO_LOGIN=True flask run
+    FLASK_APP=potsfyi NO_LOGIN=True flask run
 
 To search, type in the box.
 To queue, click on a search result.
