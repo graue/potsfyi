@@ -85,8 +85,11 @@ class Player extends Component {
       audioEl.currentTime = initialTrackTime;
     }
     // FIXME: This plays mono tracks 3 dB too loud. It's not immediately obvious to me how
-    // to check if the audio file is mono or stereo
-    audioEl.volume = dbToRatio(this.props.gain);
+    // to check if the audio file is mono or stereo.
+    // FIXME: We cannot make tracks louder this way, only quieter. So a positive ReplayGain
+    // (common with classical recordings) is ignored. Anyway it might clip. Need limiter or
+    // else warn user to turn up their volume.
+    audioEl.volume = Math.min(1, dbToRatio(this.props.gain));
     if (!paused) {
       audioEl.play();
     }
