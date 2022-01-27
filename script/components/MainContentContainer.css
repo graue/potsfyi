@@ -2,5 +2,6 @@
   display: flex;
   flex-flow: row nowrap;
   align-items: stretch;
-  height: 100%;
+  flex-grow: 1; /* make cover art big */
+  min-height: 50px; /* let it shrink below its inherent size to avoid making page scroll */
 }
